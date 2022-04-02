@@ -1,4 +1,4 @@
-package com.depromeet.fairer.member;
+package com.depromeet.fairer.domain.member.constant;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;

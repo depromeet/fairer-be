@@ -1,5 +1,6 @@
-package com.depromeet.fairer.member;
+package com.depromeet.fairer.domain.member;
 
+import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 

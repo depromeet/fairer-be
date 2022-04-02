@@ -24,8 +24,17 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //swagger
+    implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    //h2
+    runtimeOnly 'com.h2database:h2'
+    testImplementation group: 'com.h2database', name: 'h2'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
