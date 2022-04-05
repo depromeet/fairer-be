@@ -41,6 +41,12 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // logger
+    implementation 'org.slf4j:jcl-over-slf4j'
+    implementation 'ch.qos.logback:logback-classic'
+
+
 }
 
 tasks.named('test') {
