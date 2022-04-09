@@ -1,4 +1,4 @@
-package com.depromeet.fairer.config;
+package com.depromeet.fairer.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;

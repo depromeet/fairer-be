@@ -1,4 +1,4 @@
-package com.depromeet.fairer.config;
+package com.depromeet.fairer.global.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
