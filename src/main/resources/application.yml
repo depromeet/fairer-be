@@ -1,4 +1,13 @@
 spring:
+  profiles:
+    active: "local"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "local"
   h2:
     console:
       enabled: true
@@ -24,3 +33,22 @@ spring:
     pathmatch:
       # swagger
       matching-strategy: ant_path_matcher
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "dev"
+
+  mvc:
+    pathmatch:
+      # swagger
+      matching-strategy: ant_path_matcher
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "real"
