@@ -1,4 +1,4 @@
-package com.depromeet.fairer.config;
+package com.depromeet.fairer.global.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
