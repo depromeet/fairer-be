@@ -42,9 +42,9 @@ jobs:
       - name: Get current time
         uses: 1466587594/get-current-time@v2  # 빌드 완료 시간 가져오기
         id: current-time
-          with:
-            format: YYYY-MM-DDTHH-mm-ss
-            utcOffset: "+09:00"
+        with:
+          format: YYYY-MM-DDTHH-mm-ss
+          utcOffset: "+09:00"
 
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}" # 빌드 완료 시간 출력하기
