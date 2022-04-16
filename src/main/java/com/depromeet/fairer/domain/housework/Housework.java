@@ -35,6 +35,6 @@ public class Housework {
 
     private boolean success;
 
-    @OneToMany(mappedBy = "work")
+    @OneToMany(mappedBy = "housework")
     private List<Assignment> assignments;
 }
