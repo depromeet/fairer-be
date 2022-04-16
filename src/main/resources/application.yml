@@ -5,10 +5,10 @@ spring:
       path: /h2-console
 
   datasource:
-    url: jdbc:h2:~/test;
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: 'fairer'
+    password: '>BRLtas~%j2>(\6#eC2M'
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect

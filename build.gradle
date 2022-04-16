@@ -25,6 +25,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    //mysql connector
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
+
     //modelMapper
     implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.1.0'
 
