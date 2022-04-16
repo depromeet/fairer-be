@@ -4,7 +4,9 @@ import com.depromeet.fairer.domain.assignment.Assignment;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -14,7 +16,6 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor @AllArgsConstructor
 public class Housework {
-
     @Id
     @Column(name = "housework_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,7 +27,9 @@ public class Housework {
 
     private String houseworkName;
 
-    private LocalDateTime scheduledDateTime;
+    private LocalDate scheduledDate;
+
+    private LocalTime scheduledTime;
 
     private LocalDateTime successDateTime;
 
