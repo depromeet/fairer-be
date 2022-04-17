@@ -60,46 +60,9 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}     # github secrets로 등록한 값 사용
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # github secrets로 등록한 값 사용
-          application_name: nanagong-api         # EB application 이름
-          environment_name: Nanagongapi-env    # EB environment 이름
+          application_name: fairer         # EB application 이름
+          environment_name: Fairer-env    # EB environment 이름
           version_label: github-action-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
           deployment_package: deploy/deploy.zip
           wait_for_environment_recovery: 360
-
-          #     - name: Install Utilities
-          #       run: |
-          #         sudo apt-get update
-          #         sudo apt-get install -y jq unzip
-
-          #     - name: Install AWS Client
-          #       run: |
-          #         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          #         unzip awscliv2.zip
-          #          sudo ./aws/install || true
-          #          aws --version
-          #         curl "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o "lightsailctl"
-          #         sudo mv "lightsailctl" "/usr/local/bin/lightsailctl"
-          #         sudo chmod +x /usr/local/bin/lightsailctl
-
-          #     - name: Configure AWS credentials
-          #       uses: aws-actions/configure-aws-credentials@v1
-          #       with:
-          #         aws-region: ${{ env.AWS_REGION }}
-          #           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          #           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-          #       - name: Build Docker Image
-          #         run: docker build -t ${{ env.AWS_LIGHTSAIL_SERVICE_NAME }}:release .
-
-#       - name: Push and Deploy
-#         run: |
-#           service_name=${{ env.AWS_LIGHTSAIL_SERVICE_NAME }}
-#           aws lightsail push-container-image \
-#             --region ${{ env.AWS_REGION }} \
-#             --service-name ${service_name} \
-#             --label ${service_name} \
-#             --image ${service_name}:release
-#           aws lightsail get-container-images --service-name ${service_name} | jq --raw-output ".containerImages[0].image" > image.txt
-#           jq --arg image $(cat image.txt) '.containers.app.image = $image' container.template.json > container.json
-#           aws lightsail create-container-service-deployment --service-name ${service_name} --cli-input-json file://$(pwd)/container.json
