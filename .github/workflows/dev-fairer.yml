@@ -8,18 +8,13 @@
 name: dev-fairer
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ develop ]
-  pull_request:
-    branches : [ develop ]
+    branches: [ develop, main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
 
     steps:
       - name: Checkout
