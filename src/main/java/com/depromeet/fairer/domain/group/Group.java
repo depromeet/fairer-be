@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "group")
+@Table(name = "fairer_group")
 @Getter
 @ToString
 @Builder
@@ -16,8 +16,8 @@ import java.util.List;
 public class Group {
 
     @Id
-    @Column(name = "group_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "group_id", columnDefinition = "BIGINT", nullable = false, unique = true)
     private Long groupId;
 
     @OneToMany(mappedBy = "group")
