@@ -44,25 +44,24 @@ jobs:
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}" # 빌드 완료 시간 출력하기
         shell: bash
-      
-      # gradle build를 통해 만들어진 jar 파일 beanstalk에 배포하기 위한 zip 파일로 만듬
+
+      # gradle build를 통해 만들어진 jar 파일 codedeploy에 배포하기 위한 zip 파일로 만듬
       - name: Generate deployment package
         run: |
           mkdir -p deploy
-          cp build/libs/*.jar deploy/application.jar
-          cp Procfile deploy/Procfile
-          cp -r .ebextensions-dev deploy/.ebextensions
-          cd deploy && zip -r deploy.zip .
+          cp build/libs/*.jar deploy/fairer-dev.jar
+          cp deploy.sh deploy/deploy.sh
+          cd deploy
 
-      # Beanstalk Deploy 플러그인 사용
-      - name: Deploy to EB
-        uses: einaregilsson/beanstalk-deploy@v19
+      - name: aws 세팅
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}     # github secrets로 등록한 값 사용
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # github secrets로 등록한 값 사용
-          application_name: fairer         # EB application 이름
-          environment_name: Fairer-env    # EB environment 이름
-          version_label: github-action-${{steps.current-time.outputs.formattedTime}}
-          region: ap-northeast-2
-          deployment_package: deploy/deploy.zip
-          wait_for_environment_recovery: 360
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+          aws-region: ap-northeast-2
+
+      - name: S3 업로드
+        run: aws deploy push --application-name 2-Team-CodeDeploy --s3-location s3://depromeet11th/2team/fairer_dev/build.zip --source .
+
+      - name: code deploy
+        run: aws deploy create-deployment --application-name 2-Team-CodeDeploy --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name 2-Team-CodeDeploy-Group --s3-location bucket=depromeet11th,bundleType=zip,key=2team/fairer_dev/build.zip
