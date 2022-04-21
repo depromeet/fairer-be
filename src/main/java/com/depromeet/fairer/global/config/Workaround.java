@@ -21,7 +21,11 @@ public class Workaround implements WebMvcOpenApiTransformationFilter {
         localServer.setDescription("local");
         localServer.setUrl("http://localhost:8080");
 
-        openApi.setServers(List.of(localServer));
+        final Server devServer = new Server();
+        devServer.setDescription("dev");
+        devServer.setUrl("http://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com");
+
+        openApi.setServers(List.of(localServer, devServer));
         return openApi;
     }
 

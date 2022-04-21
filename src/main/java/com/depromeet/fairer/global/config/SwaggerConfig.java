@@ -2,6 +2,7 @@ package com.depromeet.fairer.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -21,10 +22,11 @@ public class SwaggerConfig {
     @Bean
     public Docket swaggerApi() {
         final Server localServer = new Server("local", "http://localhost:8080", "for local usages", Collections.emptyList(), Collections.emptyList());
+        final Server devServer = new Server("dev", "http://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com", "for dev usages", Collections.emptyList(), Collections.emptyList());
         return new Docket(DocumentationType.OAS_30)
                 .ignoredParameterTypes(Errors.class)
                 .ignoredParameterTypes(BindingResult.class)
-                .servers(localServer)
+                .servers(localServer, devServer)
                 .groupName("fairer")
                 .apiInfo(this.apiInfo())
                 .select()
