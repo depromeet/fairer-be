@@ -7,7 +7,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "fairer_assignment")
+@Table(name = "assignment")
 @Getter
 @Builder
 @EqualsAndHashCode

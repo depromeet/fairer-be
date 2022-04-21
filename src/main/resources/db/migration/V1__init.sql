@@ -1,13 +1,13 @@
-CREATE TABLE fairer_group
+CREATE TABLE team
 (
-    group_id BIGINT NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY (group_id)
+    team_id BIGINT NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY (team_id)
 );
 
-CREATE TABLE fairer_member
+CREATE TABLE member
 (
     member_id BIGINT NOT NULL AUTO_INCREMENT,
-    group_id BIGINT NULL,
+    team_id BIGINT NULL,
     email VARCHAR(50) NOT NULL,
     profile_path VARCHAR(50) NULL,
     social_type VARCHAR(50) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE fairer_member
     PRIMARY KEY (member_id)
 );
 
-CREATE TABLE fairer_assignment
+CREATE TABLE assignment
 (
     assignment_id BIGINT NOT NULL AUTO_INCREMENT,
     member_id BIGINT NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE fairer_assignment
     PRIMARY KEY (assignment_id)
 );
 
-CREATE TABLE fairer_housework
+CREATE TABLE housework
 (
     housework_id BIGINT NOT NULL AUTO_INCREMENT,
     space_name VARCHAR(30) NOT NULL,

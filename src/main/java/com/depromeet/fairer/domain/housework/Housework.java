@@ -10,7 +10,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Entity
-@Table(name = "fairer_housework")
+@Table(name = "housework")
 @Getter
 @Builder
 @EqualsAndHashCode

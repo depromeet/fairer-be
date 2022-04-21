@@ -1,7 +1,7 @@
 package com.depromeet.fairer.domain.member;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
-import com.depromeet.fairer.domain.group.Group;
+import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name="fairer_member")
+@Table(name="member")
 @Getter
 @ToString
 @Builder
@@ -44,6 +44,6 @@ public class Member {
     private List<Assignment> assignments;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private Group group;
+    @JoinColumn(name = "team_id")
+    private Team team;
 }

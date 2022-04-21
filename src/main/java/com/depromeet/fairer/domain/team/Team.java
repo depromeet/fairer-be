@@ -1,4 +1,4 @@
-package com.depromeet.fairer.domain.group;
+package com.depromeet.fairer.domain.team;
 
 import com.depromeet.fairer.domain.member.Member;
 import lombok.*;
@@ -7,19 +7,19 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "fairer_group")
+@Table(name = "team")
 @Getter
 @ToString
 @Builder
 @EqualsAndHashCode
 @AllArgsConstructor @NoArgsConstructor
-public class Group {
+public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "group_id", columnDefinition = "BIGINT", nullable = false, unique = true)
-    private Long groupId;
+    @Column(name = "team_id", columnDefinition = "BIGINT", nullable = false, unique = true)
+    private Long teamId;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "team")
     private List<Member> members;
 }
