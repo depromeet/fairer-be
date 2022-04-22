@@ -49,8 +49,33 @@ jobs:
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}" # 빌드 완료 시간 출력하기
         shell: bash
+<<<<<<< HEAD
 
 
+=======
+      
+      # gradle build를 통해 만들어진 jar 파일 beanstalk에 배포하기 위한 zip 파일로 만듬
+      - name: Generate deployment package
+        run: |
+          mkdir -p deploy
+          cp build/libs/*.jar deploy/application.jar
+          cp Procfile deploy/Procfile
+          cp -r .ebextensions deploy/.ebextensions
+          cd deploy && zip -r deploy.zip .
+
+      # Beanstalk Deploy 플러그인 사용
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v19
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}     # github secrets로 등록한 값 사용
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # github secrets로 등록한 값 사용
+          application_name: nanagong-api         # EB application 이름
+          environment_name: Nanagongapi-env    # EB environment 이름
+          version_label: github-action-${{steps.current-time.outputs.formattedTime}}
+          region: ap-northeast-2
+          deployment_package: deploy/deploy.zip
+          wait_for_environment_recovery: 360
+>>>>>>> origin/feat/domain
 
           #     - name: Install Utilities
           #       run: |
