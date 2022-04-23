@@ -1,8 +1,8 @@
 package com.depromeet.fairer.global.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -19,14 +19,21 @@ import java.util.Collections;
 @Configuration
 @EnableOpenApi
 public class SwaggerConfig {
+    @Value("${swagger.url}")
+    private String url;
+
+    @Value("${swagger.desc}")
+    private String desc;
+
+    @Value("${spring.profiles.active}")
+    private String profile;
+
     @Bean
     public Docket swaggerApi() {
-        final Server localServer = new Server("local", "http://localhost:8080", "for local usages", Collections.emptyList(), Collections.emptyList());
-        final Server devServer = new Server("dev", "http://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com", "for dev usages", Collections.emptyList(), Collections.emptyList());
         return new Docket(DocumentationType.OAS_30)
                 .ignoredParameterTypes(Errors.class)
                 .ignoredParameterTypes(BindingResult.class)
-                .servers(localServer, devServer)
+                .servers(getServer(profile, url, desc))
                 .groupName("fairer")
                 .apiInfo(this.apiInfo())
                 .select()
@@ -43,4 +50,7 @@ public class SwaggerConfig {
                 .build();
     }
 
+    private Server getServer(String profile, String url, String desc) {
+        return new Server(profile, url, desc, Collections.emptyList(), Collections.emptyList());
+    }
 }
