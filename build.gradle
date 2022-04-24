@@ -39,6 +39,7 @@ dependencies {
     //swagger
     implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
 
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
