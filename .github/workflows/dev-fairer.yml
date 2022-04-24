@@ -8,18 +8,13 @@
 name: dev-fairer
 
 on:
+  workflow_dispatch:
   push:
     branches: [ develop ]
-  pull_request:
-    branches : [ develop ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
 
     steps:
       - name: Checkout
@@ -43,73 +38,30 @@ jobs:
         uses: 1466587594/get-current-time@v2  # 빌드 완료 시간 가져오기
         id: current-time
         with:
-          format: YYYY-MM-DDTHH-mm-ss
+          format: YYYY-MM-DD-HH-mm-ss
           utcOffset: "+09:00"
 
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}" # 빌드 완료 시간 출력하기
         shell: bash
-<<<<<<< HEAD
 
-
-=======
-      
-      # gradle build를 통해 만들어진 jar 파일 beanstalk에 배포하기 위한 zip 파일로 만듬
+      # gradle build를 통해 만들어진 jar 파일 codedeploy에 배포하기 위한 zip 파일로 만듬
       - name: Generate deployment package
         run: |
           mkdir -p deploy
-          cp build/libs/*.jar deploy/application.jar
-          cp Procfile deploy/Procfile
-          cp -r .ebextensions deploy/.ebextensions
-          cd deploy && zip -r deploy.zip .
+          cp build/libs/*.jar deploy/fairer-dev.jar
+          cp deploy.sh deploy/deploy.sh
+          cd deploy
 
-      # Beanstalk Deploy 플러그인 사용
-      - name: Deploy to EB
-        uses: einaregilsson/beanstalk-deploy@v19
+      - name: aws 세팅
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}     # github secrets로 등록한 값 사용
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # github secrets로 등록한 값 사용
-          application_name: nanagong-api         # EB application 이름
-          environment_name: Nanagongapi-env    # EB environment 이름
-          version_label: github-action-${{steps.current-time.outputs.formattedTime}}
-          region: ap-northeast-2
-          deployment_package: deploy/deploy.zip
-          wait_for_environment_recovery: 360
->>>>>>> origin/feat/domain
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+          aws-region: ap-northeast-2
 
-          #     - name: Install Utilities
-          #       run: |
-          #         sudo apt-get update
-          #         sudo apt-get install -y jq unzip
+      - name: S3 업로드
+        run: aws deploy push --application-name 2-Team-CodeDeploy --s3-location s3://depromeet11th/2team/fairer_dev/build.zip --source .
 
-          #     - name: Install AWS Client
-          #       run: |
-          #         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          #         unzip awscliv2.zip
-          #          sudo ./aws/install || true
-          #          aws --version
-          #         curl "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o "lightsailctl"
-          #         sudo mv "lightsailctl" "/usr/local/bin/lightsailctl"
-          #         sudo chmod +x /usr/local/bin/lightsailctl
-
-          #     - name: Configure AWS credentials
-          #       uses: aws-actions/configure-aws-credentials@v1
-          #       with:
-          #         aws-region: ${{ env.AWS_REGION }}
-          #           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          #           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-          #       - name: Build Docker Image
-          #         run: docker build -t ${{ env.AWS_LIGHTSAIL_SERVICE_NAME }}:release .
-
-#       - name: Push and Deploy
-#         run: |
-#           service_name=${{ env.AWS_LIGHTSAIL_SERVICE_NAME }}
-#           aws lightsail push-container-image \
-#             --region ${{ env.AWS_REGION }} \
-#             --service-name ${service_name} \
-#             --label ${service_name} \
-#             --image ${service_name}:release
-#           aws lightsail get-container-images --service-name ${service_name} | jq --raw-output ".containerImages[0].image" > image.txt
-#           jq --arg image $(cat image.txt) '.containers.app.image = $image' container.template.json > container.json
-#           aws lightsail create-container-service-deployment --service-name ${service_name} --cli-input-json file://$(pwd)/container.json
+      - name: code deploy
+        run: aws deploy create-deployment --application-name 2-Team-CodeDeploy --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name 2-Team-CodeDeploy-Group --s3-location bucket=depromeet11th,bundleType=zip,key=2team/fairer_dev/build.zip
