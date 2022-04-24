@@ -16,7 +16,6 @@ public class HouseWorkRepository {
     @Transactional
     public List<Housework> createBatch(List<Housework> houseWorks) {
         houseWorks.stream().forEach(houseWork -> em.persist(houseWork));
-
         return houseWorks;
     }
 }
