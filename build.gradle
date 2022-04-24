@@ -49,13 +49,17 @@ dependencies {
     implementation 'org.slf4j:jcl-over-slf4j'
     implementation 'ch.qos.logback:logback-classic'
 
+
     // querydsl
     implementation 'com.querydsl:querydsl-jpa'
-
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+jar {
+    enabled = false
 }
 
 // querydsl
@@ -77,6 +81,3 @@ compileQuerydsl {
     options.annotationProcessorPath = configurations.querydsl
 }
 // querydsl 끝
-
-
-
