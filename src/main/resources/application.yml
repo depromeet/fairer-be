@@ -1,26 +1,90 @@
 spring:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+  profiles:
+    active: "local"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: ["local"]
+
+swagger:
+  url: http://localhost:8080
+  desc: for local usages
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: ["dev"]
+
+swagger:
+  url: http://ec2-13-125-232-180.ap-northeast-2.compute.amazonaws.com:8080
+  desc: for dev usages
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: ["local", "dev"]
 
   datasource:
-    url: jdbc:h2:~/test;
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
-
+    url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer_dev
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: 'fairer'
+    password: '>BRLtas~%j2>(\6#eC2M'
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:
       hibernate:
         format_sql: true
         show_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
 
   mvc:
     pathmatch:
       # swagger
       matching-strategy: ant_path_matcher
+
+# swagger
+springfox:
+  documentation:
+    enabled: true
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "real"
+
+  datasource:
+    url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: 'fairer'
+    password: '>BRLtas~%j2>(\6#eC2M'
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: validate
+
+  mvc:
+    pathmatch:
+      # swagger
+      matching-strategy: ant_path_matcher
+
+# swagger
+springfox:
+  documentation:
+    enabled: false

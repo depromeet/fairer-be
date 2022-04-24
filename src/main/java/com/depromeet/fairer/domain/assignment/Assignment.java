@@ -15,8 +15,8 @@ import javax.persistence.*;
 public class Assignment {
 
     @Id
-    @Column(name = "assignment_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "assignment_id", columnDefinition = "BIGINT", nullable = false, unique = true)
     private Long assignmentId;
 
     @ManyToOne

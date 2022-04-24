@@ -27,6 +27,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    //mysql connector
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
+
     //modelMapper
     implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.1.0'
 
@@ -39,16 +42,11 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    //h2
-    runtimeOnly 'com.h2database:h2'
-    testImplementation group: 'com.h2database', name: 'h2'
-
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // logger
     implementation 'org.slf4j:jcl-over-slf4j'
     implementation 'ch.qos.logback:logback-classic'
-
 
     // querydsl
     implementation 'com.querydsl:querydsl-jpa'

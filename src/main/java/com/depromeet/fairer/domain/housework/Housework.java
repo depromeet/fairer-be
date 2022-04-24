@@ -4,7 +4,9 @@ import com.depromeet.fairer.domain.assignment.Assignment;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -14,24 +16,30 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor @AllArgsConstructor
 public class Housework {
-
     @Id
-    @Column(name = "housework_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "housework_id", columnDefinition = "BIGINT", nullable = false, unique = true)
     private Long houseworkId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "space_name", columnDefinition = "VARCHAR(30)", nullable = false)
     private Space space;
 
+    @Column(name = "housework_name", columnDefinition = "VARCHAR(50)", nullable = false)
     private String houseworkName;
 
-    private LocalDateTime scheduledDateTime;
+    @Column(name = "scheduled_date", columnDefinition = "DATE", nullable = false)
+    private LocalDate scheduledDate;
 
+    @Column(name = "scheduled_time", columnDefinition = "TIME", nullable = false)
+    private LocalTime scheduledTime;
+
+    @Column(name = "success_datetime", columnDefinition = "DATETIME")
     private LocalDateTime successDateTime;
 
-    private boolean success;
+    @Column(name = "success", columnDefinition = "BIT", nullable = false)
+    private Boolean success;
 
-    @OneToMany(mappedBy = "work")
+    @OneToMany(mappedBy = "housework")
     private List<Assignment> assignments;
 }

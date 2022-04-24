@@ -1,7 +1,7 @@
 package com.depromeet.fairer.domain.member;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
-import com.depromeet.fairer.domain.group.Group;
+import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -19,30 +19,31 @@ import java.util.List;
 public class Member {
 
     @Id
-    @Column(name = "member_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id", columnDefinition = "BIGINT", nullable = false, unique = true)
     private Long memberId;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "email", columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "profile_path", columnDefinition = "VARCHAR(50)")
     private String profilePath;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "social_type", columnDefinition = "VARCHAR(50)", nullable = false)
     SocialType socialType;
 
-    @Column(nullable = false)
+    @Column(name = "member_name", columnDefinition = "VARCHAR(50)", nullable = false)
     private String memberName;
 
     @JsonIgnore
-    @Column(nullable = false)
+    @Column(name = "password", columnDefinition = "VARCHAR(300)", nullable = false)
     private String password;
 
     @OneToMany(mappedBy = "member")
     private List<Assignment> assignments;
 
-    @ManyToOne
-    @JoinColumn(name = "group_id")
-    private Group group;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
 }
