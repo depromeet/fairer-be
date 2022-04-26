@@ -23,8 +23,8 @@ public class HouseWorkService {
                         .houseworkName(houseWorkDto.getHouseworkName())
                         .scheduledDate(houseWorkDto.getScheduledDate())
                         .scheduledTime(houseWorkDto.getScheduledTime())
-                        .success(houseWorkDto.getSuccess())
-                        .successDateTime(houseWorkDto.getSuccessDateTime())
+                        .success(false)
+                        .successDateTime(null)
                         .build()
                 ).collect(Collectors.toList());
 
