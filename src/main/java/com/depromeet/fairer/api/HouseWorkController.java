@@ -27,10 +27,10 @@ public class HouseWorkController {
 
     @PostMapping("")
     public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@RequestBody @Valid HouseWorkListRequestDto req) {
-        Iterable<Housework> houseWorkIter = houseWorkService.createHouseWorks(req.getHouseWorks());
+        Iterable<Housework> HouseWorks = houseWorkService.createHouseWorks(req.getHouseWorks());
 
         List<HouseWorkResponseDto> houseWorkList = new ArrayList<>();
-        houseWorkIter.forEach(houseWork -> houseWorkList.add(new HouseWorkResponseDto(houseWork)));
+        HouseWorks.forEach(houseWork -> houseWorkList.add(HouseWorkResponseDto.from(houseWork)));
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
     }
 }
