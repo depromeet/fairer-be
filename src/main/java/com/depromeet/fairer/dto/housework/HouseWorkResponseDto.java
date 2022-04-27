@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
+@Builder
 public class HouseWorkResponseDto {
     private Long id;
     private Space space;
@@ -41,5 +43,17 @@ public class HouseWorkResponseDto {
         scheduledTime = houseWork.getScheduledTime();
         successDateTime = houseWork.getSuccessDateTime();
         success = houseWork.getSuccess();
+    }
+
+    public static HouseWorkResponseDto from(Housework houseWork) {
+        return new HouseWorkResponseDtoBuilder()
+                .id(houseWork.getHouseworkId())
+                .space(houseWork.getSpace())
+                .houseworkName(houseWork.getHouseworkName())
+                .scheduledDate(houseWork.getScheduledDate())
+                .scheduledTime(houseWork.getScheduledTime())
+                .successDateTime(houseWork.getSuccessDateTime())
+                .success(houseWork.getSuccess())
+                .build();
     }
 }
