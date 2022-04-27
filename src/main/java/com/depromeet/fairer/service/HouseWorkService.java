@@ -16,7 +16,7 @@ public class HouseWorkService {
     private final HouseWorkRepository houseWorkRepository;
 
     @Transactional
-    public List<Housework> createHouseWorks(List<HouseWorkRequestDto> houseWorksDto) {
+    public Iterable<Housework> createHouseWorks(List<HouseWorkRequestDto> houseWorksDto) {
         List<Housework> houseworkList = houseWorksDto.stream()
                 .map(houseWorkDto -> Housework.builder()
                         .space(houseWorkDto.getSpace())
@@ -28,6 +28,6 @@ public class HouseWorkService {
                         .build()
                 ).collect(Collectors.toList());
 
-        return houseWorkRepository.createBatch(houseworkList);
+        return houseWorkRepository.saveAll(houseworkList);
     }
 }

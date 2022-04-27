@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -26,11 +27,10 @@ public class HouseWorkController {
 
     @PostMapping("")
     public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@RequestBody @Valid HouseWorkListRequestDto req) {
-        List<Housework> houseWorks = houseWorkService.createHouseWorks(req.getHouseWorks());
-        List<HouseWorkResponseDto> result = houseWorks.stream()
-                .map(work -> new HouseWorkResponseDto(work))
-                .collect(toList());
+        Iterable<Housework> houseWorkIter = houseWorkService.createHouseWorks(req.getHouseWorks());
 
-        return new ResponseEntity<HouseWorkListResponseDto>(new HouseWorkListResponseDto(result), HttpStatus.CREATED);
+        List<HouseWorkResponseDto> houseWorkList = new ArrayList<>();
+        houseWorkIter.forEach(houseWork -> houseWorkList.add(new HouseWorkResponseDto(houseWork)));
+        return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
     }
 }
