@@ -35,16 +35,6 @@ public class HouseWorkResponseDto {
 
     private Boolean success;
 
-    public HouseWorkResponseDto(Housework houseWork) {
-        id = houseWork.getHouseworkId();
-        space = houseWork.getSpace();
-        houseworkName = houseWork.getHouseworkName();
-        scheduledDate = houseWork.getScheduledDate();
-        scheduledTime = houseWork.getScheduledTime();
-        successDateTime = houseWork.getSuccessDateTime();
-        success = houseWork.getSuccess();
-    }
-
     public static HouseWorkResponseDto from(Housework houseWork) {
         return new HouseWorkResponseDtoBuilder()
                 .id(houseWork.getHouseworkId())
