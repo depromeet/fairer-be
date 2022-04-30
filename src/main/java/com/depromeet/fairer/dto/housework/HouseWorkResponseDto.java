@@ -1,6 +1,6 @@
 package com.depromeet.fairer.dto.housework;
 
-import com.depromeet.fairer.domain.housework.Housework;
+import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.housework.Space;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -19,7 +19,7 @@ import java.time.LocalTime;
 public class HouseWorkResponseDto {
     private Long id;
     private Space space;
-    private String houseworkName;
+    private String houseWorkName;
 
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
@@ -35,11 +35,11 @@ public class HouseWorkResponseDto {
 
     private Boolean success;
 
-    public static HouseWorkResponseDto from(Housework houseWork) {
+    public static HouseWorkResponseDto from(HouseWork houseWork) {
         return new HouseWorkResponseDtoBuilder()
-                .id(houseWork.getHouseworkId())
+                .id(houseWork.getHouseWorkId())
                 .space(houseWork.getSpace())
-                .houseworkName(houseWork.getHouseworkName())
+                .houseWorkName(houseWork.getHouseWorkName())
                 .scheduledDate(houseWork.getScheduledDate())
                 .scheduledTime(houseWork.getScheduledTime())
                 .successDateTime(houseWork.getSuccessDateTime())

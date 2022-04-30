@@ -1,6 +1,6 @@
 package com.depromeet.fairer.service;
 
-import com.depromeet.fairer.domain.housework.Housework;
+import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.dto.housework.HouseWorkRequestDto;
 import com.depromeet.fairer.repository.HouseWorkRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +16,11 @@ public class HouseWorkService {
     private final HouseWorkRepository houseWorkRepository;
 
     @Transactional
-    public Iterable<Housework> createHouseWorks(List<HouseWorkRequestDto> houseWorksDto) {
-        List<Housework> houseworkList = houseWorksDto.stream()
-                .map(houseWorkDto -> Housework.builder()
+    public Iterable<HouseWork> createHouseWorks(List<HouseWorkRequestDto> houseWorksDto) {
+        List<HouseWork> houseworkList = houseWorksDto.stream()
+                .map(houseWorkDto -> HouseWork.builder()
                         .space(houseWorkDto.getSpace())
-                        .houseworkName(houseWorkDto.getHouseworkName())
+                        .houseWorkName(houseWorkDto.getHouseWorkName())
                         .scheduledDate(houseWorkDto.getScheduledDate())
                         .scheduledTime(houseWorkDto.getScheduledTime())
                         .success(false)
