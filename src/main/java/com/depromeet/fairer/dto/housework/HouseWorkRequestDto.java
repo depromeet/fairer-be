@@ -17,7 +17,7 @@ public class HouseWorkRequestDto {
     private Space space;
 
     @NotNull
-    private String houseworkName;
+    private String houseWorkName;
 
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

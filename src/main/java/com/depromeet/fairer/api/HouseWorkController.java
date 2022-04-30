@@ -1,10 +1,11 @@
 package com.depromeet.fairer.api;
 
-import com.depromeet.fairer.domain.housework.Housework;
+import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.dto.housework.HouseWorkListRequestDto;
 import com.depromeet.fairer.dto.housework.HouseWorkListResponseDto;
 import com.depromeet.fairer.dto.housework.HouseWorkResponseDto;
 import com.depromeet.fairer.service.HouseWorkService;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +18,6 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("houseworks")
@@ -27,7 +26,7 @@ public class HouseWorkController {
 
     @PostMapping("")
     public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@RequestBody @Valid HouseWorkListRequestDto req) {
-        Iterable<Housework> HouseWorks = houseWorkService.createHouseWorks(req.getHouseWorks());
+        Iterable<HouseWork> HouseWorks = houseWorkService.createHouseWorks(req.getHouseWorks());
 
         List<HouseWorkResponseDto> houseWorkList = new ArrayList<>();
         HouseWorks.forEach(houseWork -> houseWorkList.add(HouseWorkResponseDto.from(houseWork)));
