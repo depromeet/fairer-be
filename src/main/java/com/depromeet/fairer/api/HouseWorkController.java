@@ -1,12 +1,8 @@
 package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
-import com.depromeet.fairer.dto.housework.*;
 
-import com.depromeet.fairer.dto.housework.HouseWorkListRequestDto;
-import com.depromeet.fairer.dto.housework.HouseWorkListResponseDto;
-import com.depromeet.fairer.dto.housework.HouseWorkRequestDto;
-import com.depromeet.fairer.dto.housework.HouseWorkResponseDto;
+import com.depromeet.fairer.dto.housework.*;
 import com.depromeet.fairer.service.HouseWorkService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +31,7 @@ public class HouseWorkController {
         HouseWorks.forEach(houseWork -> houseWorkList.add(HouseWorkResponseDto.from(houseWork)));
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
     }
-  
+
       @PutMapping("/{id}")
     public ResponseEntity<Object> editHouseWork(@RequestBody @Valid HouseWorkRequestDto dto, @PathVariable Long id) {
         HouseWork houseWork = houseWorkService.updateHouseWork(id, dto);
@@ -90,5 +86,11 @@ public class HouseWorkController {
     @GetMapping(value = "{space}")
     public ResponseEntity<HouseWorkPresetResponseDto> getHouseWorkPreset(@PathVariable String space){
         return ResponseEntity.ok(houseWorkService.getHouseWorkPreset(space));
+    }
+
+    @GetMapping("/success/count")
+    public ResponseEntity<HouseWorkSuccessCountResponseDto> getSuccessCount(@RequestParam(required = true) String scheduledDate) {
+        HouseWorkSuccessCountResponseDto houseWorkSuccessCountResponseDto = houseWorkService.getSuccessCount(scheduledDate);
+        return ResponseEntity.ok(houseWorkSuccessCountResponseDto);
     }
 }

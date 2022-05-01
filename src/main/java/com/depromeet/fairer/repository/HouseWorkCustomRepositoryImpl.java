@@ -1,6 +1,8 @@
 package com.depromeet.fairer.repository;
 
-
+import com.depromeet.fairer.domain.assignment.QAssignment;
+import com.depromeet.fairer.domain.housework.QHouseWork;
+import com.depromeet.fairer.domain.member.QMember;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -8,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.depromeet.fairer.domain.assignment.QAssignment.assignment;
@@ -16,7 +19,6 @@ import static com.depromeet.fairer.domain.member.QMember.member;
 
 @Repository
 @RequiredArgsConstructor
-@Slf4j
 public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -37,9 +39,24 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
                 .fetch();
         return memberDtos;
     }
+
+    @Override
+    public Long getHouseWorkSuccessCount(Long memberId, LocalDate startDate, LocalDate endDate) {
+        QAssignment assignment = QAssignment.assignment;
+        QMember member = QMember.member;
+        QHouseWork houseWork = QHouseWork.houseWork;
+
+        return jpaQueryFactory.selectFrom(houseWork)
+                .innerJoin(houseWork.assignments, assignment)
+                .innerJoin(assignment.member, member)
+                .where(houseWork.scheduledDate.goe(startDate)
+                        .and(houseWork.scheduledDate.loe(endDate))
+                        .and(member.memberId.eq(memberId))
+                        .and(houseWork.success.eq(true)))
+                .stream()
+                .count();
+    }
 }
-
-
 
 
 
