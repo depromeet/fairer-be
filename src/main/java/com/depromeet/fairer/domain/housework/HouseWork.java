@@ -7,7 +7,9 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Table(name = "housework")
@@ -40,6 +42,7 @@ public class HouseWork {
     @Column(name = "success", columnDefinition = "BIT", nullable = false)
     private Boolean success;
 
+    @Builder.Default
     @OneToMany(mappedBy = "housework")
-    private List<Assignment> assignments;
+    private List<Assignment> assignments = new ArrayList<>();
 }
