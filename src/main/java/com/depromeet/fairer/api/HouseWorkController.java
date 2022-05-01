@@ -37,4 +37,10 @@ public class HouseWorkController {
         HouseWork houseWork = houseWorkService.updateHouseWork(id, dto);
         return new ResponseEntity<>(HouseWorkResponseDto.from(houseWork), HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteHouseWork(@PathVariable Long id) {
+        houseWorkService.deleteHouseWork(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

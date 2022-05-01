@@ -44,6 +44,6 @@ public class HouseWork {
     private Boolean success;
 
     @Builder.Default
-    @OneToMany(mappedBy = "housework")
+    @OneToMany(mappedBy = "housework", cascade = CascadeType.ALL)
     private List<Assignment> assignments = new ArrayList<>();
 }
