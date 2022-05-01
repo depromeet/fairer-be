@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class HouseWorkResponseDto {
-    private Long id;
+    private Long houseWorkId;
     private Space space;
     private String houseWorkName;
     private List<MemberDto> assignees;
@@ -44,7 +44,7 @@ public class HouseWorkResponseDto {
         ModelMapper modelMapper = new ModelMapper();
 
         return new HouseWorkResponseDtoBuilder()
-                .id(houseWork.getHouseWorkId())
+                .houseWorkId(houseWork.getHouseWorkId())
                 .space(houseWork.getSpace())
                 .houseWorkName(houseWork.getHouseWorkName())
                 .assignees(houseWork
