@@ -68,7 +68,7 @@ public class HouseWorkService {
             }
 
             return houseWorkRepository.save(houseWork);
-        }).orElseThrow(() -> new NoSuchElementException("존재하지 않는 집안일 입니다."));
+        }).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일 입니다."));
     }
 
     public void deleteHouseWork(Long id) {
