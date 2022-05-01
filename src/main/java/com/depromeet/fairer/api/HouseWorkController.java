@@ -1,6 +1,5 @@
 package com.depromeet.fairer.api;
 
-import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.dto.housework.HouseWorkListRequestDto;
 import com.depromeet.fairer.dto.housework.HouseWorkListResponseDto;
 import com.depromeet.fairer.dto.housework.HouseWorkResponseDto;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -27,10 +25,7 @@ public class HouseWorkController {
 
     @PostMapping("")
     public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@RequestBody @Valid HouseWorkListRequestDto req) {
-        Iterable<HouseWork> HouseWorks = houseWorkService.createHouseWorks(req.getHouseWorks());
-
-        List<HouseWorkResponseDto> houseWorkList = new ArrayList<>();
-        HouseWorks.forEach(houseWork -> houseWorkList.add(HouseWorkResponseDto.from(houseWork)));
+        List<HouseWorkResponseDto> houseWorkList = houseWorkService.createHouseWorks(req.getHouseWorks());
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
     }
 }

@@ -4,6 +4,8 @@ import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.dto.housework.HouseWorkRequestDto;
+import com.depromeet.fairer.dto.housework.HouseWorkResponseDto;
+import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.repository.HouseWorkRepository;
 import com.depromeet.fairer.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +22,9 @@ public class HouseWorkService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Iterable<HouseWork> createHouseWorks(List<HouseWorkRequestDto> houseWorksDto) {
-        List<HouseWork> houseWorkList = new ArrayList<>();
+    public List<HouseWorkResponseDto> createHouseWorks(List<HouseWorkRequestDto> houseWorksDto) {
+        List<HouseWorkResponseDto> houseWorkResponseDtoList = new ArrayList<>();
+
         for (HouseWorkRequestDto houseWorkDto: houseWorksDto) {
             HouseWork houseWork = HouseWork.builder()
                     .space(houseWorkDto.getSpace())
@@ -33,13 +36,16 @@ public class HouseWorkService {
                     .build();
 
             Iterable<Member> members = memberRepository.findAllById(houseWorkDto.getAssignees());
+            List<MemberDto> memberDtoList = new ArrayList<>();
             for (Member member : members) {
                 Assignment assignment = Assignment.builder().housework(houseWork).member(member).build();
                 houseWork.getAssignments().add(assignment);
+                memberDtoList.add(MemberDto.from(member));
             }
-            houseWorkList.add(houseWork);
+            houseWorkResponseDtoList.add(HouseWorkResponseDto.from(houseWork, memberDtoList));
+            houseWorkRepository.save(houseWork);
         }
 
-        return houseWorkRepository.saveAll(houseWorkList);
+        return houseWorkResponseDtoList;
     }
 }
