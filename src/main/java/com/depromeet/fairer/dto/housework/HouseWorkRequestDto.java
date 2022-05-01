@@ -10,9 +10,13 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 public class HouseWorkRequestDto {
+    @NotNull
+    private List<Long> assignees;
+
     @NotNull
     private Space space;
 
