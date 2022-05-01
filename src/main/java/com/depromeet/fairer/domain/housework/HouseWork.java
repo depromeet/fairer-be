@@ -7,7 +7,9 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Table(name = "housework")
@@ -15,18 +17,18 @@ import java.util.List;
 @Builder
 @EqualsAndHashCode
 @NoArgsConstructor @AllArgsConstructor
-public class Housework {
+public class HouseWork {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "housework_id", columnDefinition = "BIGINT", nullable = false, unique = true)
-    private Long houseworkId;
+    private Long houseWorkId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "space_name", columnDefinition = "VARCHAR(30)", nullable = false)
     private Space space;
 
     @Column(name = "housework_name", columnDefinition = "VARCHAR(50)", nullable = false)
-    private String houseworkName;
+    private String houseWorkName;
 
     @Column(name = "scheduled_date", columnDefinition = "DATE", nullable = false)
     private LocalDate scheduledDate;
@@ -40,6 +42,7 @@ public class Housework {
     @Column(name = "success", columnDefinition = "BIT", nullable = false)
     private Boolean success;
 
+    @Builder.Default
     @OneToMany(mappedBy = "housework")
-    private List<Assignment> assignments;
+    private List<Assignment> assignments = new ArrayList<>();
 }

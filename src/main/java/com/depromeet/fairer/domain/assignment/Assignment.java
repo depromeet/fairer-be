@@ -1,6 +1,6 @@
 package com.depromeet.fairer.domain.assignment;
 
-import com.depromeet.fairer.domain.housework.Housework;
+import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import lombok.*;
 
@@ -25,5 +25,5 @@ public class Assignment {
 
     @ManyToOne
     @JoinColumn(name = "housework_id")
-    private Housework housework;
+    private HouseWork housework;
 }
