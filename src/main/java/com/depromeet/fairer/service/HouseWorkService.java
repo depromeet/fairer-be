@@ -1,26 +1,38 @@
 package com.depromeet.fairer.service;
 
-import com.depromeet.fairer.domain.housework.Housework;
+import com.depromeet.fairer.domain.housework.HouseWork;
+import com.depromeet.fairer.domain.housework.Preset;
 import com.depromeet.fairer.dto.housework.HouseWorkRequestDto;
+import com.depromeet.fairer.dto.housework.HouseWorkResponseDto;
+import com.depromeet.fairer.dto.housework.response.HouseWorkDateResponseDto;
+import com.depromeet.fairer.dto.housework.response.HouseWorkPresetResponseDto;
+import com.depromeet.fairer.dto.housework.response.HouseWorkStatusResponseDto;
+import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.repository.HouseWorkRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HouseWorkService {
     private final HouseWorkRepository houseWorkRepository;
+    Preset preset;
 
     @Transactional
-    public Iterable<Housework> createHouseWorks(List<HouseWorkRequestDto> houseWorksDto) {
-        List<Housework> houseworkList = houseWorksDto.stream()
-                .map(houseWorkDto -> Housework.builder()
+    public Iterable<HouseWork> createHouseWorks(List<HouseWorkRequestDto> houseWorksDto) {
+        List<HouseWork> houseWorkList = houseWorksDto.stream()
+                .map(houseWorkDto -> HouseWork.builder()
                         .space(houseWorkDto.getSpace())
-                        .houseworkName(houseWorkDto.getHouseworkName())
+                        .houseWorkName(houseWorkDto.getHouseworkName())
                         .scheduledDate(houseWorkDto.getScheduledDate())
                         .scheduledTime(houseWorkDto.getScheduledTime())
                         .success(false)
@@ -28,6 +40,78 @@ public class HouseWorkService {
                         .build()
                 ).collect(Collectors.toList());
 
-        return houseWorkRepository.saveAll(houseworkList);
+        return houseWorkRepository.saveAll(houseWorkList);
+    }
+
+    /**
+     * 날짜별 집안일 조회
+     * @param scheduledDate 날짜
+     * @return 날짜별 집안일 dto list
+     */
+    @Transactional
+    public HouseWorkDateResponseDto getHouseWork(LocalDate scheduledDate){
+        // 같은 날짜의 집안일 정보 리스트
+        List<HouseWorkResponseDto> houseWorkResponseDtos = new ArrayList<>();
+        List<Long> houseWorkIdList = new ArrayList<>();
+
+        // houseWorkId찾기
+        houseWorkIdList = houseWorkRepository.findHouseWorkIdByDate(scheduledDate);
+
+        houseWorkIdList.forEach(houseWorkId -> houseWorkResponseDtos.add(
+                getHouseWorkDetail(houseWorkId)
+        ));
+        // houseWorkResponseDtos 완성
+
+        int countDone = houseWorkRepository.countDone(scheduledDate);
+        int countLeft = houseWorkRepository.countLeft(scheduledDate);
+
+        return HouseWorkDateResponseDto.from(scheduledDate, countDone, countLeft, houseWorkResponseDtos);
+    }
+
+    /**
+     * 개별 집안일 조회
+     * @param houseWorkId 집안일 id
+     * @return 집안일 정보 dto
+     */
+    @Transactional
+    public HouseWorkResponseDto getHouseWorkDetail(Long houseWorkId) {
+        HouseWork houseWork = houseWorkRepository.findById(houseWorkId)
+                .orElseThrow(() -> new IllegalArgumentException("housework id가 존재하지 않습니다."));
+
+        List<MemberDto> memberDtolist = houseWorkRepository.addMemberDtoById(houseWorkId);
+
+        return HouseWorkResponseDto.from(houseWork, memberDtolist);
+    }
+
+    /**
+     * 집안일 완료 상태 변경
+     * @param houseWorkId 변경할 집안일 id
+     * @return 변경된 집안일 상태
+     */
+    @Transactional
+    public HouseWorkStatusResponseDto updateHouseWorkStatus(Long houseWorkId,
+                                                            String toBeStatus) {
+        boolean status;
+        log.info(toBeStatus);
+        if (toBeStatus.equals("끝냈어요")) {
+            houseWorkRepository.updateStatusTrue(houseWorkId);
+            status = true;
+        } else {
+            houseWorkRepository.updateStatusFalse(houseWorkId);
+            status = false;
+        }
+        return new HouseWorkStatusResponseDto(houseWorkId, status);
+    }
+
+    /**
+     * 공간 -> 집안일 프리셋 조회
+     * @param space 공간
+     * @return 집안일 이름 list
+     */
+    @Transactional
+    public HouseWorkPresetResponseDto getHouseWorkPreset(String space){
+        List<String> houseWorks;
+        houseWorks = houseWorkRepository.getHouseWorkPreset(space);
+        return new HouseWorkPresetResponseDto(space, houseWorks);
     }
 }
