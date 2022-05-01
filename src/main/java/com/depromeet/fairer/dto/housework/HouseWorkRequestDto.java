@@ -33,3 +33,4 @@ public class HouseWorkRequestDto {
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     private LocalTime scheduledTime;
 }
+

@@ -3,16 +3,14 @@ package com.depromeet.fairer.api;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.dto.housework.HouseWorkListRequestDto;
 import com.depromeet.fairer.dto.housework.HouseWorkListResponseDto;
+import com.depromeet.fairer.dto.housework.HouseWorkRequestDto;
 import com.depromeet.fairer.dto.housework.HouseWorkResponseDto;
 import com.depromeet.fairer.service.HouseWorkService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -32,5 +30,11 @@ public class HouseWorkController {
         List<HouseWorkResponseDto> houseWorkList = new ArrayList<>();
         HouseWorks.forEach(houseWork -> houseWorkList.add(HouseWorkResponseDto.from(houseWork)));
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> editHouseWork(@RequestBody @Valid HouseWorkRequestDto dto, @PathVariable Long id) {
+        HouseWork houseWork = houseWorkService.updateHouseWork(id, dto);
+        return new ResponseEntity<>(HouseWorkResponseDto.from(houseWork), HttpStatus.OK);
     }
 }
