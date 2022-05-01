@@ -1,10 +1,10 @@
-package com.depromeet.fairer.api;
+package com.depromeet.fairer.api.housework;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.dto.housework.HouseWorkListRequestDto;
 import com.depromeet.fairer.dto.housework.HouseWorkListResponseDto;
 import com.depromeet.fairer.dto.housework.HouseWorkResponseDto;
-import com.depromeet.fairer.service.HouseWorkService;
+import com.depromeet.fairer.service.housework.HouseWorkService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

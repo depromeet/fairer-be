@@ -60,6 +60,12 @@ springfox:
   documentation:
     enabled: true
 
+  # JWT token
+token:
+  secret: fairer-backend
+  access-token-expiration-time: 99999999999
+  refresh-token-expiration-time: 99999999999
+
 ---
 
 spring:
@@ -96,3 +102,9 @@ server:
 springfox:
   documentation:
     enabled: false
+
+# JWT token
+token:
+  secret: fairer-backend
+  access-token-expiration-time: 900000  # 15분
+  refresh-token-expiration-time: 1210500000 # 2주

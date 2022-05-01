@@ -1,4 +1,4 @@
-package com.depromeet.fairer.service;
+package com.depromeet.fairer.service.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
