@@ -73,10 +73,13 @@ sourceSets {
     main.java.srcDir querydslDir
 }
 configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
     querydsl.extendsFrom compileClasspath
-
 }
 compileQuerydsl {
     options.annotationProcessorPath = configurations.querydsl
 }
+
 // querydsl 끝

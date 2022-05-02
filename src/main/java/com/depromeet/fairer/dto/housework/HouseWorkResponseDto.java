@@ -2,6 +2,7 @@ package com.depromeet.fairer.dto.housework;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.housework.Space;
+import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -42,7 +43,7 @@ public class HouseWorkResponseDto {
 
     public static HouseWorkResponseDto from(HouseWork houseWork) {
         ModelMapper modelMapper = new ModelMapper();
-
+      
         return new HouseWorkResponseDtoBuilder()
                 .houseWorkId(houseWork.getHouseWorkId())
                 .space(houseWork.getSpace())
@@ -51,6 +52,19 @@ public class HouseWorkResponseDto {
                         .getAssignments()
                         .stream().map(assignment -> modelMapper.map(assignment.getMember(), MemberDto.class))
                         .collect(Collectors.toList()))
+                .scheduledDate(houseWork.getScheduledDate())
+                .scheduledTime(houseWork.getScheduledTime())
+                .successDateTime(houseWork.getSuccessDateTime())
+                .success(houseWork.getSuccess())
+                .build();
+    }
+
+    public static HouseWorkResponseDto from(HouseWork houseWork, List<MemberDto> memberDtoList) {
+        return new HouseWorkResponseDtoBuilder()
+                .houseWorkId(houseWork.getHouseWorkId())
+                .space(houseWork.getSpace())
+                .houseWorkName(houseWork.getHouseWorkName())
+                .assignees(memberDtoList)
                 .scheduledDate(houseWork.getScheduledDate())
                 .scheduledTime(houseWork.getScheduledTime())
                 .successDateTime(houseWork.getSuccessDateTime())

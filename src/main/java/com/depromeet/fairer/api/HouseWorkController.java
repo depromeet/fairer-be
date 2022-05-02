@@ -1,6 +1,8 @@
 package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
+import com.depromeet.fairer.dto.housework.*;
+
 import com.depromeet.fairer.dto.housework.HouseWorkListRequestDto;
 import com.depromeet.fairer.dto.housework.HouseWorkListResponseDto;
 import com.depromeet.fairer.dto.housework.HouseWorkRequestDto;
@@ -13,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +35,8 @@ public class HouseWorkController {
         HouseWorks.forEach(houseWork -> houseWorkList.add(HouseWorkResponseDto.from(houseWork)));
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
     }
-
-    @PutMapping("/{id}")
+  
+      @PutMapping("/{id}")
     public ResponseEntity<Object> editHouseWork(@RequestBody @Valid HouseWorkRequestDto dto, @PathVariable Long id) {
         HouseWork houseWork = houseWorkService.updateHouseWork(id, dto);
         return new ResponseEntity<>(HouseWorkResponseDto.from(houseWork), HttpStatus.OK);
@@ -42,5 +46,49 @@ public class HouseWorkController {
     public ResponseEntity<Object> deleteHouseWork(@PathVariable Long id) {
         houseWorkService.deleteHouseWork(id);
         return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+
+    /**
+     * 날짜별 집안일 조회
+     * @param scheduledDate 날짜
+     * @return 날짜별 집안일 dto list
+     */
+    @GetMapping(value = "")
+    public ResponseEntity<HouseWorkDateResponseDto> getHouseWorksTest(@RequestParam("scheduledDate") String scheduledDate){
+        LocalDate scheduledDateParse = LocalDate.parse(scheduledDate, DateTimeFormatter.ISO_DATE);
+
+        return ResponseEntity.ok(houseWorkService.getHouseWork(scheduledDateParse));
+    }
+
+    /**
+     * 개별 집안일 조회
+     * @param houseWorkId 집안일 id
+     * @return 집안일 정보 dto
+     */
+    @GetMapping(value = "{houseWorkId}/detail")
+    public ResponseEntity<HouseWorkResponseDto> getHouseWorks(@PathVariable("houseWorkId") Long houseWorkId){
+        return ResponseEntity.ok(houseWorkService.getHouseWorkDetail(houseWorkId));
+    }
+
+    /**
+     * 집안일 완료 상태 변경
+     * @param houseWorkId 변경할 집안일 id
+     * @return 변경된 집안일 상태
+     */
+    @PatchMapping(value = "{houseWorkId}")
+    public ResponseEntity<HouseWorkStatusResponseDto> updateHouseWorkStatus(@PathVariable("houseWorkId") Long houseWorkId,
+                                                                            @RequestBody String toBeStatus){
+        return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, toBeStatus));
+    }
+
+    /**
+     * 공간 -> 집안일 프리셋 조회
+     * @param space 공간
+     * @return 집안일 이름 list
+     */
+    @GetMapping(value = "{space}")
+    public ResponseEntity<HouseWorkPresetResponseDto> getHouseWorkPreset(@PathVariable String space){
+        return ResponseEntity.ok(houseWorkService.getHouseWorkPreset(space));
     }
 }
