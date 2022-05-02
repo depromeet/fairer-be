@@ -61,7 +61,7 @@ public class HouseWorkService {
     public HouseWorkDateResponseDto getHouseWork(LocalDate scheduledDate){
         // 같은 날짜의 집안일 정보 리스트
         List<HouseWorkResponseDto> houseWorkResponseDtos = new ArrayList<>();
-        List<Long> houseWorkIdList = new ArrayList<>();
+        List<Long> houseWorkIdList;
 
         // houseWorkId찾기
         houseWorkIdList = houseWorkRepository.findHouseWorkIdByDate(scheduledDate);
