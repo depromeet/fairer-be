@@ -5,6 +5,7 @@ import com.depromeet.fairer.dto.housework.*;
 
 import com.depromeet.fairer.dto.housework.HouseWorkListRequestDto;
 import com.depromeet.fairer.dto.housework.HouseWorkListResponseDto;
+import com.depromeet.fairer.dto.housework.HouseWorkRequestDto;
 import com.depromeet.fairer.dto.housework.HouseWorkResponseDto;
 import com.depromeet.fairer.service.HouseWorkService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,19 @@ public class HouseWorkController {
         List<HouseWorkResponseDto> houseWorkList = new ArrayList<>();
         HouseWorks.forEach(houseWork -> houseWorkList.add(HouseWorkResponseDto.from(houseWork)));
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
+    }
+  
+      @PutMapping("/{id}")
+    public ResponseEntity<Object> editHouseWork(@RequestBody @Valid HouseWorkRequestDto dto, @PathVariable Long id) {
+        HouseWork houseWork = houseWorkService.updateHouseWork(id, dto);
+        return new ResponseEntity<>(HouseWorkResponseDto.from(houseWork), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteHouseWork(@PathVariable Long id) {
+        houseWorkService.deleteHouseWork(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 
     /**
