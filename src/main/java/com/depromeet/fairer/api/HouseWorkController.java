@@ -22,8 +22,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@Slf4j
-@RequestMapping("api/houseworks")
+@RequestMapping("houseworks")
 public class HouseWorkController {
     private final HouseWorkService houseWorkService;
 
