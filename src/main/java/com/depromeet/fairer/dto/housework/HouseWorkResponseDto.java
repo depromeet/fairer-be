@@ -43,7 +43,7 @@ public class HouseWorkResponseDto {
 
     public static HouseWorkResponseDto from(HouseWork houseWork) {
         ModelMapper modelMapper = new ModelMapper();
-
+      
         return new HouseWorkResponseDtoBuilder()
                 .houseWorkId(houseWork.getHouseWorkId())
                 .space(houseWork.getSpace())

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
-
 @Repository
 public interface HouseWorkRepository extends CrudRepository<HouseWork, Long>, HouseWorkCustomRepository {
 
@@ -38,6 +37,4 @@ public interface HouseWorkRepository extends CrudRepository<HouseWork, Long>, Ho
 
     @Query("select p.presetHouseWorkName from Preset p where p.presetSpaceName=:space")
     List<String> getHouseWorkPreset(@Param("space") String space);
-
 }
-
