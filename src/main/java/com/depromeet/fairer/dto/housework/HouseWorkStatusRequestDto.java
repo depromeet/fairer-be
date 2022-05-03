@@ -6,9 +6,9 @@ import lombok.Getter;
 @Data
 @Getter
 public class HouseWorkStatusRequestDto {
-    private boolean toBeStatus;
+    private String toBeStatus;
 
-    public HouseWorkStatusRequestDto(boolean toBeStatus){
-        this.toBeStatus = toBeStatus;
-    }
+//    public HouseWorkStatusRequestDto(boolean toBeStatus){
+//        this.toBeStatus = toBeStatus;
+//    }
 }
