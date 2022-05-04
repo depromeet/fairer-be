@@ -2,13 +2,11 @@ package com.depromeet.fairer.dto.housework;
 
 import lombok.Data;
 import lombok.Getter;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Getter
+@NotNull
 public class HouseWorkStatusRequestDto {
-    private boolean toBeStatus;
-
-    public HouseWorkStatusRequestDto(boolean toBeStatus){
-        this.toBeStatus = toBeStatus;
-    }
+    private String toBeStatus;
 }

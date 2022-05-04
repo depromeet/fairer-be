@@ -74,8 +74,8 @@ public class HouseWorkController {
      */
     @PatchMapping(value = "{houseWorkId}")
     public ResponseEntity<HouseWorkStatusResponseDto> updateHouseWorkStatus(@PathVariable("houseWorkId") Long houseWorkId,
-                                                                            @RequestBody String toBeStatus){
-        return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, toBeStatus));
+                                                                            @RequestBody @Valid HouseWorkStatusRequestDto req){
+        return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, req.getToBeStatus()));
     }
 
     /**
