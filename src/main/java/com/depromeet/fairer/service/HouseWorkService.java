@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -139,6 +138,7 @@ public class HouseWorkService {
                                                             String toBeStatus) {
         boolean status;
         log.info(toBeStatus);
+
         if (toBeStatus.equals("끝냈어요")) {
             houseWorkRepository.updateStatusTrue(houseWorkId);
             status = true;
