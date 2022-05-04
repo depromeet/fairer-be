@@ -3,22 +3,19 @@ package com.depromeet.fairer.service;
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
-import com.depromeet.fairer.dto.housework.HouseWorkRequestDto;
-import com.depromeet.fairer.dto.housework.HouseWorkResponseDto;
-import com.depromeet.fairer.dto.housework.HouseWorkDateResponseDto;
-import com.depromeet.fairer.dto.housework.HouseWorkPresetResponseDto;
-import com.depromeet.fairer.dto.housework.HouseWorkStatusResponseDto;
+import com.depromeet.fairer.dto.housework.*;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.repository.HouseWorkRepository;
 import com.depromeet.fairer.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.DayOfWeek;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -27,7 +24,6 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class HouseWorkService {
-    private final ModelMapper modelMapper;
     private final HouseWorkRepository houseWorkRepository;
     private final MemberRepository memberRepository;
 
@@ -55,7 +51,7 @@ public class HouseWorkService {
 
         return houseWorkRepository.saveAll(houseWorkList);
     }
-  
+
     public HouseWork updateHouseWork(Long id, HouseWorkRequestDto dto) {
         return houseWorkRepository.findById(id).map(houseWork -> {
             houseWork.setSpace(dto.getSpace());
@@ -87,6 +83,12 @@ public class HouseWorkService {
         }
     }
 
+    public HouseWorkSuccessCountResponseDto getSuccessCount(String scheduledDate) {
+        LocalDate startDate = LocalDate.parse(scheduledDate).with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+        LocalDate endDate = LocalDate.parse(scheduledDate).with(TemporalAdjusters.previous(DayOfWeek.SUNDAY)).plusWeeks(1);
+        Long count = houseWorkRepository.getHouseWorkSuccessCount(3L, startDate, endDate);
+        return HouseWorkSuccessCountResponseDto.of(count);
+    }
 
     /**
      * 날짜별 집안일 조회
