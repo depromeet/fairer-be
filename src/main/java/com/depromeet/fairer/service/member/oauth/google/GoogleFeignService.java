@@ -20,6 +20,10 @@ public class GoogleFeignService {
     private final PasswordEncoder passwordEncoder;
 
     private final String password = "autoPassword"; // TODO 환경변수로 변경
+    private final String clientId = "973504120779-eqs2eb6680p6kmg0u4qo474tgp7nu56d.apps.googleusercontent.com";
+    private final String clientSecret = "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";
+    private final String redirectUri = "http://localhost:8080/login/oauth2/code/google";
+    private final String grantType = "authorization_code";
 
     public OAuthAttributes getUserInfo(String accessToken) {
         accessToken = "Bearer " + accessToken.replace("Bearer", "").trim();
@@ -35,5 +39,11 @@ public class GoogleFeignService {
                 .socialType(SocialType.GOOGLE)
                 .password(passwordEncoder.encode(password))
                 .build();
+    }
+
+    public String getAccessToken(String authorizationCode) {
+        final OauthTokenResponse response = googleFeignClient.getAccessToken(authorizationCode, clientId, clientSecret, redirectUri, grantType);
+        log.info("response: {}", response.toString());
+        return response.getAccessToken();
     }
 }

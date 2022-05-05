@@ -29,7 +29,7 @@ public class OauthLoginService {
     private final ModelMapper modelMapper;
 
 
-    public ResponseJwtTokenDto oauthLogin(OauthLoginDto oauthLoginDto) {
+    public ResponseJwtTokenDto createMemberAndJwt(OauthLoginDto oauthLoginDto) {
         // 소셜 회원 정보 조회
         final OAuthAttributes socialUserInfo = getSocialUserInfo(oauthLoginDto);
         log.info("oauthAttributes: {}", socialUserInfo.toString());
@@ -57,5 +57,9 @@ public class OauthLoginService {
         final String accessToken = oauthLoginDto.getAccessToken();
         final SocialType socialType = oauthLoginDto.getSocialType();
         return googleFeignService.getUserInfo(accessToken);
+    }
+
+    public String getAccessToken(String authorizationCode) {
+        return googleFeignService.getAccessToken(authorizationCode);
     }
 }

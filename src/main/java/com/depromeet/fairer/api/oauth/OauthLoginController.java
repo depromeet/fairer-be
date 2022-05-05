@@ -29,29 +29,34 @@ public class OauthLoginController {
     private final OauthLoginService oauthLoginService;
 
     @PostMapping(value = "/oauth/login", headers = {"Content-type=application/json"}, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "OAuth 로그인 API", description = "OAuth Access 토큰으로 로그인 시 JWT 토큰 반환, 현재 GOOGLE만 지원")
+    @Operation(summary = "OAuth 로그인 API", description = "Authorization code로 로그인 시 JWT 토큰 반환, 현재 GOOGLE만 지원")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "access token", dataType = "String", value = "access token", required = true, paramType = "header")
+            @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
     })
-    public ResponseEntity<ResponseJwtTokenDto> login(@RequestBody OauthRequestDto oauthRequestDto, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ResponseJwtTokenDto> loginOauth(@RequestBody OauthRequestDto oauthRequestDto, HttpServletRequest httpServletRequest) {
         log.info("=== Oauth login start ===");
 
-        validateLoginParams(oauthRequestDto, httpServletRequest);
+        final String accessToken = oauthLoginService.getAccessToken(httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION)); // access token 발급
+        final String socialTypeStr = oauthRequestDto.getSocialType();
 
-        final String accessToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-        final SocialType socialType = EnumUtils.getEnumIgnoreCase(SocialType.class, oauthRequestDto.getSocialType());
+        validateLoginParams(socialTypeStr, accessToken);
 
-        final OauthLoginDto oauthLoginDto = OauthLoginDto.builder().accessToken(accessToken).socialType(socialType).build();
-        final ResponseJwtTokenDto responseJwtTokenDto = oauthLoginService.oauthLogin(oauthLoginDto);
+        final SocialType socialType = EnumUtils.getEnumIgnoreCase(SocialType.class, socialTypeStr);
 
+        final ResponseJwtTokenDto jwtTokenDto = login(socialType, accessToken);
         log.info("=== Oauth login end ===");
-
-        return ResponseEntity.ok(responseJwtTokenDto);
+        return ResponseEntity.ok(jwtTokenDto);
     }
 
-    private void validateLoginParams(OauthRequestDto oauthRequestDto, HttpServletRequest httpServletRequest) {
-        validateSocialType(oauthRequestDto.getSocialType());
-        validateAccessToken(httpServletRequest);
+    public ResponseJwtTokenDto login(SocialType socialType, String accessToken) {
+
+        final OauthLoginDto oauthLoginDto = OauthLoginDto.builder().accessToken(accessToken).socialType(socialType).build();
+        return oauthLoginService.createMemberAndJwt(oauthLoginDto);
+    }
+
+    private void validateLoginParams(String socialType, String accessToken) {
+        validateSocialType(socialType);
+        validateAccessToken(accessToken);
     }
 
     private void validateSocialType(String socialType) {
@@ -60,8 +65,8 @@ public class OauthLoginController {
         }
     }
 
-    private void validateAccessToken(HttpServletRequest httpServletRequest) {
-        if (StringUtils.isBlank(httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION))) {
+    private void validateAccessToken(String accessToken) {
+        if (StringUtils.isBlank(accessToken)) {
             throw new InvalidParameterException("Access 토큰값을 입력해주세요.");
         }
     }
