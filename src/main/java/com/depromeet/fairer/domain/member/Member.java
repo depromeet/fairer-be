@@ -16,8 +16,8 @@ import java.util.List;
 @Table(name="member")
 @Getter
 @ToString(exclude = {"memberToken", "team", "assignments"})
+@Setter
 @Builder
-@EqualsAndHashCode
 @AllArgsConstructor @NoArgsConstructor
 public class Member {
 
@@ -43,7 +43,7 @@ public class Member {
     @Column(name = "password", columnDefinition = "VARCHAR(300)", nullable = false)
     private String password;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Assignment> assignments;
 
     @ManyToOne(fetch = FetchType.LAZY)

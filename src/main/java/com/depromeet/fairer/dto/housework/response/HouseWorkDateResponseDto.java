@@ -1,4 +1,4 @@
-package com.depromeet.fairer.dto.housework;
+package com.depromeet.fairer.dto.housework.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -18,11 +18,11 @@ public class HouseWorkDateResponseDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate scheduledDate;
 
-    private int countDone;
-    private int countLeft;
+    private Long countDone;
+    private Long countLeft;
     private List<HouseWorkResponseDto> houseWorks;
 
-    public static HouseWorkDateResponseDto from(LocalDate scheduledDate, int countDone, int countLeft,
+    public static HouseWorkDateResponseDto from(LocalDate scheduledDate, Long countDone, Long countLeft,
                                            List<HouseWorkResponseDto> houseWorkResponseDtos){
         return new HouseWorkDateResponseDtoBuilder()
                 .scheduledDate(scheduledDate)

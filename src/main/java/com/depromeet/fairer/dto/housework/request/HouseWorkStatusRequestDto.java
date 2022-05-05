@@ -1,12 +1,10 @@
-package com.depromeet.fairer.dto.housework;
+package com.depromeet.fairer.dto.housework.request;
 
 import lombok.Data;
-import lombok.Getter;
 import javax.validation.constraints.NotNull;
 
 @Data
-@Getter
-@NotNull
 public class HouseWorkStatusRequestDto {
+    @NotNull
     private String toBeStatus;
 }

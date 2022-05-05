@@ -2,6 +2,10 @@ spring:
   profiles:
     active: "local"
 
+server:
+  servlet:
+    context-path: /api
+
 ---
 
 spring:
@@ -63,10 +67,6 @@ spring:
       # swagger
       matching-strategy: ant_path_matcher
 
-server:
-  servlet:
-    context-path: /api
-
 # swagger
 springfox:
   documentation:
@@ -105,10 +105,6 @@ spring:
     pathmatch:
       # swagger
       matching-strategy: ant_path_matcher
-
-server:
-  servlet:
-    context-path: /api
 
 # swagger
 springfox:

@@ -9,9 +9,9 @@ import javax.persistence.*;
 @Entity
 @Table(name = "assignment")
 @Getter
+@Setter
 @Builder
-@ToString(exclude = {"member","housework"})
-@EqualsAndHashCode
+@ToString(exclude = {"member","houseWork"})
 @AllArgsConstructor @NoArgsConstructor
 public class Assignment {
 
@@ -26,5 +26,5 @@ public class Assignment {
 
     @ManyToOne
     @JoinColumn(name = "housework_id")
-    private HouseWork housework;
+    private HouseWork houseWork;
 }

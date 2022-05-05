@@ -1,4 +1,4 @@
-package com.depromeet.fairer.domain.housework;
+package com.depromeet.fairer.domain.preset.constant;
 
 import lombok.Getter;
 

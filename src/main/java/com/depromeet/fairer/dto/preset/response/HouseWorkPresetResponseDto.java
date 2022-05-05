@@ -1,4 +1,4 @@
-package com.depromeet.fairer.dto.housework;
+package com.depromeet.fairer.dto.preset.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,5 +11,5 @@ import java.util.List;
 @Getter
 public class HouseWorkPresetResponseDto {
     private String space;
-    private List<String> HouseWorks;
+    private List<String> houseWorks;
 }

@@ -3,10 +3,15 @@ package com.depromeet.fairer.service.housework;
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
-import com.depromeet.fairer.dto.housework.*;
+import com.depromeet.fairer.dto.housework.request.HouseWorkRequestDto;
+import com.depromeet.fairer.dto.housework.response.HouseWorkDateResponseDto;
+import com.depromeet.fairer.dto.housework.response.HouseWorkResponseDto;
+import com.depromeet.fairer.dto.housework.response.HouseWorkStatusResponseDto;
+import com.depromeet.fairer.dto.housework.response.HouseWorkSuccessCountResponseDto;
 import com.depromeet.fairer.dto.member.MemberDto;
-import com.depromeet.fairer.repository.HouseWorkRepository;
-import com.depromeet.fairer.repository.MemberRepository;
+import com.depromeet.fairer.repository.assignment.AssignmentRepository;
+import com.depromeet.fairer.repository.housework.HouseWorkRepository;
+import com.depromeet.fairer.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -15,10 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,55 +32,55 @@ import java.util.NoSuchElementException;
 public class HouseWorkService {
     private final HouseWorkRepository houseWorkRepository;
     private final MemberRepository memberRepository;
+    private final AssignmentRepository assignmentRepository;
 
     @Transactional
-    public Iterable<HouseWork> createHouseWorks(List<HouseWorkRequestDto> houseWorksDto) {
-        List<HouseWork> houseWorkList = new ArrayList<>();
-        for (HouseWorkRequestDto houseWorkDto : houseWorksDto) {
-            HouseWork houseWork = HouseWork.builder()
-                    .space(houseWorkDto.getSpace())
-                    .houseWorkName(houseWorkDto.getHouseWorkName())
-                    .scheduledDate(houseWorkDto.getScheduledDate())
-                    .scheduledTime(houseWorkDto.getScheduledTime())
-                    .success(false)
-                    .successDateTime(null)
-                    .build();
+    public List<HouseWorkResponseDto> createHouseWorks(List<HouseWorkRequestDto> houseWorksDto) {
+        return houseWorksDto.stream()
+                .map(this::createHouseWork)
+                .collect(Collectors.toList());
+    }
 
-            Iterable<Member> members = memberRepository.findAllById(houseWorkDto.getAssignees());
-            for (Member member : members) {
-                Assignment assignment = Assignment.builder().housework(houseWork).member(member).build();
-                houseWork.getAssignments().add(assignment);
-                member.getAssignments().add(assignment);
-            }
-            houseWorkList.add(houseWork);
+    private HouseWorkResponseDto createHouseWork(HouseWorkRequestDto houseWorkRequestDto) {
+        HouseWork houseWork = houseWorkRequestDto.toEntity();
+        houseWorkRepository.save(houseWork);
+
+        List<Member> members = memberRepository.findAllById(houseWorkRequestDto.getAssignees());
+        for (Member member : members) {
+            Assignment assignment = Assignment.builder().houseWork(houseWork).member(member).build();
+            assignmentRepository.save(assignment);
         }
 
-        return houseWorkRepository.saveAll(houseWorkList);
+        List<MemberDto> memberDtoList = members.stream().map(MemberDto::from).collect(Collectors.toList());
+        return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
-    public HouseWork updateHouseWork(Long id, HouseWorkRequestDto dto) {
-        return houseWorkRepository.findById(id).map(houseWork -> {
-            houseWork.setSpace(dto.getSpace());
-            houseWork.setHouseWorkName(dto.getHouseWorkName());
-            houseWork.setScheduledDate(dto.getScheduledDate());
-            houseWork.setScheduledTime(dto.getScheduledTime());
+    @Transactional
+    public HouseWorkResponseDto updateHouseWork(Long id, HouseWorkRequestDto dto) {
+        HouseWork houseWork = getHouseWorkById(id);
+        houseWork.setSpace(dto.getSpace());
+        houseWork.setHouseWorkName(dto.getHouseWorkName());
+        houseWork.setScheduledDate(dto.getScheduledDate());
+        houseWork.setScheduledTime(dto.getScheduledTime());
+        houseWorkRepository.save(houseWork);
 
-//            TODO: 변경된 assignee에 대해서만 assignment 할당되도록 수정 필요
-            houseWork.getAssignments().clear();
-            Iterable<Member> members = memberRepository.findAllById(dto.getAssignees());
-            for (Member member : members) {
-                Assignment assignment = Assignment.builder()
-                        .housework(houseWork)
-                        .member(member)
-                        .build();
-                houseWork.getAssignments().add(assignment);
-                member.getAssignments().add(assignment);
+        List<Member> members = memberRepository.findAllById(dto.getAssignees());
+
+        List<Assignment> assignments = assignmentRepository.findAllByHouseWorkAndMemberNotIn(houseWork, members);
+        assignmentRepository.deleteAll(assignments);
+
+        for (Member member : members) {
+            Optional<Assignment> assignment = assignmentRepository.findByHouseWorkAndMember(houseWork, member);
+            if(assignment.isEmpty()) {
+                assignmentRepository.save(Assignment.builder().houseWork(houseWork).member(member).build());
             }
+        }
 
-            return houseWorkRepository.save(houseWork);
-        }).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일 입니다."));
+        List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(id);
+        return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
+    @Transactional
     public void deleteHouseWork(Long id) {
         try{
             houseWorkRepository.deleteById(id);
@@ -83,10 +89,10 @@ public class HouseWorkService {
         }
     }
 
-    public HouseWorkSuccessCountResponseDto getSuccessCount(String scheduledDate) {
+    public HouseWorkSuccessCountResponseDto getSuccessCount(String scheduledDate, Long memberId) {
         LocalDate startDate = LocalDate.parse(scheduledDate).with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
         LocalDate endDate = LocalDate.parse(scheduledDate).with(TemporalAdjusters.previous(DayOfWeek.SUNDAY)).plusWeeks(1);
-        Long count = houseWorkRepository.getHouseWorkSuccessCount(3L, startDate, endDate);
+        Long count = houseWorkRepository.getHouseWorkSuccessCount(memberId, startDate, endDate);
         return HouseWorkSuccessCountResponseDto.of(count);
     }
 
@@ -97,22 +103,16 @@ public class HouseWorkService {
      */
     @Transactional
     public HouseWorkDateResponseDto getHouseWork(LocalDate scheduledDate){
-        // 같은 날짜의 집안일 정보 리스트
-        List<HouseWorkResponseDto> houseWorkResponseDtos = new ArrayList<>();
-        List<Long> houseWorkIdList;
+        List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDate(scheduledDate);
+        List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorkList.stream().map(houseWork -> {
+            List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWork.getHouseWorkId());
+            return HouseWorkResponseDto.from(houseWork, memberDtoList);
+        }).collect(Collectors.toList());
 
-        // houseWorkId찾기
-        houseWorkIdList = houseWorkRepository.findHouseWorkIdByDate(scheduledDate);
+        long countDone = houseWorkResponseDtoList.stream().filter(HouseWorkResponseDto::getSuccess).count();
+        long countLeft = houseWorkResponseDtoList.stream().filter(houseWorkResponseDto -> !houseWorkResponseDto.getSuccess()).count();
 
-        houseWorkIdList.forEach(houseWorkId -> houseWorkResponseDtos.add(
-                getHouseWorkDetail(houseWorkId)
-        ));
-        // houseWorkResponseDtos 완성
-
-        int countDone = houseWorkRepository.countDone(scheduledDate);
-        int countLeft = houseWorkRepository.countLeft(scheduledDate);
-
-        return HouseWorkDateResponseDto.from(scheduledDate, countDone, countLeft, houseWorkResponseDtos);
+        return HouseWorkDateResponseDto.from(scheduledDate, countDone, countLeft, houseWorkResponseDtoList);
     }
 
     /**
@@ -122,12 +122,9 @@ public class HouseWorkService {
      */
     @Transactional
     public HouseWorkResponseDto getHouseWorkDetail(Long houseWorkId) {
-        HouseWork houseWork = houseWorkRepository.findById(houseWorkId)
-                .orElseThrow(() -> new IllegalArgumentException("housework id가 존재하지 않습니다."));
-
-        List<MemberDto> memberDtolist = houseWorkRepository.addMemberDtoById(houseWorkId);
-
-        return HouseWorkResponseDto.from(houseWork, memberDtolist);
+        HouseWork houseWork = getHouseWorkById(houseWorkId);
+        List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWorkId);
+        return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
     /**
@@ -138,28 +135,16 @@ public class HouseWorkService {
     @Transactional
     public HouseWorkStatusResponseDto updateHouseWorkStatus(Long houseWorkId,
                                                             String toBeStatus) {
-        boolean status;
-        log.info(toBeStatus);
-
-        if (toBeStatus.equals("끝냈어요")) {
-            houseWorkRepository.updateStatusTrue(houseWorkId);
-            status = true;
-        } else {
-            houseWorkRepository.updateStatusFalse(houseWorkId);
-            status = false;
-        }
+        boolean status = toBeStatus.equals("끝냈어요");
+        HouseWork houseWork = getHouseWorkById(houseWorkId);
+        houseWork.setSuccessDateTime(status ? LocalDateTime.now() : null);
+        houseWork.setSuccess(status);
+        houseWorkRepository.save(houseWork);
         return new HouseWorkStatusResponseDto(houseWorkId, status);
     }
 
-    /**
-     * 공간 -> 집안일 프리셋 조회
-     * @param space 공간
-     * @return 집안일 이름 list
-     */
-    @Transactional
-    public HouseWorkPresetResponseDto getHouseWorkPreset(String space){
-        List<String> houseWorks;
-        houseWorks = houseWorkRepository.getHouseWorkPreset(space);
-        return new HouseWorkPresetResponseDto(space, houseWorks);
+    public HouseWork getHouseWorkById(Long houseWorkId) {
+        return houseWorkRepository.findById(houseWorkId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일 입니다."));
     }
 }
