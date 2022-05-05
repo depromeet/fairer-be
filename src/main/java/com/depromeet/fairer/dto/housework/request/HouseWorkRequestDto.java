@@ -1,6 +1,7 @@
-package com.depromeet.fairer.dto.housework;
+package com.depromeet.fairer.dto.housework.request;
 
-import com.depromeet.fairer.domain.housework.Space;
+import com.depromeet.fairer.domain.housework.HouseWork;
+import com.depromeet.fairer.domain.preset.constant.Space;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -31,5 +32,16 @@ public class HouseWorkRequestDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     private LocalTime scheduledTime;
+
+    public HouseWork toEntity() {
+        return HouseWork.builder()
+                .space(space)
+                .houseWorkName(houseWorkName)
+                .scheduledDate(scheduledDate)
+                .scheduledTime(scheduledTime)
+                .success(false)
+                .successDateTime(null)
+                .build();
+    }
 }
 

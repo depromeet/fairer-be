@@ -1,6 +1,7 @@
 package com.depromeet.fairer.domain.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
+import com.depromeet.fairer.domain.preset.constant.Space;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,13 +11,11 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Entity
 @Table(name = "housework")
 @Getter @Setter
 @ToString(exclude = {"assignments"})
 @Builder
-@EqualsAndHashCode
 @NoArgsConstructor @AllArgsConstructor
 public class HouseWork {
     @Id
@@ -44,6 +43,6 @@ public class HouseWork {
     private Boolean success;
 
     @Builder.Default
-    @OneToMany(mappedBy = "housework")
+    @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval=true)
     private List<Assignment> assignments = new ArrayList<>();
 }

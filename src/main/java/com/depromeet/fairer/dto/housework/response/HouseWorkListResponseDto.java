@@ -1,4 +1,4 @@
-package com.depromeet.fairer.dto.housework;
+package com.depromeet.fairer.dto.housework.response;
 
 import lombok.Data;
 

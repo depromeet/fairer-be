@@ -9,9 +9,7 @@ import java.util.List;
 @Entity
 @Table(name = "team")
 @Getter
-@ToString
 @Builder
-@EqualsAndHashCode
 @AllArgsConstructor @NoArgsConstructor
 public class Team {
 

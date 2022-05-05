@@ -5,7 +5,7 @@ import com.depromeet.fairer.dto.member.jwt.TokenDto;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.memberToken.MemberToken;
 import com.depromeet.fairer.global.util.DateTimeUtils;
-import com.depromeet.fairer.repository.MemberRepository;
+import com.depromeet.fairer.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

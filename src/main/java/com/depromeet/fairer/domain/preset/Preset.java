@@ -1,21 +1,15 @@
-package com.depromeet.fairer.domain.housework;
+package com.depromeet.fairer.domain.preset;
 
-import com.depromeet.fairer.domain.assignment.Assignment;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Entity
 @Table(name = "preset")
 @Getter
+@Setter
 @Builder
-@EqualsAndHashCode
 @NoArgsConstructor @AllArgsConstructor
 public class Preset {
     @Id
