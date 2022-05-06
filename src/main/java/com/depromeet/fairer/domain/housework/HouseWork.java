@@ -13,7 +13,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "housework")
-@Getter
+@Getter @Setter
 @ToString(exclude = {"assignments"})
 @Builder
 @EqualsAndHashCode
