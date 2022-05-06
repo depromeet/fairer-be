@@ -31,10 +31,10 @@ public class GoogleFeignService {
     private String REDIRECT_URI;
 
     @Value("${oauth2.clientId}")
-    private final String CLIENT_ID;
+    private String CLIENT_ID;
 
     @Value("${oauth2.clientSecret}")
-    private final String CLIENT_SECRET;
+    private String CLIENT_SECRET;
 
     private final String PASSWORD = "autoPassword";
     private final String GRANT_TYPE = "authorization_code";
