@@ -1,9 +1,9 @@
 package com.depromeet.fairer.repository.member;
 
-import com.depromeet.fairer.dto.member.MemberDto;
+import com.depromeet.fairer.domain.member.Member;
 
 import java.util.List;
 
 public interface MemberCustomRepository {
-    List<MemberDto> getMemberDtoListByHouseWorkId(Long houseWorkId);
+    List<Member> getMemberDtoListByHouseWorkId(Long houseWorkId);
 }
