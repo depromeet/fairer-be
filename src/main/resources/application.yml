@@ -24,6 +24,10 @@ swagger:
   url: http://ec2-13-125-232-180.ap-northeast-2.compute.amazonaws.com:8080
   desc: for dev usages
 
+oauth2:
+  redirectUri: https://ec2-13-125-232-180.ap-northeast-2.compute.amazonaws.com:8080/login/oauth2/code/google
+  desc: access token redirect uri for dev
+
 ---
 
 spring:

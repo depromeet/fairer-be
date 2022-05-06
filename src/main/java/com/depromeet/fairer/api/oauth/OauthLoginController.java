@@ -23,7 +23,6 @@ import java.security.InvalidParameterException;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
 public class OauthLoginController {
 
     private final OauthLoginService oauthLoginService;

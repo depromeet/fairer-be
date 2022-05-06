@@ -60,6 +60,6 @@ public class OauthLoginService {
     }
 
     public String getAccessToken(String authorizationCode) {
-        return googleFeignService.getAccessToken(authorizationCode);
+        return googleFeignService.getAccess(authorizationCode);
     }
 }
