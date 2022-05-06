@@ -15,6 +15,7 @@ import java.util.List;
 @Table(name = "housework")
 @Getter @Setter
 @ToString(exclude = {"assignments"})
+@EqualsAndHashCode
 @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class HouseWork {

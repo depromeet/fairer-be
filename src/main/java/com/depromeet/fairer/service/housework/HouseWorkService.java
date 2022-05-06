@@ -76,7 +76,7 @@ public class HouseWorkService {
             }
         }
 
-        List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(id);
+        List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(id).stream().map(MemberDto::from).collect(Collectors.toList());
         return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
@@ -105,7 +105,7 @@ public class HouseWorkService {
     public HouseWorkDateResponseDto getHouseWork(LocalDate scheduledDate){
         List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDate(scheduledDate);
         List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorkList.stream().map(houseWork -> {
-            List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWork.getHouseWorkId());
+            List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWork.getHouseWorkId()).stream().map(MemberDto::from).collect(Collectors.toList());
             return HouseWorkResponseDto.from(houseWork, memberDtoList);
         }).collect(Collectors.toList());
 
@@ -123,7 +123,7 @@ public class HouseWorkService {
     @Transactional
     public HouseWorkResponseDto getHouseWorkDetail(Long houseWorkId) {
         HouseWork houseWork = getHouseWorkById(houseWorkId);
-        List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWorkId);
+        List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWorkId).stream().map(MemberDto::from).collect(Collectors.toList());
         return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
