@@ -27,15 +27,18 @@ public class GoogleFeignService {
     private final GoogleAuthFeignClient googleAuthFeignClient;
     private final PasswordEncoder passwordEncoder;
 
-    // TODO 환경변수로 변경
-    private final String PASSWORD = "autoPassword";
-    private final String CLIENT_ID = "63882560814-d3o1unq4fk90c43mhhn912463irpc0go.apps.googleusercontent.com";
-    private final String CLIENT_SECRET = "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";
-    private final String GRANT_TYPE = "authorization_code";
-    private final String REQUEST_URI = "https://www.googleapis.com/oauth2/v4/token";
-
     @Value("${oauth2.redirectUri}")
     private String REDIRECT_URI;
+
+    @Value("${oauth2.clientId}")
+    private final String CLIENT_ID;
+
+    @Value("${oauth2.clientSecret}")
+    private final String CLIENT_SECRET;
+
+    private final String PASSWORD = "autoPassword";
+    private final String GRANT_TYPE = "authorization_code";
+    private final String REQUEST_URI = "https://www.googleapis.com/oauth2/v4/token";
 
 
     public OAuthAttributes getUserInfo(String accessToken) {
