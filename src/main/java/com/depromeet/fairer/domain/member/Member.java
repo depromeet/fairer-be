@@ -1,18 +1,21 @@
 package com.depromeet.fairer.domain.member;
 
+import com.depromeet.fairer.dto.member.oauth.OAuthAttributes;
 import com.depromeet.fairer.domain.assignment.Assignment;
+import com.depromeet.fairer.domain.memberToken.MemberToken;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name="member")
 @Getter
-@ToString
+@ToString(exclude = {"memberToken", "team", "assignments"})
 @Builder
 @EqualsAndHashCode
 @AllArgsConstructor @NoArgsConstructor
@@ -46,4 +49,26 @@ public class Member {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MemberToken memberToken;
+
+    /**
+     * TODO 닉네임 동의 안했을 때 처리 (입력한 닉네임으로 변경)
+     * @param socialUserInfo
+     * @return
+     */
+    public static Member create(OAuthAttributes socialUserInfo) {
+        return Member.builder()
+                .memberName(socialUserInfo.getName())
+                .email(socialUserInfo.getEmail())
+                .socialType(socialUserInfo.getSocialType())
+                .password(socialUserInfo.getPassword())
+                .assignments(new ArrayList<>())
+                .build();
+    }
+
+    public void updateMemberToken(MemberToken memberToken) {
+        this.memberToken = memberToken;
+    }
 }

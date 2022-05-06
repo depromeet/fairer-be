@@ -13,6 +13,10 @@ swagger:
   url: http://localhost:8080
   desc: for local usages
 
+oauth2:
+  redirectUri: https://localhost:8080/login/oauth2/code/google
+  desc: access token redirect uri for local
+
 ---
 
 spring:
@@ -23,6 +27,10 @@ spring:
 swagger:
   url: http://ec2-13-125-232-180.ap-northeast-2.compute.amazonaws.com:8080
   desc: for dev usages
+
+oauth2:
+  redirectUri: https://ec2-13-125-232-180.ap-northeast-2.compute.amazonaws.com:8080/login/oauth2/code/google
+  desc: access token redirect uri for dev
 
 ---
 
@@ -60,6 +68,12 @@ springfox:
   documentation:
     enabled: true
 
+  # JWT token
+token:
+  secret: fairer-backend
+  access-token-expiration-time: 99999999999
+  refresh-token-expiration-time: 99999999999
+
 ---
 
 spring:
@@ -96,3 +110,9 @@ server:
 springfox:
   documentation:
     enabled: false
+
+# JWT token
+token:
+  secret: fairer-backend
+  access-token-expiration-time: 900000  # 15분
+  refresh-token-expiration-time: 1210500000 # 2주

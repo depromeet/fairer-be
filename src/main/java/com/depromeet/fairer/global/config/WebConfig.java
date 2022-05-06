@@ -1,13 +1,36 @@
 package com.depromeet.fairer.global.config;
 
+import com.depromeet.fairer.global.config.interceptor.AuthInterceptor;
+import com.depromeet.fairer.repository.memberToken.MemberTokenRepository;
+import com.depromeet.fairer.service.member.jwt.TokenProvider;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
+    private final TokenProvider tokenProvider;
+    private final MemberTokenRepository memberTokenRepository;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authInterceptor())
+                .order(1)
+                .addPathPatterns("/api/**")
+                .excludePathPatterns("/api/oauth/login");
+    }
+
+    @Bean
+    public AuthInterceptor authInterceptor() {
+        return new AuthInterceptor(tokenProvider, memberTokenRepository);
+    }
 
     /**
      * 다른 출처의 자원을 공유할 수 있도록 설정하는 권한 체제

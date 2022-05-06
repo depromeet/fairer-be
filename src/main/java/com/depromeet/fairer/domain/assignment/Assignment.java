@@ -10,6 +10,7 @@ import javax.persistence.*;
 @Table(name = "assignment")
 @Getter
 @Builder
+@ToString(exclude = {"member","housework"})
 @EqualsAndHashCode
 @AllArgsConstructor @NoArgsConstructor
 public class Assignment {

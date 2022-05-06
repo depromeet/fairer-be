@@ -13,8 +13,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "housework")
-@Getter
-@Setter
+@Getter @Setter
+@ToString(exclude = {"assignments"})
 @Builder
 @EqualsAndHashCode
 @NoArgsConstructor @AllArgsConstructor
@@ -44,6 +44,6 @@ public class HouseWork {
     private Boolean success;
 
     @Builder.Default
-    @OneToMany(mappedBy = "housework", cascade = CascadeType.ALL, orphanRemoval=true)
+    @OneToMany(mappedBy = "housework")
     private List<Assignment> assignments = new ArrayList<>();
 }

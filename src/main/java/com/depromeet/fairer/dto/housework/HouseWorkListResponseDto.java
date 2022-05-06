@@ -1,6 +1,5 @@
 package com.depromeet.fairer.dto.housework;
 
-import com.depromeet.fairer.api.HouseWorkController;
 import lombok.Data;
 
 import java.util.List;
