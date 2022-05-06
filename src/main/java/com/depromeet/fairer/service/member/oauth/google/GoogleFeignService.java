@@ -35,7 +35,7 @@ public class GoogleFeignService {
     private final String REQUEST_URI = "https://www.googleapis.com/oauth2/v4/token";
 
     @Value("${oauth2.redirectUri}")
-    private final String REDIRECT_URI;
+    private String REDIRECT_URI;
 
 
     public OAuthAttributes getUserInfo(String accessToken) {

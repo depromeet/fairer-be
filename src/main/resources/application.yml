@@ -13,6 +13,10 @@ swagger:
   url: http://localhost:8080
   desc: for local usages
 
+oauth2:
+  redirectUri: https://localhost:8080/login/oauth2/code/google
+  desc: access token redirect uri for local
+
 ---
 
 spring:
