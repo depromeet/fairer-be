@@ -136,7 +136,7 @@ public class HouseWorkService {
      */
     @Transactional
     public HouseWorkStatusResponseDto updateHouseWorkStatus(Long houseWorkId,
-                                                            @NotNull int toBeStatus) {
+                                                            int toBeStatus) {
         boolean status = toBeStatus == 1;
         HouseWork houseWork = getHouseWorkById(houseWorkId);
         houseWork.setSuccessDateTime(status ? LocalDateTime.now() : null);
