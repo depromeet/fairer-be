@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum Space {
-    ENTRANCE, LIVINGROOM, BATHROOM, OUTSIDE, ROOM, KITCHEN;
+    ENTRANCE, LIVINGROOM, BATHROOM, OUTSIDE, ROOM, KITCHEN, ETC;
 }
