@@ -34,7 +34,7 @@ public class HouseWork {
     @Column(name = "scheduled_date", columnDefinition = "DATE", nullable = false)
     private LocalDate scheduledDate;
 
-    @Column(name = "scheduled_time", columnDefinition = "TIME", nullable = false)
+    @Column(name = "scheduled_time", columnDefinition = "TIME")
     private LocalTime scheduledTime;
 
     @Column(name = "success_datetime", columnDefinition = "DATETIME")

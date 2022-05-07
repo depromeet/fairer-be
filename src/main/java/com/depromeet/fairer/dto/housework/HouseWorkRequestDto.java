@@ -28,7 +28,6 @@ public class HouseWorkRequestDto {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate scheduledDate;
 
-    @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     private LocalTime scheduledTime;
