@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.InvalidParameterException;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -38,35 +39,24 @@ public class OauthLoginController {
         final String accessToken = oauthLoginService.getAccessToken(httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION)); // access token 발급
         final String socialTypeStr = oauthRequestDto.getSocialType();
 
-        validateLoginParams(socialTypeStr, accessToken);
+        oauthLoginService.validateLoginParams(socialTypeStr, accessToken);
 
         final SocialType socialType = EnumUtils.getEnumIgnoreCase(SocialType.class, socialTypeStr);
 
-        final ResponseJwtTokenDto jwtTokenDto = login(socialType, accessToken);
+        final ResponseJwtTokenDto jwtTokenDto = oauthLoginService.login(socialType, accessToken);
         log.info("=== Oauth login end ===");
         return ResponseEntity.ok(jwtTokenDto);
     }
 
-    public ResponseJwtTokenDto login(SocialType socialType, String accessToken) {
-
-        final OauthLoginDto oauthLoginDto = OauthLoginDto.builder().accessToken(accessToken).socialType(socialType).build();
-        return oauthLoginService.createMemberAndJwt(oauthLoginDto);
-    }
-
-    private void validateLoginParams(String socialType, String accessToken) {
-        validateSocialType(socialType);
-        validateAccessToken(accessToken);
-    }
-
-    private void validateSocialType(String socialType) {
-        if (!EnumUtils.isValidEnumIgnoreCase(SocialType.class, socialType)) {
-            throw new InvalidParameterException("잘못된 소셜 타입입니다. 'GOOGLE' 중에 입력해주세요.");
-        }
-    }
-
-    private void validateAccessToken(String accessToken) {
-        if (StringUtils.isBlank(accessToken)) {
-            throw new InvalidParameterException("Access 토큰값을 입력해주세요.");
-        }
+    /**
+     * 리프레시 토큰으로만 로그아웃 가능
+     * @param refreshToken
+     * @return
+     */
+    @PostMapping(value = "/oauth/logout")
+    @Operation(summary = "로그아웃", description = "refresh token으로만 요청 가능, 로그아웃 처리 시 db에 저장된 refresh token 만료 처리")
+    public ResponseEntity<String> logout(@RequestHeader(value = "Authorization") String refreshToken) {
+        oauthLoginService.logout(refreshToken, LocalDateTime.now());
+        return ResponseEntity.ok().body("로그아웃이 완료되었습니다.");
     }
 }

@@ -1,10 +1,13 @@
 package com.depromeet.fairer.service.member.oauth;
 
+import com.depromeet.fairer.domain.memberToken.MemberToken;
 import com.depromeet.fairer.dto.member.oauth.OAuthAttributes;
 import com.depromeet.fairer.dto.member.oauth.OauthLoginDto;
 import com.depromeet.fairer.dto.member.jwt.ResponseJwtTokenDto;
 import com.depromeet.fairer.dto.member.jwt.TokenDto;
+import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
 import com.depromeet.fairer.repository.MemberRepository;
+import com.depromeet.fairer.repository.memberToken.MemberTokenRepository;
 import com.depromeet.fairer.service.member.jwt.TokenProvider;
 import com.depromeet.fairer.service.member.oauth.google.GoogleFeignService;
 import com.depromeet.fairer.domain.member.Member;
@@ -12,10 +15,14 @@ import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.depromeet.fairer.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.security.InvalidParameterException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -28,7 +35,7 @@ public class OauthLoginService {
     private final TokenProvider tokenProvider;
     private final ModelMapper modelMapper;
     private final MemberRepository memberRepository;
-
+    private final MemberTokenRepository memberTokenRepository;
 
     public ResponseJwtTokenDto createMemberAndJwt(OauthLoginDto oauthLoginDto) {
         // 소셜 회원 정보 조회
@@ -63,5 +70,33 @@ public class OauthLoginService {
 
     public String getAccessToken(String authorizationCode) {
         return googleFeignService.getAccess(authorizationCode);
+    }
+
+    public ResponseJwtTokenDto login(SocialType socialType, String accessToken) {
+        final OauthLoginDto oauthLoginDto = OauthLoginDto.builder().accessToken(accessToken).socialType(socialType).build();
+        return createMemberAndJwt(oauthLoginDto);
+    }
+
+    public void validateLoginParams(String socialType, String accessToken) {
+        validateSocialType(socialType);
+        validateAccessToken(accessToken);
+    }
+
+    private void validateSocialType(String socialType) {
+        if (!EnumUtils.isValidEnumIgnoreCase(SocialType.class, socialType)) {
+            throw new InvalidParameterException("잘못된 소셜 타입입니다. 'GOOGLE' 중에 입력해주세요.");
+        }
+    }
+
+    private void validateAccessToken(String accessToken) {
+        if (StringUtils.isBlank(accessToken)) {
+            throw new InvalidParameterException("Access 토큰값을 입력해주세요.");
+        }
+    }
+
+    public void logout(String refreshToken, LocalDateTime now) {
+        final MemberToken memberToken = memberTokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new MemberTokenNotFoundException("해당 리프레시 토큰이 존재하지 않습니다."));
+        memberToken.expire(now);
     }
 }
