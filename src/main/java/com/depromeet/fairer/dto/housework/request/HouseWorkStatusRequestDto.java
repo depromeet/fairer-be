@@ -6,5 +6,5 @@ import javax.validation.constraints.NotNull;
 @Data
 public class HouseWorkStatusRequestDto {
     @NotNull
-    private String toBeStatus;
+    private int toBeStatus;
 }

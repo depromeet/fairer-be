@@ -18,6 +18,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -130,12 +131,13 @@ public class HouseWorkService {
     /**
      * 집안일 완료 상태 변경
      * @param houseWorkId 변경할 집안일 id
+     * @param toBeStatus 0 or 1
      * @return 변경된 집안일 상태
      */
     @Transactional
     public HouseWorkStatusResponseDto updateHouseWorkStatus(Long houseWorkId,
-                                                            String toBeStatus) {
-        boolean status = toBeStatus.equals("끝냈어요");
+                                                            @NotNull int toBeStatus) {
+        boolean status = toBeStatus == 1;
         HouseWork houseWork = getHouseWorkById(houseWorkId);
         houseWork.setSuccessDateTime(status ? LocalDateTime.now() : null);
         houseWork.setSuccess(status);
