@@ -1,6 +1,7 @@
 package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.preset.constant.Space;
+import com.depromeet.fairer.dto.preset.response.HouseWorkPresetListResponseDto;
 import com.depromeet.fairer.dto.preset.response.HouseWorkPresetResponseDto;
 import com.depromeet.fairer.service.PresetService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/houseworks")
+@RequestMapping("/preset")
 public class PresetController {
     private final PresetService presetService;
 
@@ -26,5 +27,10 @@ public class PresetController {
     @GetMapping(value = "{space}")
     public ResponseEntity<HouseWorkPresetResponseDto> getHouseWorkPreset(@PathVariable Space space){
         return ResponseEntity.ok(presetService.getHouseWorkPreset(space));
+    }
+
+    @GetMapping(value = "")
+    public ResponseEntity<HouseWorkPresetListResponseDto> getPreset(){
+        return ResponseEntity.ok(presetService.getPreset());
     }
 }
