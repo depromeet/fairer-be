@@ -1,7 +1,6 @@
 package com.depromeet.fairer.repository.member;
 
 import com.depromeet.fairer.domain.member.Member;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -19,8 +18,7 @@ public class MemberCustomRepositoryImpl implements MemberCustomRepository{
     @Override
     public List<Member> getMemberDtoListByHouseWorkId(Long houseWorkId){
         return jpaQueryFactory
-                .select(Projections.fields(Member.class))
-                .from(member)
+                .selectFrom(member)
                 .innerJoin(member.assignments, assignment)
                 .where(assignment.houseWork.houseWorkId.eq(houseWorkId))
                 .fetch();
