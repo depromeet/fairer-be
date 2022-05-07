@@ -20,29 +20,4 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    public Optional<Member> getOptionalMember(String email) {
-        return memberRepository.findByEmail(email);
-    }
-
-    public Member createMember(OAuthAttributes socialUserInfo) {
-        return Member.create(socialUserInfo);
-    }
-
-    public Member saveMember(Member member, TokenDto tokenDto) {
-        final Member savedMember = memberRepository.save(member);
-        saveRefreshToken(savedMember, tokenDto);
-        return savedMember;
-    }
-
-    /**
-     * refresh token 저장
-     * @param member
-     * @param tokenDto
-     */
-    public void saveRefreshToken(Member member, TokenDto tokenDto) {
-        LocalDateTime tokenExpiredTime = DateTimeUtils.convertToLocalDateTime(tokenDto.getRefreshTokenExpireTime());
-
-        final MemberToken memberToken = MemberToken.create(member, tokenDto.getRefreshToken(), tokenExpiredTime);
-        memberRepository.save(member);
-    }
 }
