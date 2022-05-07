@@ -52,4 +52,10 @@ public class MemberToken {
     public void updateTokenExpireTime(LocalDateTime tokenExpirationTime) {
         this.tokenExpirationTime = tokenExpirationTime;
     }
+
+    public void expire(LocalDateTime now) {
+        if (tokenExpirationTime.isAfter(now)) {
+            this.tokenExpirationTime = now;
+        }
+    }
 }
