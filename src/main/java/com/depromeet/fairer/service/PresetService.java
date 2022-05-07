@@ -2,12 +2,14 @@ package com.depromeet.fairer.service;
 
 import com.depromeet.fairer.domain.preset.Preset;
 import com.depromeet.fairer.domain.preset.constant.Space;
+import com.depromeet.fairer.dto.preset.response.HouseWorkPresetListResponseDto;
 import com.depromeet.fairer.dto.preset.response.HouseWorkPresetResponseDto;
 import com.depromeet.fairer.repository.preset.PresetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,5 +29,21 @@ public class PresetService {
                 .stream().map(Preset::getPresetHouseWorkName)
                 .collect(Collectors.toList());
         return new HouseWorkPresetResponseDto(space.name(), houseWorks);
+    }
+
+    public HouseWorkPresetListResponseDto getPreset() {
+        List<HouseWorkPresetResponseDto> preset = new ArrayList<>();
+        for (Space space : Space.values()) {
+            if (space.equals(Space.ETC)) {
+                continue;
+            }
+
+            List<String> houseWorks = presetRepository.findByPresetSpaceName(space.name())
+                    .stream().map(Preset::getPresetHouseWorkName)
+                    .collect(Collectors.toList());
+
+            preset.add(new HouseWorkPresetResponseDto(space.name(), houseWorks));
+        }
+        return new HouseWorkPresetListResponseDto(preset);
     }
 }
