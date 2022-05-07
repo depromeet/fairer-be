@@ -1,15 +1,16 @@
 package com.depromeet.fairer.domain.memberToken;
 
 import com.depromeet.fairer.domain.member.Member;
+import com.depromeet.fairer.domain.memberToken.constant.RemainingTokenTime;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "member_token")
-@Getter 
-@ToString(exclude = "member")
+@Getter
 @Builder
 @AllArgsConstructor @NoArgsConstructor
 public class MemberToken {
@@ -23,19 +24,32 @@ public class MemberToken {
 
     private LocalDateTime tokenExpirationTime;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
-
-    public static MemberToken create(Member member, String refreshToken, LocalDateTime tokenExpiredTime) {
+    public static MemberToken create(String refreshToken, LocalDateTime tokenExpiredTime) {
         final MemberToken memberToken = MemberToken.builder()
-                .member(member)
                 .refreshToken(refreshToken)
                 .tokenExpirationTime(tokenExpiredTime)
                 .build();
 
-        member.updateMemberToken(memberToken);
-
         return memberToken;
+    }
+
+    /**
+     * refresh token이 만료 갱신 기준 이하일 경우 만료 시간 갱신
+     * @param now
+     * @param remainingTokenTime 해당 시간 이하일 경우 토큰 만료 시간 갱신
+     */
+    public void updateRefreshTokenExpireTime(LocalDateTime now, RemainingTokenTime remainingTokenTime) {
+        final long hours = ChronoUnit.HOURS.between(now, tokenExpirationTime);
+        if (hours <= remainingTokenTime.getRemainingTime()) {
+            updateTokenExpireTime(now.plusWeeks(2));
+        }
+    }
+
+    /**
+     * 토큰 만료 시간 갱신
+     * @param tokenExpirationTime
+     */
+    public void updateTokenExpireTime(LocalDateTime tokenExpirationTime) {
+        this.tokenExpirationTime = tokenExpirationTime;
     }
 }

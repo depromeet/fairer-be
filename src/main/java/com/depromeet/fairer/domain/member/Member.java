@@ -15,7 +15,7 @@ import java.util.List;
 @Entity
 @Table(name="member")
 @Getter
-@ToString(exclude = {"memberToken", "team", "assignments"})
+@ToString(exclude = {"team", "assignments"})
 @Builder
 @EqualsAndHashCode
 @AllArgsConstructor @NoArgsConstructor
@@ -50,9 +50,6 @@ public class Member {
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private MemberToken memberToken;
-
     /**
      * TODO 닉네임 동의 안했을 때 처리 (입력한 닉네임으로 변경)
      * @param socialUserInfo
@@ -68,7 +65,4 @@ public class Member {
                 .build();
     }
 
-    public void updateMemberToken(MemberToken memberToken) {
-        this.memberToken = memberToken;
-    }
 }

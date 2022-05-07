@@ -4,6 +4,7 @@ import com.depromeet.fairer.dto.member.oauth.OAuthAttributes;
 import com.depromeet.fairer.dto.member.oauth.OauthLoginDto;
 import com.depromeet.fairer.dto.member.jwt.ResponseJwtTokenDto;
 import com.depromeet.fairer.dto.member.jwt.TokenDto;
+import com.depromeet.fairer.repository.MemberRepository;
 import com.depromeet.fairer.service.member.jwt.TokenProvider;
 import com.depromeet.fairer.service.member.oauth.google.GoogleFeignService;
 import com.depromeet.fairer.domain.member.Member;
@@ -24,9 +25,9 @@ import java.util.Optional;
 public class OauthLoginService {
 
     private final GoogleFeignService googleFeignService;
-    private final MemberService memberService;
     private final TokenProvider tokenProvider;
     private final ModelMapper modelMapper;
+    private final MemberRepository memberRepository;
 
 
     public ResponseJwtTokenDto createMemberAndJwt(OauthLoginDto oauthLoginDto) {
@@ -34,18 +35,19 @@ public class OauthLoginService {
         final OAuthAttributes socialUserInfo = getSocialUserInfo(oauthLoginDto);
         log.info("oauthAttributes: {}", socialUserInfo.toString());
 
-        // JWT 토큰 생성
-        TokenDto tokenDto = tokenProvider.createTokenDto(socialUserInfo.getEmail());
-        log.info("tokenDto: {}", tokenDto);
-
         // 회원 가입 or 로그인
         Boolean isNewMember = false;
-        final Optional<Member> optionalMember = memberService.getOptionalMember(socialUserInfo.getEmail());
-        if (optionalMember.isEmpty()) { // 기존 회원 아닐 때
-            Member member = memberService.createMember(socialUserInfo);
-            memberService.saveMember(member, tokenDto);
+        Member requestMember;
+        final Optional<Member> foundMember = memberRepository.findByEmail(socialUserInfo.getEmail());
+        if (foundMember.isEmpty()) { // 기존 회원 아닐 때
+            Member newMember = Member.create(socialUserInfo);
+            requestMember = memberRepository.save(newMember);
             isNewMember = true;
-        } else memberService.saveRefreshToken(optionalMember.get(), tokenDto); // 기존 회원일
+        } else requestMember = foundMember.get(); // 기존 회원일 때
+
+        // JWT 토큰 생성
+        TokenDto tokenDto = tokenProvider.createTokenDto(requestMember.getMemberId());
+        log.info("tokenDto: {}", tokenDto);
 
         ResponseJwtTokenDto responseJwtTokenDto = modelMapper.map(tokenDto, ResponseJwtTokenDto.class);
         responseJwtTokenDto.setIsNewMember(isNewMember);

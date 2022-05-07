@@ -1,7 +1,12 @@
 package com.depromeet.fairer.service.member.jwt;
 
+import com.depromeet.fairer.domain.memberToken.MemberToken;
 import com.depromeet.fairer.dto.member.jwt.TokenDto;
 import com.depromeet.fairer.domain.memberToken.constant.JwtTokenType;
+import com.depromeet.fairer.global.util.DateTimeUtils;
+import com.depromeet.fairer.repository.memberToken.MemberTokenRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -9,12 +14,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenProvider {
+
+    private final MemberTokenRepository memberTokenRepository;
 
     @Value("${token.access-token-expiration-time}")
     private String accessTokenExpirationTime;
@@ -27,13 +35,22 @@ public class TokenProvider {
 
     private static final String BEARER_TYPE = "bearer";
 
-    public TokenDto createTokenDto(String email) {
+    /**
+     * 엑세스/리프레시 토큰 dto 생성
+     * refresh token 저장 로직 포함
+     * @param memberId
+     * @return
+     */
+    public TokenDto createTokenDto(Long memberId) {
 
         Date accessTokenExpireTime = createAccessTokenExpireTime();
         Date refreshTokenExpireTime = createRefreshTokenExpireTime();
 
-        String accessToken = createAccessToken(email, accessTokenExpireTime);
-        String refreshToken = createRefreshToken(email, refreshTokenExpireTime);
+        String accessToken = createAccessToken(memberId, accessTokenExpireTime);
+        String refreshToken = createRefreshToken(memberId, refreshTokenExpireTime);
+
+        final MemberToken memberToken = MemberToken.create(refreshToken, DateTimeUtils.convertToLocalDateTime(refreshTokenExpireTime));
+        memberTokenRepository.save(memberToken);
 
         return TokenDto.builder()
                 .grantType(BEARER_TYPE)
@@ -44,20 +61,20 @@ public class TokenProvider {
                 .build();
     }
 
-    private String createRefreshToken(String email, Date expirationTime) {
+    private String createRefreshToken(Long memberId, Date expirationTime) {
         return Jwts.builder()
                 .setSubject(JwtTokenType.REFRESH.name())
-                .setAudience(email)
+                .setAudience(Long.toString(memberId))
                 .setIssuedAt(new Date())
                 .setExpiration(expirationTime)
                 .signWith(SignatureAlgorithm.HS512, tokenSecret)
                 .compact();
     }
 
-    private String createAccessToken(String email, Date expirationTime) {
+    public String createAccessToken(Long memberId, Date expirationTime) {
         return Jwts.builder()
                 .setSubject(JwtTokenType.ACCESS.name())
-                .setAudience(email)
+                .setAudience(Long.toString(memberId))
                 .setIssuedAt(new Date())
                 .setExpiration(expirationTime)
                 .signWith(SignatureAlgorithm.HS512, tokenSecret)
@@ -68,7 +85,7 @@ public class TokenProvider {
      * access token 만료 시간 생성
      * @return
      */
-    private Date createAccessTokenExpireTime() {
+    public Date createAccessTokenExpireTime() {
         return new Date(System.currentTimeMillis() + Long.parseLong(accessTokenExpirationTime));
     }
 
@@ -78,5 +95,56 @@ public class TokenProvider {
      */
     private Date createRefreshTokenExpireTime() {
         return new Date(System.currentTimeMillis() + Long.parseLong(refreshTokenExpirationTime));
+    }
+
+    public boolean isTokenExpired(Date now, Date tokenExpiredTime) {
+        if (now.after(tokenExpiredTime)) { // 토큰 만료된 경우
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isTokenExpired(LocalDateTime now, LocalDateTime tokenExpiredTime) {
+        if (now.isAfter(tokenExpiredTime)) { // 토큰 만료된 경우
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 토큰 유효 검사
+     * @param token
+     * @return
+     */
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(tokenSecret).parseClaimsJws(token);
+            return true;
+        } catch (JwtException e) {  // 토큰 변조
+            log.warn("토큰 변조 감지: {}", token);
+            e.printStackTrace();
+        } catch (Exception e) {
+            log.warn("토큰 검증 에러 발생: {}", token);
+            e.printStackTrace();
+            throw e;
+        }
+
+        return false;
+    }
+
+    /**
+     * 토큰 파싱 후 property 변환
+     * @param token
+     * @return
+     */
+    public Claims getTokenClaims(String token) {
+        Claims claims = null;
+
+        try {
+            claims = Jwts.parser().setSigningKey(tokenSecret).parseClaimsJws(token).getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+        return claims;
     }
 }
