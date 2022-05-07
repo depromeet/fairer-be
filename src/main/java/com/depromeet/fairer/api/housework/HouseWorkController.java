@@ -19,11 +19,11 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/houseworks")
+@RequestMapping("houseworks")
 public class HouseWorkController {
     private final HouseWorkService houseWorkService;
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@RequestBody @Valid HouseWorkListRequestDto req) {
         List<HouseWorkResponseDto> houseWorkList = houseWorkService.createHouseWorks(req.getHouseWorks());
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
@@ -45,7 +45,7 @@ public class HouseWorkController {
      * @param scheduledDate 날짜
      * @return 날짜별 집안일 dto list
      */
-    @GetMapping(value = "/")
+    @GetMapping(value = "")
     public ResponseEntity<HouseWorkDateResponseDto> getHouseWork(@RequestParam("scheduledDate") String scheduledDate){
         LocalDate scheduledDateParse = LocalDate.parse(scheduledDate, DateTimeFormatter.ISO_DATE);
         return ResponseEntity.ok(houseWorkService.getHouseWork(scheduledDateParse));
@@ -56,7 +56,7 @@ public class HouseWorkController {
      * @param houseWorkId 집안일 id
      * @return 집안일 정보 dto
      */
-    @GetMapping(value = "/{houseWorkId}/detail")
+    @GetMapping(value = "{houseWorkId}/detail")
     public ResponseEntity<HouseWorkResponseDto> getHouseWorkDetail(@PathVariable("houseWorkId") Long houseWorkId){
         return ResponseEntity.ok(houseWorkService.getHouseWorkDetail(houseWorkId));
     }
@@ -66,7 +66,7 @@ public class HouseWorkController {
      * @param houseWorkId 변경할 집안일 id
      * @return 변경된 집안일 상태
      */
-    @PatchMapping(value = "/{houseWorkId}")
+    @PatchMapping(value = "{houseWorkId}")
     public ResponseEntity<HouseWorkStatusResponseDto> updateHouseWorkStatus(@PathVariable("houseWorkId") Long houseWorkId, @RequestBody @Valid HouseWorkStatusRequestDto req){
         return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, req.getToBeStatus()));
     }
