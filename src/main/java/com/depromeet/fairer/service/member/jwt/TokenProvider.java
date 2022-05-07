@@ -1,9 +1,11 @@
 package com.depromeet.fairer.service.member.jwt;
 
+import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.memberToken.MemberToken;
 import com.depromeet.fairer.dto.member.jwt.TokenDto;
 import com.depromeet.fairer.domain.memberToken.constant.JwtTokenType;
 import com.depromeet.fairer.global.util.DateTimeUtils;
+import com.depromeet.fairer.repository.MemberRepository;
 import com.depromeet.fairer.repository.memberToken.MemberTokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -23,6 +25,7 @@ import java.util.Date;
 public class TokenProvider {
 
     private final MemberTokenRepository memberTokenRepository;
+    private final MemberRepository memberRepository;
 
     @Value("${token.access-token-expiration-time}")
     private String accessTokenExpirationTime;
@@ -34,6 +37,18 @@ public class TokenProvider {
     private String tokenSecret;
 
     private static final String BEARER_TYPE = "bearer";
+
+    public static Long getMemberId(String token) {
+        try {
+            final Claims claims = Jwts.parser().setSigningKey("fairer-backend") //jwt 만들 때 사용했던 키. static 메서드 사용하기 위해서 String으로 하드 코딩.
+                    .parseClaimsJws(token).getBody();
+            return Long.parseLong(claims.getAudience());
+        } catch (Exception e) {
+            log.warn("토큰 변환 중 에러 발생: {}", token);
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
     /**
      * 엑세스/리프레시 토큰 dto 생성
