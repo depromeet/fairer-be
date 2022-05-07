@@ -23,7 +23,7 @@ public class PresetController {
      * @param space 공간
      * @return 집안일 이름 list
      */
-    @GetMapping(value = "/{space}")
+    @GetMapping(value = "{space}")
     public ResponseEntity<HouseWorkPresetResponseDto> getHouseWorkPreset(@PathVariable Space space){
         return ResponseEntity.ok(presetService.getHouseWorkPreset(space));
     }
