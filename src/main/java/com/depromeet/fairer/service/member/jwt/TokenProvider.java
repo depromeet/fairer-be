@@ -1,11 +1,10 @@
 package com.depromeet.fairer.service.member.jwt;
 
-import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.memberToken.MemberToken;
 import com.depromeet.fairer.dto.member.jwt.TokenDto;
 import com.depromeet.fairer.domain.memberToken.constant.JwtTokenType;
 import com.depromeet.fairer.global.util.DateTimeUtils;
-import com.depromeet.fairer.repository.MemberRepository;
+import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.memberToken.MemberTokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

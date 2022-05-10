@@ -1,4 +1,4 @@
-package com.depromeet.fairer.repository;
+package com.depromeet.fairer.repository.member;
 
 import com.depromeet.fairer.domain.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;

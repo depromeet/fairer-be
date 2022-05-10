@@ -6,7 +6,7 @@ import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.dto.housework.*;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.repository.HouseWorkRepository;
-import com.depromeet.fairer.repository.MemberRepository;
+import com.depromeet.fairer.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,7 +18,6 @@ import java.time.DayOfWeek;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
