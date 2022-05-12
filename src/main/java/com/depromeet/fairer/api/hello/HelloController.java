@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public class HelloController {
 
     @Operation(summary = "test hello", description = "hello api example")
-    @GetMapping("/hello")
+    @GetMapping("/api/hello")
     public ResponseEntity<String> hello(@Parameter(description = "이름", required = true, example = "park") @RequestParam String name) {
         log.info("log log log!!!");
         return ResponseEntity.ok("hello" + name);

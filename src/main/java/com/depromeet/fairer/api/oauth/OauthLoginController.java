@@ -24,11 +24,12 @@ import java.time.LocalDateTime;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/oauth")
 public class OauthLoginController {
 
     private final OauthLoginService oauthLoginService;
 
-    @PostMapping(value = "/oauth/login", headers = {"Content-type=application/json"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/login", headers = {"Content-type=application/json"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "OAuth 로그인 API", description = "Authorization code로 로그인 시 JWT 토큰 반환, 현재 GOOGLE만 지원")
     @ApiImplicitParams({
             @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
@@ -53,7 +54,7 @@ public class OauthLoginController {
      * @param refreshToken
      * @return
      */
-    @PostMapping(value = "/oauth/logout")
+    @PostMapping(value = "/logout")
     @Operation(summary = "로그아웃", description = "refresh token으로만 요청 가능, 로그아웃 처리 시 db에 저장된 refresh token 만료 처리")
     public ResponseEntity<String> logout(@RequestHeader(value = "Authorization") String refreshToken) {
         oauthLoginService.logout(refreshToken, LocalDateTime.now());

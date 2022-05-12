@@ -1,4 +1,4 @@
-package com.depromeet.fairer.api;
+package com.depromeet.fairer.api.preset;
 
 import com.depromeet.fairer.domain.preset.constant.Space;
 import com.depromeet.fairer.dto.preset.response.HouseWorkPresetListResponseDto;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/preset")
+@RequestMapping("/api/preset")
 public class PresetController {
     private final PresetService presetService;
 
