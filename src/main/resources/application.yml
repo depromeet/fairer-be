@@ -14,7 +14,7 @@ swagger:
   desc: for local usages
 
 oauth2:
-  redirectUri: http://localhost:8080/api/login/oauth2/code/google
+  redirectUri: http://localhost:8080/login/oauth2/code/google
   clientId: 63882560814-d3o1unq4fk90c43mhhn912463irpc0go.apps.googleusercontent.com
   clientSecret: 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
   desc: access token redirect uri for local
@@ -31,7 +31,7 @@ swagger:
   desc: for dev usages
 
 oauth2:
-  redirectUri: https://ec2-13-125-232-180.ap-northeast-2.compute.amazonaws.com:8080/api/login/oauth2/code/google
+  redirectUri: https://ec2-13-125-232-180.ap-northeast-2.compute.amazonaws.com:8080/login/oauth2/code/google
   clientId: 63882560814-d3o1unq4fk90c43mhhn912463irpc0go.apps.googleusercontent.com
   clientSecret: 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
   desc: access token redirect uri for dev
