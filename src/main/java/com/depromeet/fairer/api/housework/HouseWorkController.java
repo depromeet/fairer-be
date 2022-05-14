@@ -25,8 +25,8 @@ public class HouseWorkController {
     private final HouseWorkService houseWorkService;
 
     @PostMapping("")
-    public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@RequestBody @Valid HouseWorkListRequestDto req) {
-        List<HouseWorkResponseDto> houseWorkList = houseWorkService.createHouseWorks(req.getHouseWorks());
+    public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@RequestMemberId Long memberId,  @RequestBody @Valid HouseWorkListRequestDto req) {
+        List<HouseWorkResponseDto> houseWorkList = houseWorkService.createHouseWorks(memberId, req.getHouseWorks());
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
     }
 
