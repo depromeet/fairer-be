@@ -69,17 +69,18 @@ public class HouseWorkService {
         houseWork.setScheduledTime(dto.getScheduledTime());
         houseWorkRepository.save(houseWork);
 
-        List<Member> members = memberRepository.findAllById(dto.getAssignees());
+//        TODO: Team 기능 도입되어 assignees 지정 가능한 경우 주석 해제
+//        List<Member> members = memberRepository.findAllById(dto.getAssignees());
 
-        List<Assignment> assignments = assignmentRepository.findAllByHouseWorkAndMemberNotIn(houseWork, members);
-        assignmentRepository.deleteAll(assignments);
-
-        for (Member member : members) {
-            Optional<Assignment> assignment = assignmentRepository.findByHouseWorkAndMember(houseWork, member);
-            if(assignment.isEmpty()) {
-                assignmentRepository.save(Assignment.builder().houseWork(houseWork).member(member).build());
-            }
-        }
+//        List<Assignment> assignments = assignmentRepository.findAllByHouseWorkAndMemberNotIn(houseWork, members);
+//        assignmentRepository.deleteAll(assignments);
+//
+//        for (Member member : members) {
+//            Optional<Assignment> assignment = assignmentRepository.findByHouseWorkAndMember(houseWork, member);
+//            if(assignment.isEmpty()) {
+//                assignmentRepository.save(Assignment.builder().houseWork(houseWork).member(member).build());
+//            }
+//        }
 
         List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(id).stream().map(MemberDto::from).collect(Collectors.toList());
         return HouseWorkResponseDto.from(houseWork, memberDtoList);
