@@ -1,5 +1,6 @@
 package com.depromeet.fairer.api.housework;
 
+import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.housework.HouseWorkService;
 import com.depromeet.fairer.dto.housework.request.HouseWorkListRequestDto;
 import com.depromeet.fairer.dto.housework.request.HouseWorkRequestDto;
@@ -46,9 +47,10 @@ public class HouseWorkController {
      * @return 날짜별 집안일 dto list
      */
     @GetMapping(value = "")
-    public ResponseEntity<HouseWorkDateResponseDto> getHouseWork(@RequestParam("scheduledDate") String scheduledDate){
+    public ResponseEntity<HouseWorkDateResponseDto> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
+                                                                 @RequestMemberId Long memberId){
         LocalDate scheduledDateParse = LocalDate.parse(scheduledDate, DateTimeFormatter.ISO_DATE);
-        return ResponseEntity.ok(houseWorkService.getHouseWork(scheduledDateParse));
+        return ResponseEntity.ok(houseWorkService.getHouseWork(scheduledDateParse, memberId));
     }
 
     /**

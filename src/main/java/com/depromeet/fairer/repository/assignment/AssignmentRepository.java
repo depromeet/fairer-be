@@ -13,4 +13,6 @@ import java.util.Optional;
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     Optional<Assignment> findByHouseWorkAndMember(HouseWork houseWork, Member member);
     List<Assignment> findAllByHouseWorkAndMemberNotIn(HouseWork houseWork, List<Member> members);
+
+    List<Assignment> findAllByMember(Member member);
 }
