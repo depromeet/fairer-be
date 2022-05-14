@@ -24,12 +24,12 @@ import java.time.LocalDateTime;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/oauth")
+//@RequestMapping("/api/oauth")
 public class OauthLoginController {
 
     private final OauthLoginService oauthLoginService;
 
-    @PostMapping(value = "/login", headers = {"Content-type=application/json"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/api/oauth/login", headers = {"Content-type=application/json"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "OAuth 로그인 API", description = "Authorization code로 로그인 시 JWT 토큰 반환, 현재 GOOGLE만 지원")
     @ApiImplicitParams({
             @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
@@ -49,12 +49,28 @@ public class OauthLoginController {
         return ResponseEntity.ok(jwtTokenDto);
     }
 
+    @GetMapping(value = "/login/oauth2/code/google", headers = {"Content-type=application/json"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseJwtTokenDto> loginOauth(String code) {
+        log.info("=== Oauth login start ===");
+
+        final String accessToken = oauthLoginService.getAccessToken(code); // access token 발급
+        final String socialTypeStr = "GOOGLE";
+
+        oauthLoginService.validateLoginParams(socialTypeStr, accessToken);
+
+        final SocialType socialType = EnumUtils.getEnumIgnoreCase(SocialType.class, socialTypeStr);
+
+        final ResponseJwtTokenDto jwtTokenDto = oauthLoginService.login(socialType, accessToken);
+        log.info("=== Oauth login end ===");
+        return ResponseEntity.ok(jwtTokenDto);
+    }
+
     /**
      * 리프레시 토큰으로만 로그아웃 가능
      * @param refreshToken
      * @return
      */
-    @PostMapping(value = "/logout")
+    @PostMapping(value = "/api/oauth/logout")
     @Operation(summary = "로그아웃", description = "refresh token으로만 요청 가능, 로그아웃 처리 시 db에 저장된 refresh token 만료 처리")
     public ResponseEntity<String> logout(@RequestHeader(value = "Authorization") String refreshToken) {
         oauthLoginService.logout(refreshToken, LocalDateTime.now());
