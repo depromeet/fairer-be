@@ -18,7 +18,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -103,10 +102,14 @@ public class HouseWorkService {
      * @return 날짜별 집안일 dto list
      */
     @Transactional
-    public HouseWorkDateResponseDto getHouseWork(LocalDate scheduledDate){
-        List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDate(scheduledDate);
+    public HouseWorkDateResponseDto getHouseWork(LocalDate scheduledDate, Long memberId){
+        Member member = memberRepository.findAllById(memberId);
+        List<Assignment> assignmentList = assignmentRepository.findAllByMember(member);
+        List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsEq(scheduledDate, assignmentList);
+
         List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorkList.stream().map(houseWork -> {
             List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWork.getHouseWorkId()).stream().map(MemberDto::from).collect(Collectors.toList());
+
             return HouseWorkResponseDto.from(houseWork, memberDtoList);
         }).collect(Collectors.toList());
 
