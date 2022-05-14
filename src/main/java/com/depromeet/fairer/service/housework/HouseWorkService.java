@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,17 +37,20 @@ public class HouseWorkService {
     private final AssignmentRepository assignmentRepository;
 
     @Transactional
-    public List<HouseWorkResponseDto> createHouseWorks(List<HouseWorkRequestDto> houseWorksDto) {
-        return houseWorksDto.stream()
-                .map(this::createHouseWork)
-                .collect(Collectors.toList());
+    public List<HouseWorkResponseDto> createHouseWorks(Long memberId, List<HouseWorkRequestDto> houseWorksDto) {
+        List<HouseWorkResponseDto> houseWorks = new ArrayList<>();
+        for (HouseWorkRequestDto houseWorkDto : houseWorksDto) {
+            houseWorks.add(this.createHouseWork(memberId, houseWorkDto));
+        }
+        return houseWorks;
     }
 
-    private HouseWorkResponseDto createHouseWork(HouseWorkRequestDto houseWorkRequestDto) {
+    private HouseWorkResponseDto createHouseWork(Long memberId, HouseWorkRequestDto houseWorkRequestDto) {
         HouseWork houseWork = houseWorkRequestDto.toEntity();
         houseWorkRepository.save(houseWork);
 
-        List<Member> members = memberRepository.findAllById(houseWorkRequestDto.getAssignees());
+        List<Long> assignees = new ArrayList<>(List.of(memberId));
+        List<Member> members = memberRepository.findAllById(assignees);
         for (Member member : members) {
             Assignment assignment = Assignment.builder().houseWork(houseWork).member(member).build();
             assignmentRepository.save(assignment);
