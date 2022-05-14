@@ -103,9 +103,11 @@ public class HouseWorkService {
      */
     @Transactional
     public HouseWorkDateResponseDto getHouseWork(LocalDate scheduledDate, Long memberId){
-        Member member = memberRepository.findAllById(memberId);
+        Member member = memberRepository.findAllByMemberId(memberId);
         List<Assignment> assignmentList = assignmentRepository.findAllByMember(member);
-        List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsEq(scheduledDate, assignmentList);
+         List<HouseWork> houseWorkList = assignmentList.stream().map(assignment -> assignment.getHouseWork())
+                .filter(houseWork -> houseWork.getScheduledDate().isEqual(scheduledDate)).collect(Collectors.toList());
+       // List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsEq(scheduledDate, assignmentList);
 
         List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorkList.stream().map(houseWork -> {
             List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWork.getHouseWorkId()).stream().map(MemberDto::from).collect(Collectors.toList());

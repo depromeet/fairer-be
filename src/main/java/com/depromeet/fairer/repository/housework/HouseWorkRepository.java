@@ -13,5 +13,5 @@ import java.util.Optional;
 @Repository
 public interface HouseWorkRepository extends JpaRepository<HouseWork, Long>, HouseWorkCustomRepository {
     List<HouseWork> findAllByScheduledDate(LocalDate scheduledDate);
-    List<HouseWork> findAllByScheduledDateAndAssignmentsEq(LocalDate scheduledDate, List<Assignment> assignments);
+    //List<HouseWork> findAllByScheduledDateAndAssignmentsEq(LocalDate scheduledDate, List<Assignment> assignments);
 }
