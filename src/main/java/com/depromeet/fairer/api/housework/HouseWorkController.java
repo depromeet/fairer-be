@@ -74,8 +74,7 @@ public class HouseWorkController {
     }
 
     @GetMapping("/success/count")
-    public ResponseEntity<HouseWorkSuccessCountResponseDto> getSuccessCount(@RequestParam(required = true) String scheduledDate) {
-        Long memberId = 3L;
+    public ResponseEntity<HouseWorkSuccessCountResponseDto> getSuccessCount(@RequestParam(required = true) String scheduledDate, @RequestMemberId Long memberId) {
         HouseWorkSuccessCountResponseDto houseWorkSuccessCountResponseDto = houseWorkService.getSuccessCount(scheduledDate, memberId);
         return ResponseEntity.ok(houseWorkSuccessCountResponseDto);
     }
