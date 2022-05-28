@@ -1,5 +1,6 @@
 package com.depromeet.fairer.domain.team;
 
+import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import lombok.*;
 
@@ -20,4 +21,7 @@ public class Team {
 
     @OneToMany(mappedBy = "team")
     private List<Member> members;
+
+    @OneToMany(mappedBy = "team")
+    private List<HouseWork> houseWorks;
 }

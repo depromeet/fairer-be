@@ -2,6 +2,7 @@ package com.depromeet.fairer.domain.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.preset.constant.Space;
+import com.depromeet.fairer.domain.team.Team;
 import lombok.*;
 
 import javax.persistence.*;
@@ -42,6 +43,10 @@ public class HouseWork {
 
     @Column(name = "success", columnDefinition = "BIT", nullable = false)
     private Boolean success;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team teamId;
 
     @Builder.Default
     @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval=true)
