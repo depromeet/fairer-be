@@ -46,7 +46,7 @@ public class HouseWork {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
-    private Team teamId;
+    private Team team;
 
     @Builder.Default
     @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval=true)
