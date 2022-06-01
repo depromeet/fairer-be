@@ -1,5 +1,7 @@
 package com.depromeet.fairer.global.exception.handler;
 
+import com.depromeet.fairer.global.exception.BadRequestException;
+import com.depromeet.fairer.global.exception.CannotCreateException;
 import com.depromeet.fairer.global.exception.dto.ErrorResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -61,6 +63,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 잘못된 요청이 왔을 때 발생
+     */
+    @ExceptionHandler(BadRequestException.class)
+    protected ResponseEntity<ErrorResponseDto> handleBadRequestException(BadRequestException e, HttpServletRequest request) {
+        log.error("handleBadRequestException", e);
+        return exceptionResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
+    }
+
+    /**
      * 지원하지 않은 HTTP method 호출 할 경우 발생
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -76,6 +87,15 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponseDto> handleAccessDeniedException(AccessDeniedException e, HttpServletRequest request) {
         log.error("handleAccessDeniedException", e);
         return exceptionResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN, request.getRequestURI());
+    }
+
+    /**
+     * 어떤 객체를 생성하지 못할 경우 발생
+     */
+    @ExceptionHandler(CannotCreateException.class)
+    protected ResponseEntity<ErrorResponseDto> handleCannotCreateException(CannotCreateException e, HttpServletRequest request) {
+        log.error("CannotCreateException", e);
+        return exceptionResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE, request.getRequestURI());
     }
 
     /**

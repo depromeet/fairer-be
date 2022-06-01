@@ -74,6 +74,13 @@ token:
   access-token-expiration-time: 99999999999
   refresh-token-expiration-time: 99999999999
 
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
 ---
 
 spring:
@@ -101,6 +108,14 @@ spring:
     pathmatch:
       # swagger
       matching-strategy: ant_path_matcher
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
 
 # swagger
 springfox:
