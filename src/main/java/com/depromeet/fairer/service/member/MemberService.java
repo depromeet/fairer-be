@@ -1,5 +1,6 @@
 package com.depromeet.fairer.service.member;
 
+import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.member.oauth.OAuthAttributes;
 import com.depromeet.fairer.dto.member.jwt.TokenDto;
 import com.depromeet.fairer.domain.member.Member;
@@ -19,5 +20,9 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+
+    public Team getTeam(Long memberId) {
+        return memberRepository.findById(memberId).get().getTeam();
+    }
 
 }

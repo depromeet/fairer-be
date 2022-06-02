@@ -47,8 +47,9 @@ public class HouseWorkController {
      * @return 날짜별 집안일 dto list
      */
     @GetMapping(value = "")
-    public ResponseEntity<HouseWorkDateResponseDto> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
-                                                                 @RequestMemberId Long memberId){
+    public ResponseEntity<HouseWorkMemberResponseDto> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
+                                                                   @RequestMemberId Long memberId){
+        log.info("멤버아이디 확인" + String.valueOf(memberId));
         LocalDate scheduledDateParse = LocalDate.parse(scheduledDate, DateTimeFormatter.ISO_DATE);
         return ResponseEntity.ok(houseWorkService.getHouseWork(scheduledDateParse, memberId));
     }
