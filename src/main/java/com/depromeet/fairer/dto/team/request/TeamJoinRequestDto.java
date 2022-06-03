@@ -19,4 +19,7 @@ public class TeamJoinRequestDto {
     @ApiModelProperty(value = "참여 원하는 팀 ID")
     private Long teamId;
 
+    @NotNull
+    @ApiModelProperty(value = "초대 코드")
+    private String inviteCode;
 }

@@ -3,9 +3,11 @@ package com.depromeet.fairer.domain.team;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import lombok.*;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,11 +29,23 @@ public class Team {
     @Column(name = "team_name", columnDefinition = "VARCHAR(50)", nullable = false)
     private String teamName;
 
+    @ElementCollection
+    @Builder.Default
+    private List<String> rules = new ArrayList<>();
+
+    private String inviteCode;
+
+    private LocalDateTime inviteCodeCreatedAt;
+
     @OneToMany(mappedBy = "team")
     private Set<Member> members;
 
     @OneToMany(mappedBy = "team")
     private List<HouseWork> houseWorks;
+
+    public void addRule(String rule) {
+        this.rules.add(rule);
+    }
 
     @Builder
     public Team(Member member, String teamName) {
@@ -42,7 +56,22 @@ public class Team {
             members = new HashSet<>();
         }
 
+        createNewInviteCode();
+
         member.joinTeam(this);
     }
 
+    public void createNewInviteCode() {
+        inviteCode = RandomStringUtils.random(12, true, true);
+        inviteCodeCreatedAt = LocalDateTime.now();
+    }
+
+    public void addMember(Member member) {
+        member.joinTeam(this);
+    }
+
+
+    public Boolean isExpiredInviteCode(LocalDateTime now) {
+        return now.isAfter(inviteCodeCreatedAt.plusMinutes(5));
+    }
 }
