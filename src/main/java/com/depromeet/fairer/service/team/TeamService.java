@@ -2,8 +2,8 @@ package com.depromeet.fairer.service.team;
 
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
-import com.depromeet.fairer.dto.team.request.TeamCreateRequestDto;
-import com.depromeet.fairer.global.exception.CannotCreateException;
+import com.depromeet.fairer.global.exception.BadRequestException;
+import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.team.TeamRepository;
 import com.depromeet.fairer.service.member.MemberService;
@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -27,7 +28,7 @@ public class TeamService {
         final Member reqMember = memberService.findWithTeam(memberId);
 
         if (reqMember.getTeam() != null) {
-            throw new CannotCreateException("이미 팀에 소속되어 있는 회원입니다.");
+            throw new CannotJoinTeamException();
         }
 
         final Team newTeam = Team.builder()
@@ -37,15 +38,43 @@ public class TeamService {
         return teamRepository.save(newTeam);
     }
 
-    // 2022.06.01 정책 아직 수립되지 않았으므로 구현 미룸 (신동빈)
-//    public Team joinTeam(Long memberId, Long teamId) {
-//        final Member reqMember = memberService.find(memberId);
-//
-//        // 아무나 팀에 참여할 수 있는 것인가?
-//        final Team foundTeam = findTeamWithMembersById(teamId);
-//        reqMember.joinTeam(foundTeam);
-//        return teamRepository.save(foundTeam);
-//    }
+    public Team joinTeam(Long memberId, Long teamId, String inviteCode) {
+        final Member reqMember = memberService.findWithTeam(memberId);
+
+        if (reqMember.getTeam() != null) {
+            throw new CannotJoinTeamException();
+        }
+        final Team team = teamRepository.findWithMembersByTeamId(teamId)
+                .orElseThrow(() -> new BadRequestException("해당하는 팀이 존재하지 않습니다."));
+
+        validateInviteCode(team, inviteCode);
+
+        reqMember.joinTeam(team);
+        return team;
+    }
+
+    private void validateInviteCode(Team team, String reqInviteCode) {
+
+        // 초대 코드 및 유효기간 검증
+        if (!team.getInviteCode().equals(reqInviteCode) ||
+                team.isExpiredInviteCode(LocalDateTime.now())) {
+            throw new BadRequestException("초대 코드를 다시 확인해주세요.");
+        }
+    }
+
+    public String viewInviteCode(Long memberId) {
+        final Team reqTeam = memberService.findWithTeam(memberId).getTeam();
+
+        if (reqTeam == null) {
+            throw new BadRequestException("속한 팀이 없어 초대 코드를 조회할 수 없어요.");
+        }
+
+        // 초대 코드 만료 시 재생성
+        if (reqTeam.isExpiredInviteCode(LocalDateTime.now())) {
+            reqTeam.createNewInviteCode();
+        }
+        return reqTeam.getInviteCode();
+    }
 
     // 2022.06.01 정책 아직 수립되지 않았으므로 구현 미룸 (신동빈)
 //    public void leaveTeam(Long memberId) {
@@ -60,15 +89,4 @@ public class TeamService {
 //        teamRepository.save(foundTeam);
 //    }
 
-//    private Team findTeamWithMembersById(Long teamId) {
-//        return teamRepository.findWithMembersByTeamId(teamId).orElseThrow(() -> {
-//                    throw new BadRequestException("해당하는 팀을 찾을 수 없습니다.");
-//        });
-//    }
-//
-//    private Team findTeamById(Long teamId) {
-//        return teamRepository.findById(teamId).orElseThrow(() -> {
-//            throw new BadRequestException("해당하는 팀을 찾을 수 없습니다.");
-//        });
-//    }
 }

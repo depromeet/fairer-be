@@ -1,7 +1,7 @@
 package com.depromeet.fairer.global.exception.handler;
 
 import com.depromeet.fairer.global.exception.BadRequestException;
-import com.depromeet.fairer.global.exception.CannotCreateException;
+import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.depromeet.fairer.global.exception.dto.ErrorResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -92,9 +92,9 @@ public class GlobalExceptionHandler {
     /**
      * 어떤 객체를 생성하지 못할 경우 발생
      */
-    @ExceptionHandler(CannotCreateException.class)
-    protected ResponseEntity<ErrorResponseDto> handleCannotCreateException(CannotCreateException e, HttpServletRequest request) {
-        log.error("CannotCreateException", e);
+    @ExceptionHandler(CannotJoinTeamException.class)
+    protected ResponseEntity<ErrorResponseDto> handleCannotJoinTeamException(CannotJoinTeamException e, HttpServletRequest request) {
+        log.error("CannotJoinTeamException", e);
         return exceptionResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE, request.getRequestURI());
     }
 
