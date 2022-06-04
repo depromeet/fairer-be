@@ -24,7 +24,7 @@ public class TeamController {
     private final TeamService teamService;
 
 
-    @PostMapping(value = "/create")
+    @PostMapping(value = "")
     public ResponseEntity<TeamCreateResponseDto> createTeam(@RequestMemberId Long memberId, @RequestBody @Valid TeamCreateRequestDto req) {
         Team newTeam = teamService.createTeam(memberId, req.getTeamName());
         return ResponseEntity.ok(TeamCreateResponseDto.from(newTeam));
@@ -36,7 +36,7 @@ public class TeamController {
         return ResponseEntity.ok(TeamJoinResponseDto.from(joinedTeam));
     }
 
-    @GetMapping(value = "/view/code")
+    @GetMapping(value = "/invite-codes")
     public ResponseEntity<TeamInviteCodeResponseDto> viewTeamInviteCode(@RequestMemberId Long memberId) {
         String inviteCode = teamService.viewInviteCode(memberId);
         return ResponseEntity.ok(TeamInviteCodeResponseDto.from(inviteCode));
