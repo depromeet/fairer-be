@@ -30,8 +30,7 @@ public class Team {
     private String teamName;
 
     @ElementCollection
-    @Builder.Default
-    private List<String> rules = new ArrayList<>();
+    private List<String> rules;
 
     private String inviteCode;
 
@@ -50,7 +49,7 @@ public class Team {
     @Builder
     public Team(Member member, String teamName) {
         this.teamName = teamName;
-
+        this.rules = new ArrayList<>();
         this.houseWorks = new ArrayList<>();
         if (this.members == null) {
             members = new HashSet<>();
