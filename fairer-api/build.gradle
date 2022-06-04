@@ -1,0 +1,104 @@
+import java.text.SimpleDateFormat
+
+plugins {
+    // querydsl 추가
+    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+    // jib
+    id 'com.google.cloud.tools.jib' version '3.2.1'
+}
+
+jib {
+    from {
+        image = "adoptopenjdk/openjdk11:x86_64-alpine-jdk-11.0.11_9"
+    }
+    to {
+        image = "registry.hub.docker.com/fairerbe/fairer-dev-repo"
+        tags = ['latest', new SimpleDateFormat('yyyyMMddHHmmss').format(System.currentTimeMillis())] // 2개의 태그에 모두 push
+    }
+    container {
+        creationTime = "USE_CURRENT_TIMESTAMP"
+        jvmFlags = ['-Dspring.profiles.active=dev', '-XX:+UseContainerSupport', '-Dfile.encoding=UTF-8']
+    }
+}
+
+group = 'com.depromeet'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+ext{
+    set('springCloudVersion', "2021.0.2")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    //firebase sdk
+    implementation 'com.google.firebase:firebase-admin:6.8.1'
+
+    //modelMapper
+    implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.1.0'
+
+    //lucy
+    implementation group: 'com.navercorp.lucy', name: 'lucy-xss-servlet', version: '2.0.1'
+
+    //jwt
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.2'
+
+    //swagger
+    implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
+
+    implementation 'org.jetbrains:annotations:20.1.0'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // feign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // querydsl
+    implementation 'com.querydsl:querydsl-jpa'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+jar {
+    enabled = false
+}
+
+// querydsl
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+    library = "com.querydsl:querydsl-apt"
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+sourceSets {
+    main.java.srcDir querydslDir
+}
+configurations {
+    querydsl.extendsFrom compileClasspath
+
+}
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+// querydsl 끝

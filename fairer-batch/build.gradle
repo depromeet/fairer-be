@@ -1,0 +1,35 @@
+import java.text.SimpleDateFormat
+
+plugins {
+    // jib
+    id 'com.google.cloud.tools.jib' version '3.2.1'
+}
+
+jib {
+    from {
+        image = "adoptopenjdk/openjdk11:x86_64-alpine-jdk-11.0.11_9"
+    }
+    to {
+        image = "registry.hub.docker.com/fairerbe/fairer-batch-dev"
+        tags = ['latest', new SimpleDateFormat('yyyyMMddHHmmss').format(System.currentTimeMillis())] // 2개의 태그에 모두 push
+    }
+    container {
+        creationTime = "USE_CURRENT_TIMESTAMP"
+        jvmFlags = ['-Dspring.profiles.active=dev', '-XX:+UseContainerSupport', '-Dfile.encoding=UTF-8']
+    }
+}
+
+group = 'com.depromeet'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+    // https://mvnrepository.com/artifact/de.codecentric/batch-web-spring-boot-starter
+    implementation 'de.codecentric:batch-web-spring-boot-starter:2.2.0'
+}
+
+jar {
+    enabled = false
+}
