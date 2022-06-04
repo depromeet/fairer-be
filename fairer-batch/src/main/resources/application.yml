@@ -1,0 +1,39 @@
+spring:
+  profiles:
+    active: "local"
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+
+logging:
+  level:
+    root: info
+
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: ["local", "dev"]
+
+  datasource:
+    url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer_dev
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: 'fairer'
+    password: '>BRLtas~%j2>(\6#eC2M'
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "real"
+
+  datasource:
+    url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: 'fairer'
+    password: '>BRLtas~%j2>(\6#eC2M'

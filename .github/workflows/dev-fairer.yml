@@ -31,7 +31,7 @@ jobs:
         shell: bash
 
       - name: Build with Gradle
-        run: ./gradlew clean build # 프로젝트 빌드
+        run: ./gradlew clean :fairer-api:build # 프로젝트 빌드
         shell: bash
 
       - name: Get current time
@@ -49,7 +49,7 @@ jobs:
       - name: Generate deployment package
         run: |
           mkdir -p deploy
-          cp build/libs/*.jar deploy/fairer-dev.jar
+          cp fairer-api/build/libs/*.jar deploy/fairer-dev.jar
           cp deploy.sh deploy/deploy.sh
           cd deploy
 

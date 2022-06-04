@@ -1,1 +1,3 @@
 rootProject.name = 'fairer'
+include 'fairer-api'
+include 'fairer-batch'
