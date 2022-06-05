@@ -3,6 +3,7 @@ package com.depromeet.fairer.service.housework;
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
+import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.housework.request.HouseWorkRequestDto;
 import com.depromeet.fairer.dto.housework.response.HouseWorkDateResponseDto;
 import com.depromeet.fairer.dto.housework.response.HouseWorkResponseDto;
@@ -13,6 +14,7 @@ import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
 import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
+import com.depromeet.fairer.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -35,6 +37,7 @@ public class HouseWorkService {
     private final HouseWorkRepository houseWorkRepository;
     private final MemberRepository memberRepository;
     private final AssignmentRepository assignmentRepository;
+    private final MemberService memberService;
 
     @Transactional
     public List<HouseWorkResponseDto> createHouseWorks(Long memberId, List<HouseWorkRequestDto> houseWorksDto) {
@@ -47,12 +50,19 @@ public class HouseWorkService {
 
     private HouseWorkResponseDto createHouseWork(Long memberId, HouseWorkRequestDto houseWorkRequestDto) {
         HouseWork houseWork = houseWorkRequestDto.toEntity();
+        Member member = memberService.findWithTeam(memberId);
+        Team team = member.getTeam();
+        if (team == null) {
+            throw new IllegalStateException("member가 team에 소속되어있지 않아 집안일을 생성할 수 없습니다.");
+        }
+
+        houseWork.setTeam(team);
         houseWorkRepository.save(houseWork);
 
         List<Long> assignees = new ArrayList<>(List.of(memberId));
         List<Member> members = memberRepository.findAllById(assignees);
-        for (Member member : members) {
-            Assignment assignment = Assignment.builder().houseWork(houseWork).member(member).build();
+        for (Member m : members) {
+            Assignment assignment = Assignment.builder().houseWork(houseWork).member(m).build();
             assignmentRepository.save(assignment);
         }
 
