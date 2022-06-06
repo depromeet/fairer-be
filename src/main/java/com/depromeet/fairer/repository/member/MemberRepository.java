@@ -12,5 +12,5 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberCus
     Optional<Member> findByEmail(String email);
 
     @EntityGraph(attributePaths = {"team"})
-    Member findWithTeamByMemberId(Long memberId);
+    Optional<Member> findWithTeamByMemberId(Long memberId);
 }

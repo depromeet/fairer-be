@@ -73,4 +73,8 @@ public class Team {
     public Boolean isExpiredInviteCode(LocalDateTime now) {
         return now.isAfter(inviteCodeCreatedAt.plusMinutes(5));
     }
+
+    public void updateTeamName(String teamName) {
+        this.teamName = teamName;
+    }
 }
