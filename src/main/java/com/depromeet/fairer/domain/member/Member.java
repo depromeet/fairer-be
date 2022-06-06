@@ -64,6 +64,12 @@ public class Member extends BaseTimeEntity {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @Column(name = "fcm_token", columnDefinition = "VARCHAR(200)")
+    private String fcmToken;
+
+    @Column(name = "fcm_token_date", columnDefinition = "DATETIME")
+    private LocalDateTime fcmTokenDate;
+
     /**
      * TODO 닉네임 동의 안했을 때 처리 (입력한 닉네임으로 변경)
      *

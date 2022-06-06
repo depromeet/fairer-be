@@ -20,7 +20,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable().headers().frameOptions().disable()
                 .and()
                 .authorizeRequests() // url별 권한 관리를 설정하는 옵션의 시작점
-                .antMatchers("/oauth/login").permitAll()
+                .antMatchers("/oauth/login", "/fcm/message").permitAll()
                 .antMatchers("/", "/css/**", "**.html", "/images/**", "/js/**"
                         , "/assets/**", "/swagger-ui.html").permitAll();
     }
