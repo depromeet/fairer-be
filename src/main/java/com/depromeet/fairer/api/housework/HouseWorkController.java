@@ -41,34 +41,18 @@ public class HouseWorkController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /**
-     * 날짜별 집안일 조회
-     * @param scheduledDate 날짜
-     * @return 날짜별 집안일 dto list
-     */
     @GetMapping(value = "")
     public ResponseEntity<HouseWorkMemberResponseDto> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
                                                                    @RequestMemberId Long memberId){
-        log.info("멤버아이디 확인" + String.valueOf(memberId));
         LocalDate scheduledDateParse = LocalDate.parse(scheduledDate, DateTimeFormatter.ISO_DATE);
         return ResponseEntity.ok(houseWorkService.getHouseWork(scheduledDateParse, memberId));
     }
 
-    /**
-     * 개별 집안일 조회
-     * @param houseWorkId 집안일 id
-     * @return 집안일 정보 dto
-     */
     @GetMapping(value = "{houseWorkId}/detail")
     public ResponseEntity<HouseWorkResponseDto> getHouseWorkDetail(@PathVariable("houseWorkId") Long houseWorkId){
         return ResponseEntity.ok(houseWorkService.getHouseWorkDetail(houseWorkId));
     }
 
-    /**
-     * 집안일 완료 상태 변경
-     * @param houseWorkId 변경할 집안일 id
-     * @return 변경된 집안일 상태
-     */
     @PatchMapping(value = "{houseWorkId}")
     public ResponseEntity<HouseWorkStatusResponseDto> updateHouseWorkStatus(@PathVariable("houseWorkId") Long houseWorkId, @RequestBody @Valid HouseWorkStatusRequestDto req){
         return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, req.getToBeStatus()));

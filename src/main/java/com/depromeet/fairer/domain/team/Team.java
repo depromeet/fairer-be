@@ -19,9 +19,16 @@ public class Team {
     @Column(name = "team_id", columnDefinition = "BIGINT", nullable = false, unique = true)
     private Long teamId;
 
+    @ElementCollection
+    private List<String> rules;
+
     @OneToMany(mappedBy = "team")
     private List<Member> members;
 
     @OneToMany(mappedBy = "team")
     private List<HouseWork> houseWorks;
+
+    public List<String> getRules(){
+        return rules;
+    }
 }

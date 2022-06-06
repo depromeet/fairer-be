@@ -75,7 +75,7 @@ public class HouseWorkService {
 
 //        List<Assignment> assignments = assignmentRepository.findAllByHouseWorkAndMemberNotIn(houseWork, members);
 //        assignmentRepository.deleteAll(assignments);
-//
+
 //        for (Member member : members) {
 //            Optional<Assignment> assignment = assignmentRepository.findByHouseWorkAndMember(houseWork, member);
 //            if(assignment.isEmpty()) {
@@ -103,11 +103,6 @@ public class HouseWorkService {
         return HouseWorkSuccessCountResponseDto.of(count);
     }
 
-    /**
-     * 날짜별 집안일 조회
-     * @param scheduledDate 날짜
-     * @return 날짜별 집안일 dto list
-     */
     @Transactional
     public HouseWorkMemberResponseDto getHouseWork(LocalDate scheduledDate, Long memberId){
         Team team = memberService.getTeam(memberId);
@@ -134,11 +129,6 @@ public class HouseWorkService {
         return HouseWorkMemberResponseDto.from(team.getTeamId(), houseWorkDateResponseDtos);
     }
 
-    /**
-     * 개별 집안일 조회
-     * @param houseWorkId 집안일 id
-     * @return 집안일 정보 dto
-     */
     @Transactional
     public HouseWorkResponseDto getHouseWorkDetail(Long houseWorkId) {
         HouseWork houseWork = getHouseWorkById(houseWorkId);
@@ -146,12 +136,6 @@ public class HouseWorkService {
         return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
-    /**
-     * 집안일 완료 상태 변경
-     * @param houseWorkId 변경할 집안일 id
-     * @param toBeStatus 0 or 1
-     * @return 변경된 집안일 상태
-     */
     @Transactional
     public HouseWorkStatusResponseDto updateHouseWorkStatus(Long houseWorkId,
                                                             int toBeStatus) {
