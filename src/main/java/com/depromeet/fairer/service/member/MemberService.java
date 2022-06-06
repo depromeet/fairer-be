@@ -20,6 +20,6 @@ public class MemberService {
     }
 
     public Member findWithTeam(Long memberId) {
-        return memberRepository.findWithTeamByMemberId(memberId);
+        return memberRepository.findWithTeamByMemberId(memberId).orElseThrow(()->new NoSuchMemberException("해당하는 멤버를 찾을 수 없습니다."));
     }
 }

@@ -2,6 +2,7 @@ package com.depromeet.fairer.service.team;
 
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
+import com.depromeet.fairer.dto.team.request.TeamUpdateRequestDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.depromeet.fairer.repository.member.MemberRepository;
@@ -74,6 +75,20 @@ public class TeamService {
             reqTeam.createNewInviteCode();
         }
         return reqTeam.getInviteCode();
+    }
+
+    public Team updateTeam(Long memberId, String teamName) {
+        final Team reqTeam = memberService.findWithTeam(memberId).getTeam();
+
+        if (reqTeam == null) {
+            throw new BadRequestException("속한 팀이 없습니다.");
+        }
+
+        if (teamName != null) {
+            reqTeam.updateTeamName(teamName);
+        }
+
+        return reqTeam;
     }
 
     // 2022.06.01 정책 아직 수립되지 않았으므로 구현 미룸 (신동빈)
