@@ -1,13 +1,11 @@
 package com.depromeet.fairer.api.team;
 
+import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.team.request.TeamCreateRequestDto;
 import com.depromeet.fairer.dto.team.request.TeamJoinRequestDto;
 import com.depromeet.fairer.dto.team.request.TeamUpdateRequestDto;
-import com.depromeet.fairer.dto.team.response.TeamCreateResponseDto;
-import com.depromeet.fairer.dto.team.response.TeamInviteCodeResponseDto;
-import com.depromeet.fairer.dto.team.response.TeamJoinResponseDto;
-import com.depromeet.fairer.dto.team.response.TeamUpdateResponseDto;
+import com.depromeet.fairer.dto.team.response.*;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.team.TeamService;
 import io.swagger.annotations.ApiOperation;
@@ -17,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -70,5 +69,12 @@ public class TeamController {
 //        teamService.leaveTeam(memberId);
 //        return ResponseEntity.ok().build();
 //    }
+
+    @ApiOperation(value = "팀 멤버 정보 조회", notes = "팀에 소속된 멤버 목록 조회")
+    @GetMapping("/members")
+    public ResponseEntity<TeamMemberListResponseDto> viewTeamMembers(@RequestMemberId Long memberId) {
+        Set<Member> teamMembers = teamService.getTeamMembers(memberId);
+        return ResponseEntity.ok(TeamMemberListResponseDto.from(teamMembers));
+    }
 
 }

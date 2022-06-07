@@ -2,7 +2,6 @@ package com.depromeet.fairer.service.team;
 
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
-import com.depromeet.fairer.dto.team.request.TeamUpdateRequestDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.depromeet.fairer.repository.member.MemberRepository;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -91,6 +91,15 @@ public class TeamService {
         return reqTeam;
     }
 
+    public Set<Member> getTeamMembers(Long memberId) {
+        Team team = memberService.findWithTeam(memberId).getTeam();
+
+        if (team == null) {
+            throw new BadRequestException("속한 팀이 없습니다.");
+        }
+        return team.getMembers();
+    }
+
     // 2022.06.01 정책 아직 수립되지 않았으므로 구현 미룸 (신동빈)
 //    public void leaveTeam(Long memberId) {
 //        final Member reqMember = memberService.findWithTeam(memberId);
@@ -103,5 +112,4 @@ public class TeamService {
 //        foundTeam.getMembers().remove(reqMember);
 //        teamRepository.save(foundTeam);
 //    }
-
 }
