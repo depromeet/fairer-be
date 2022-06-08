@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +63,14 @@ public class Member {
                 .password(socialUserInfo.getPassword())
                 .assignments(new ArrayList<>())
                 .build();
+    }
+
+    public void joinTeam(Team team) {
+        if (this.team != null) {
+            this.team.getMembers().remove(this);
+        }
+        this.team = team;
+        team.getMembers().add(this);
     }
 
 }
