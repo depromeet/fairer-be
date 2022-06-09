@@ -15,4 +15,4 @@ then
   sleep 5
 fi
 
-nohup java -jar -Dspring.profiles.active=dev $JAR_PATH &
+nohup java -jar -Duser.timezone="Asia/Seoul" -Dspring.profiles.active=dev $JAR_PATH &
