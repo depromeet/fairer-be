@@ -136,7 +136,7 @@ token:
 
 # TODO oauth2 redirect uri 추가
 oauth2:
-  redirectUri: http://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com:8080/login/oauth2/code/google
+  redirectUri: https://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com/login/oauth2/code/google
   clientId: 720771356142-qae75m7290099120eqfih689376on2or.apps.googleusercontent.com
   clientSecret: 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
   desc: access token redirect uri for dev
