@@ -1,5 +1,6 @@
 package com.depromeet.fairer.domain.team;
 
+import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import lombok.*;
@@ -18,7 +19,7 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Team {
+public class Team extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
