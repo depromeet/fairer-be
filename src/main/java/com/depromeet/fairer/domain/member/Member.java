@@ -73,4 +73,8 @@ public class Member {
         team.getMembers().add(this);
     }
 
+    public boolean hasTeam() {
+        return this.team != null;
+    }
+
 }

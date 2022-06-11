@@ -81,7 +81,7 @@ public class TeamService {
         final Team reqTeam = memberService.findWithTeam(memberId).getTeam();
 
         if (reqTeam == null) {
-            throw new BadRequestException("속한 팀이 없습니다.");
+            throw new BadRequestException("소속된 팀이 없습니다.");
         }
 
         if (teamName != null) {
@@ -92,12 +92,13 @@ public class TeamService {
     }
 
     public Set<Member> getTeamMembers(Long memberId) {
-        Team team = memberService.findWithTeam(memberId).getTeam();
+        Member member = memberService.findWithTeam(memberId);
 
-        if (team == null) {
-            throw new BadRequestException("속한 팀이 없습니다.");
+        if (member.hasTeam()) {
+            return member.getTeam().getMembers();
         }
-        return team.getMembers();
+
+        throw new BadRequestException("소속된 팀이 없습니다.");
     }
 
     // 2022.06.01 정책 아직 수립되지 않았으므로 구현 미룸 (신동빈)
