@@ -1,5 +1,6 @@
 package com.depromeet.fairer.domain.preset;
 
+import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Setter
 @Builder
 @NoArgsConstructor @AllArgsConstructor
-public class Preset {
+public class Preset extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "preset_id", columnDefinition = "BIGINT", nullable = false, unique = true)

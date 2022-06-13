@@ -1,6 +1,7 @@
 package com.depromeet.fairer.domain.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
+import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import com.depromeet.fairer.domain.preset.constant.Space;
 import com.depromeet.fairer.domain.team.Team;
 import lombok.*;
@@ -19,7 +20,7 @@ import java.util.List;
 @EqualsAndHashCode
 @Builder
 @NoArgsConstructor @AllArgsConstructor
-public class HouseWork {
+public class HouseWork extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "housework_id", columnDefinition = "BIGINT", nullable = false, unique = true)

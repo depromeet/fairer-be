@@ -1,5 +1,6 @@
 package com.depromeet.fairer.domain.memberToken;
 
+import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.memberToken.constant.RemainingTokenTime;
 import lombok.*;
@@ -13,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 @Getter
 @Builder
 @AllArgsConstructor @NoArgsConstructor
-public class MemberToken {
+public class MemberToken extends BaseTimeEntity {
 
     @Id
     @Column(name = "member_token_id")
