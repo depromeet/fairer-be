@@ -31,7 +31,7 @@ public class TeamController {
         // 반환 객체 생성
         TeamRuleResponseDto teamRuleResponseDto = TeamRuleResponseDto.builder()
                 .teamId(team.getTeamId())
-                .rules(team.getRules())
+                //.rules(team.getRules())
                 .build();
 
         return ok(teamRuleResponseDto);
@@ -43,7 +43,7 @@ public class TeamController {
 
         TeamRuleResponseDto teamRuleResponseDto = TeamRuleResponseDto.builder()
                 .teamId(team.getTeamId())
-                .rules(team.getRules())
+                //.rules(team.getRules())
                 .build();
 
         return ok(teamRuleResponseDto);
@@ -56,7 +56,7 @@ public class TeamController {
 
         TeamRuleResponseDto teamRuleResponseDto = TeamRuleResponseDto.builder()
                 .teamId(team.getTeamId())
-                .rules(team.getRules())
+                //.rules(team.getRules())
                 .build();
 
         return ok(teamRuleResponseDto);

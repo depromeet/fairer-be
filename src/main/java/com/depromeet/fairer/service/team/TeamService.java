@@ -18,7 +18,7 @@ public class TeamService {
     @Transactional
     public Team createTeamRules(Long memberId, TeamRuleRequestDto req){
         Team team = memberService.getTeam(memberId);
-        team.getRules().add(req.getRuleName());
+        //team.getRules().add(req.getRuleName());
         return team;
     }
 
@@ -31,7 +31,7 @@ public class TeamService {
     @Transactional
     public Team deleteTeamRules(Long memberId, TeamRuleRequestDto req){
         Team team = memberService.getTeam(memberId);
-        team.getRules().remove(req.getRuleName());
+        //team.getRules().remove(req.getRuleName());
         return team;
     }
 }

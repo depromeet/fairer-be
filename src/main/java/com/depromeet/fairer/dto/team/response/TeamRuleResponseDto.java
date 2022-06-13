@@ -23,7 +23,7 @@ public class TeamRuleResponseDto {
     public static TeamRuleResponseDto from(Team team){
         return new TeamRuleResponseDtoBuilder()
                 .teamId(team.getTeamId())
-                .rules(team.getRules())
+                //.rules(team.getRules())
                 .build();
     }
 }
