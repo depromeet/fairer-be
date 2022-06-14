@@ -23,9 +23,9 @@ public class RulesResponseDto {
     @ApiModelProperty(value = "(규칙id + 규칙 내용) list")
     private List<RuleResponseDto> ruleResponseDtos;
 
-    public static RulesResponseDto from(Rule rule, List<RuleResponseDto> ruleResponseDtos){
-        return new RulesResponseDto.RulesResponseDtoBuilder()
-                .teamId(rule.getTeam().getTeamId())
+    public static RulesResponseDto createRules(Long teamId, List<RuleResponseDto> ruleResponseDtos){
+        return RulesResponseDto.builder()
+                .teamId(teamId)
                 .ruleResponseDtos(ruleResponseDtos)
                 .build();
     }

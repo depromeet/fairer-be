@@ -45,12 +45,7 @@ public class RuleController {
             ruleResponseDtos.add(RuleResponseDto.createRule(rulee));
         }
 
-        RulesResponseDto rulesResponseDto = RulesResponseDto.builder()
-                .teamId(rule.getTeam().getTeamId())
-                .ruleResponseDtos(ruleResponseDtos)
-                .build();
-
-        return ok(rulesResponseDto);
+        return ok(RulesResponseDto.createRules(teamService.getTeam(memberId).getTeamId(), ruleResponseDtos));
     }
 
     @ApiOperation(value = "팀 규칙 조회", notes = "memberId를 통한 팀 규칙 조회")
@@ -63,12 +58,7 @@ public class RuleController {
             ruleResponseDtos.add(RuleResponseDto.createRule(rulee));
         }
 
-        RulesResponseDto rulesResponseDto = RulesResponseDto.builder()
-                .teamId(teamService.getTeam(memberId).getTeamId())  // 이건 괜찮은지?
-                .ruleResponseDtos(ruleResponseDtos)
-                .build();
-
-        return ok(rulesResponseDto);
+        return ok(RulesResponseDto.createRules(teamService.getTeam(memberId).getTeamId(), ruleResponseDtos));
     }
 
     @ApiOperation(value = "팀 규칙 삭제", notes = "ruleId를 통한 규칙 삭제")
@@ -82,11 +72,6 @@ public class RuleController {
             ruleResponseDtos.add(RuleResponseDto.createRule(rulee));
         }
 
-        RulesResponseDto rulesResponseDto = RulesResponseDto.builder()
-                .teamId(teamService.getTeam(memberId).getTeamId())
-                .ruleResponseDtos(ruleResponseDtos)
-                .build();
-
-        return ok(rulesResponseDto);
+        return ok(RulesResponseDto.createRules(teamService.getTeam(memberId).getTeamId(), ruleResponseDtos));
     }
 }
