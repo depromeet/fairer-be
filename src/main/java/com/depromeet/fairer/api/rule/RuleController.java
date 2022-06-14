@@ -35,7 +35,7 @@ public class RuleController {
     public ResponseEntity<RulesResponseDto> createTeamRules(@RequestMemberId Long memberId,
                                                      @RequestBody @Valid RuleRequestDto req){
         // 규칙 생성
-        Rule rule = ruleService.createRules(memberId, req);
+        Rule rule = ruleService.createRules(memberId, req.getRuleName());
 
         // 반환 객체 생성
         List<Rule> rules = ruleRepository.findAllByTeam(rule.getTeam());

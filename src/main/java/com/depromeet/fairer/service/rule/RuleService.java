@@ -20,9 +20,9 @@ public class RuleService {
     private final RuleRepository ruleRepository;
 
     @Transactional
-    public Rule createRules(Long memberId, RuleRequestDto req){
+    public Rule createRules(Long memberId, String ruleName){
         Team team = teamService.getTeam(memberId);
-        Rule rule = Rule.builder().team(team).ruleName(req.getRuleName()).build();
+        Rule rule = Rule.builder().team(team).ruleName(ruleName).build();
         ruleRepository.save(rule);
 
         return rule;
