@@ -23,17 +23,4 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberService {
 
-    private final MemberRepository memberRepository;
-//    private final HouseWorkRepository houseWorkRepository;
-//    private final AssignmentRepository assignmentRepository;
-
-    public Team getTeam(Long memberId) {
-        return memberRepository.findById(memberId).get().getTeam();
-    }
-
-//    public List<HouseWork> getHouseWorks(Member member){
-//        return assignmentRepository.findAllByMember(member)
-//                .get().f;
-//    }
-
 }

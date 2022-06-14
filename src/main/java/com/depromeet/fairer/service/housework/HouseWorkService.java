@@ -12,6 +12,7 @@ import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.team.TeamRepository;
 import com.depromeet.fairer.service.member.MemberService;
+import com.depromeet.fairer.service.team.TeamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -34,8 +35,7 @@ public class HouseWorkService {
     private final HouseWorkRepository houseWorkRepository;
     private final MemberRepository memberRepository;
     private final AssignmentRepository assignmentRepository;
-    private final TeamRepository teamRepository;
-    private final MemberService memberService;
+    private final TeamService teamService;
 
     @Transactional
     public List<HouseWorkResponseDto> createHouseWorks(Long memberId, List<HouseWorkRequestDto> houseWorksDto) {
@@ -105,7 +105,7 @@ public class HouseWorkService {
 
     @Transactional
     public HouseWorkMemberResponseDto getHouseWork(LocalDate scheduledDate, Long memberId){
-        Team team = memberService.getTeam(memberId);
+        Team team = teamService.getTeam(memberId);
 
         List<Member> memberList = memberRepository.findAllByTeam(Optional.ofNullable(team));
 

@@ -24,5 +24,4 @@ public class Rule {
 
     @Column(name = "rule_name")
     private String ruleName;
-
 }
