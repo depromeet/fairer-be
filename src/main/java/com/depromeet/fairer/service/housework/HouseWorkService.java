@@ -51,23 +51,24 @@ public class HouseWorkService {
     private HouseWorkResponseDto createHouseWork(Long memberId, HouseWorkRequestDto houseWorkRequestDto) {
         HouseWork houseWork = houseWorkRequestDto.toEntity();
         Member member = memberService.findWithTeam(memberId);
-        Team team = member.getTeam();
-        if (team == null) {
-            throw new IllegalStateException("member가 team에 소속되어있지 않아 집안일을 생성할 수 없습니다.");
+
+        if (member.hasTeam()) {
+            Team team = member.getTeam();
+            houseWork.setTeam(team);
+            houseWorkRepository.save(houseWork);
+
+            List<Long> assignees = new ArrayList<>(houseWorkRequestDto.getAssignees());
+            List<Member> members = memberRepository.findAllById(assignees);
+            for (Member m : members) {
+                Assignment assignment = Assignment.builder().houseWork(houseWork).member(m).build();
+                assignmentRepository.save(assignment);
+            }
+
+            List<MemberDto> memberDtoList = members.stream().map(MemberDto::from).collect(Collectors.toList());
+            return HouseWorkResponseDto.from(houseWork, memberDtoList);
         }
 
-        houseWork.setTeam(team);
-        houseWorkRepository.save(houseWork);
-
-        List<Long> assignees = new ArrayList<>(houseWorkRequestDto.getAssignees());
-        List<Member> members = memberRepository.findAllById(assignees);
-        for (Member m : members) {
-            Assignment assignment = Assignment.builder().houseWork(houseWork).member(m).build();
-            assignmentRepository.save(assignment);
-        }
-
-        List<MemberDto> memberDtoList = members.stream().map(MemberDto::from).collect(Collectors.toList());
-        return HouseWorkResponseDto.from(houseWork, memberDtoList);
+        throw new IllegalStateException("member가 team에 소속되어있지 않아 집안일을 생성할 수 없습니다.");
     }
 
     @Transactional
