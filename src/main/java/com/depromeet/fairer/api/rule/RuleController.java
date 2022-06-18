@@ -1,10 +1,10 @@
 package com.depromeet.fairer.api.rule;
 import com.depromeet.fairer.domain.rule.Rule;
+import com.depromeet.fairer.dto.common.CommonApiResult;
 import com.depromeet.fairer.dto.rule.request.RuleRequestDto;
 import com.depromeet.fairer.dto.rule.response.RuleResponseDto;
 import com.depromeet.fairer.dto.rule.response.RulesResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
-import com.depromeet.fairer.repository.rule.RuleRepository;
 import com.depromeet.fairer.service.rule.RuleService;
 import com.depromeet.fairer.service.team.TeamService;
 import io.swagger.annotations.ApiOperation;
@@ -44,7 +44,8 @@ public class RuleController {
             ruleResponseDtos.add(RuleResponseDto.createRule(rulee));
         }
 
-        return ok(RulesResponseDto.createRules(teamService.getTeam(memberId).getTeamId(), ruleResponseDtos));
+        Long teamId = teamService.getTeam(memberId).getTeamId();
+        return ok(RulesResponseDto.createRules(teamId, ruleResponseDtos));
     }
 
     @ApiOperation(value = "팀 규칙 조회", notes = "memberId를 통한 팀 규칙 조회")
@@ -57,20 +58,16 @@ public class RuleController {
             ruleResponseDtos.add(RuleResponseDto.createRule(rulee));
         }
 
-        return ok(RulesResponseDto.createRules(teamService.getTeam(memberId).getTeamId(), ruleResponseDtos));
+        Long teamId = teamService.getTeam(memberId).getTeamId();
+        return ok(RulesResponseDto.createRules(teamId, ruleResponseDtos));
     }
 
     @ApiOperation(value = "팀 규칙 삭제", notes = "ruleId를 통한 규칙 삭제")
     @DeleteMapping(value = "{ruleId}")
-    public ResponseEntity<RulesResponseDto> deleteTeamRules(@RequestMemberId Long memberId,
-                                                               @PathVariable Long ruleId){
+    public ResponseEntity<CommonApiResult> deleteTeamRules(@RequestMemberId Long memberId,
+                                                           @PathVariable Long ruleId){
         List<Rule> rules = ruleService.deleteRules(memberId, ruleId);
 
-        List<RuleResponseDto> ruleResponseDtos = new ArrayList<>();
-        for(Rule rulee : rules){
-            ruleResponseDtos.add(RuleResponseDto.createRule(rulee));
-        }
-
-        return ok(RulesResponseDto.createRules(teamService.getTeam(memberId).getTeamId(), ruleResponseDtos));
+        return ResponseEntity.ok(CommonApiResult.createOk("규칙 삭제 완료"));
     }
 }
