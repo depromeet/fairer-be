@@ -3,6 +3,7 @@ package com.depromeet.fairer.domain.team;
 import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
+import com.depromeet.fairer.domain.rule.Rule;
 import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -43,9 +44,8 @@ public class Team extends BaseTimeEntity {
     @OneToMany(mappedBy = "team")
     private List<HouseWork> houseWorks;
 
-    public void addRule(String rule) {
-        this.rules.add(rule);
-    }
+    @OneToMany(mappedBy = "team")
+    private List<Rule> rules;
 
     @Builder
     public Team(Member member, String teamName) {
