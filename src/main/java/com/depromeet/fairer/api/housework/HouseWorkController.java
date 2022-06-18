@@ -6,6 +6,7 @@ import com.depromeet.fairer.dto.housework.request.HouseWorkListRequestDto;
 import com.depromeet.fairer.dto.housework.request.HouseWorkRequestDto;
 import com.depromeet.fairer.dto.housework.request.HouseWorkStatusRequestDto;
 import com.depromeet.fairer.dto.housework.response.*;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -41,11 +42,7 @@ public class HouseWorkController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /**
-     * 날짜별 집안일 조회
-     * @param scheduledDate 날짜
-     * @return 날짜별 집안일 dto list
-     */
+    @ApiOperation(value = "날짜별 집안일 조회", notes = "해당 멤버의 팀원들에게 할당된 집안일까지 모두 조회")
     @GetMapping(value = "")
     public ResponseEntity<HouseWorkMemberResponseDto> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
                                                                    @RequestMemberId Long memberId){
@@ -54,21 +51,13 @@ public class HouseWorkController {
         return ResponseEntity.ok(houseWorkService.getHouseWork(scheduledDateParse, memberId));
     }
 
-    /**
-     * 개별 집안일 조회
-     * @param houseWorkId 집안일 id
-     * @return 집안일 정보 dto
-     */
+    @ApiOperation(value = "개별 집안일 조회", notes = "")
     @GetMapping(value = "{houseWorkId}/detail")
     public ResponseEntity<HouseWorkResponseDto> getHouseWorkDetail(@PathVariable("houseWorkId") Long houseWorkId){
         return ResponseEntity.ok(houseWorkService.getHouseWorkDetail(houseWorkId));
     }
 
-    /**
-     * 집안일 완료 상태 변경
-     * @param houseWorkId 변경할 집안일 id
-     * @return 변경된 집안일 상태
-     */
+    @ApiOperation(value = "집안일 완료 상태 변경", notes = "미완 -> 완료일 때 toBeStatus=1, 완료 -> 미완료일 때 toBeStatus=0")
     @PatchMapping(value = "{houseWorkId}")
     public ResponseEntity<HouseWorkStatusResponseDto> updateHouseWorkStatus(@PathVariable("houseWorkId") Long houseWorkId, @RequestBody @Valid HouseWorkStatusRequestDto req){
         return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, req.getToBeStatus()));
