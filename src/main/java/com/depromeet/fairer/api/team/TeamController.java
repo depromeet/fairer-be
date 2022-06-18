@@ -15,11 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -76,13 +72,9 @@ public class TeamController {
 
     @ApiOperation(value = "팀 멤버 정보 조회", notes = "팀에 소속된 멤버 목록 조회")
     @GetMapping("/members")
-    public ResponseEntity<Map<String, Object>> viewTeamMembers(@RequestMemberId Long memberId) {
-        Map<String, Object> result = new HashMap<>();
+    public ResponseEntity<TeamMemberListResponseDto> viewTeamMembers(@RequestMemberId Long memberId) {
         Set<Member> teamMembers = teamService.getTeamMembers(memberId);
-        List<TeamMemberResponseDto> membersDto = teamMembers.stream().map(TeamMemberResponseDto::from).collect(Collectors.toList());
-        result.put("members", membersDto);
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(TeamMemberListResponseDto.from(teamMembers));
     }
 
 }
