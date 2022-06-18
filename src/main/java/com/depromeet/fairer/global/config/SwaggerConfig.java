@@ -9,12 +9,14 @@ import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.oas.annotations.EnableOpenApi;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.Server;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableOpenApi
@@ -31,6 +33,8 @@ public class SwaggerConfig {
     @Bean
     public Docket swaggerApi() {
         return new Docket(DocumentationType.OAS_30)
+                .securityContexts(List.of(securityContext()))
+                .securitySchemes(List.of(apiKey()))
                 .ignoredParameterTypes(Errors.class)
                 .ignoredParameterTypes(BindingResult.class)
                 .servers(getServer(profile, url, desc))
@@ -39,6 +43,29 @@ public class SwaggerConfig {
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.depromeet.fairer.api"))
                 .paths(PathSelectors.ant("/api/**"))
+                .build();
+    }
+
+    private List<SecurityReference> defaultAuth() {
+        final AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEveryThing");
+        final AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+        authorizationScopes[0] = authorizationScope;
+        return Arrays.asList(new SecurityReference("Authorization", authorizationScopes));
+    }
+
+    /**
+     * 인증 버튼 클릭 했을 때 입력하는 값을 넣는 설정
+     */
+    private ApiKey apiKey() {
+        return new ApiKey("Authorization", "Authorization", "header");
+    }
+
+    /**
+     * 인증하는 방식 설정
+     */
+    private SecurityContext securityContext() {
+        return SecurityContext.builder()
+                .securityReferences(defaultAuth())
                 .build();
     }
 
@@ -53,4 +80,6 @@ public class SwaggerConfig {
     private Server getServer(String profile, String url, String desc) {
         return new Server(profile, url, desc, Collections.emptyList(), Collections.emptyList());
     }
+
+
 }

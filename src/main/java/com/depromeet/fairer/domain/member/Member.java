@@ -1,5 +1,6 @@
 package com.depromeet.fairer.domain.member;
 
+import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import com.depromeet.fairer.dto.member.oauth.OAuthAttributes;
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.memberToken.MemberToken;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,7 @@ import java.util.List;
 @ToString(exclude = {"team", "assignments"})
 @Builder
 @AllArgsConstructor @NoArgsConstructor
-public class Member {
+public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,6 +64,14 @@ public class Member {
                 .password(socialUserInfo.getPassword())
                 .assignments(new ArrayList<>())
                 .build();
+    }
+
+    public void joinTeam(Team team) {
+        if (this.team != null) {
+            this.team.getMembers().remove(this);
+        }
+        this.team = team;
+        team.getMembers().add(this);
     }
 
 }
