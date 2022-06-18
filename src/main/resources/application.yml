@@ -74,6 +74,13 @@ token:
   access-token-expiration-time: 99999999999
   refresh-token-expiration-time: 99999999999
 
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
 ---
 
 spring:
@@ -102,10 +109,22 @@ spring:
       # swagger
       matching-strategy: ant_path_matcher
 
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
+
 # swagger
 springfox:
   documentation:
     enabled: false
+
+swagger:
+  url: http://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com:8080
+  desc: for real usages
 
 # JWT token
 token:
@@ -113,4 +132,11 @@ token:
   access-token-expiration-time: 900000  # 15분
   refresh-token-expiration-time: 1210500000 # 2주
 
+
+
 # TODO oauth2 redirect uri 추가
+oauth2:
+  redirectUri: https://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com/login/oauth2/code/google
+  clientId: 720771356142-qae75m7290099120eqfih689376on2or.apps.googleusercontent.com
+  clientSecret: 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
+  desc: access token redirect uri for dev

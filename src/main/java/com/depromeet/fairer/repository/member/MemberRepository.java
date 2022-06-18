@@ -2,6 +2,7 @@ package com.depromeet.fairer.repository.member;
 
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +14,10 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberCus
     Optional<Member> findByEmail(String email);
 
     List<Member> findAllByTeam(Optional<Team> team);
-    // conflict
+
+    @EntityGraph(attributePaths = {"team"})
+    Optional<Member> findWithTeamByEmail(String email);
+
+    @EntityGraph(attributePaths = {"team"})
+    Optional<Member> findWithTeamByMemberId(Long memberId);
 }

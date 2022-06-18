@@ -1,5 +1,6 @@
 package com.depromeet.fairer.domain.assignment;
 
+import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import lombok.*;
@@ -13,7 +14,7 @@ import javax.persistence.*;
 @Builder
 @ToString(exclude = {"member","houseWork"})
 @AllArgsConstructor @NoArgsConstructor
-public class Assignment {
+public class Assignment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
