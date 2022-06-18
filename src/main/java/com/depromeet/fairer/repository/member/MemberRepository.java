@@ -13,4 +13,5 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberCus
     Optional<Member> findByEmail(String email);
 
     List<Member> findAllByTeam(Optional<Team> team);
+    // conflict
 }
