@@ -38,4 +38,8 @@ public class RuleService {
         ruleRepository.deleteById(ruleId);
         return ruleRepository.findAllByTeam(teamService.getTeam(memberId));
     }
+
+    public List<Rule> findAllByTeam(Team team) {
+        return ruleRepository.findAllByTeam(team);
+    }
 }

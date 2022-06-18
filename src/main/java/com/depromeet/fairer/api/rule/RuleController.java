@@ -27,7 +27,6 @@ import static org.springframework.http.ResponseEntity.ok;
 public class RuleController {
 
     private final RuleService ruleService;
-    private final RuleRepository ruleRepository;
     private final TeamService teamService;
 
     @ApiOperation(value = "팀 규칙 생성", notes = "")
@@ -38,7 +37,7 @@ public class RuleController {
         Rule rule = ruleService.createRules(memberId, req.getRuleName());
 
         // 반환 객체 생성
-        List<Rule> rules = ruleRepository.findAllByTeam(rule.getTeam());
+        List<Rule> rules = ruleService.findAllByTeam(rule.getTeam());
 
         List<RuleResponseDto> ruleResponseDtos = new ArrayList<>();
         for(Rule rulee : rules){
