@@ -31,9 +31,6 @@ public class Team extends BaseTimeEntity {
     @Column(name = "team_name", columnDefinition = "VARCHAR(50)", nullable = false)
     private String teamName;
 
-    @ElementCollection
-    private List<String> rules;
-
     private String inviteCode;
 
     private LocalDateTime inviteCodeCreatedAt;
