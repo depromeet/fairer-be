@@ -10,6 +10,7 @@ import com.depromeet.fairer.dto.housework.response.HouseWorkResponseDto;
 import com.depromeet.fairer.dto.housework.response.HouseWorkStatusResponseDto;
 import com.depromeet.fairer.dto.housework.response.HouseWorkSuccessCountResponseDto;
 import com.depromeet.fairer.dto.member.MemberDto;
+import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
 import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
@@ -53,7 +54,7 @@ public class HouseWorkService {
         Member member = memberService.findWithTeam(memberId);
         Team team = member.getTeam();
         if (team == null) {
-            throw new IllegalStateException("member가 team에 소속되어있지 않아 집안일을 생성할 수 없습니다.");
+            throw new BadRequestException("그룹에 소속되어있지 않아 집안일을 생성할 수 없습니다.");
         }
 
         houseWork.setTeam(team);
