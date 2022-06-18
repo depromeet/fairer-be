@@ -2,12 +2,12 @@ package com.depromeet.fairer.service.team;
 
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
-import com.depromeet.fairer.dto.team.request.TeamUpdateRequestDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.team.TeamRepository;
 import com.depromeet.fairer.service.member.MemberService;
+import com.depromeet.fairer.vo.team.InviteCodeVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -63,7 +63,7 @@ public class TeamService {
         }
     }
 
-    public String viewInviteCode(Long memberId) {
+    public InviteCodeVo viewInviteCode(Long memberId) {
         final Team reqTeam = memberService.findWithTeam(memberId).getTeam();
 
         if (reqTeam == null) {
@@ -74,7 +74,7 @@ public class TeamService {
         if (reqTeam.isExpiredInviteCode(LocalDateTime.now())) {
             reqTeam.createNewInviteCode();
         }
-        return reqTeam.getInviteCode();
+        return new InviteCodeVo(reqTeam.getInviteCode(), reqTeam.getInviteCodeExpirationDateTime());
     }
 
     public Team updateTeam(Long memberId, String teamName) {

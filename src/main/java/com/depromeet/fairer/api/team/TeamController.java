@@ -10,6 +10,7 @@ import com.depromeet.fairer.dto.team.response.TeamJoinResponseDto;
 import com.depromeet.fairer.dto.team.response.TeamUpdateResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.team.TeamService;
+import com.depromeet.fairer.vo.team.InviteCodeVo;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,8 +53,8 @@ public class TeamController {
             "속한 팀이 없을 경우 예외 발생")
     @GetMapping(value = "/invite-codes")
     public ResponseEntity<TeamInviteCodeResponseDto> viewTeamInviteCode(@RequestMemberId Long memberId) {
-        String inviteCode = teamService.viewInviteCode(memberId);
-        return ResponseEntity.ok(TeamInviteCodeResponseDto.from(inviteCode));
+        InviteCodeVo inviteCodeVo = teamService.viewInviteCode(memberId);
+        return ResponseEntity.ok(TeamInviteCodeResponseDto.from(inviteCodeVo));
     }
 
     @ApiOperation(value = "팀 업데이트", notes = "팀 이름 업데이트 - 필요시 필드 추가 예정<br/><br/>" +

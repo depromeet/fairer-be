@@ -3,6 +3,7 @@ package com.depromeet.fairer.domain.team;
 import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
+import com.depromeet.fairer.domain.team.constant.TeamConstant;
 import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -72,7 +73,11 @@ public class Team extends BaseTimeEntity {
 
 
     public Boolean isExpiredInviteCode(LocalDateTime now) {
-        return now.isAfter(inviteCodeCreatedAt.plusHours(24));
+        return now.isAfter(getInviteCodeExpirationDateTime());
+    }
+
+    public LocalDateTime getInviteCodeExpirationDateTime() {
+        return inviteCodeCreatedAt.plusHours(TeamConstant.INVITE_CODE_EXPIRATION_TIME);
     }
 
     public void updateTeamName(String teamName) {

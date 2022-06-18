@@ -1,11 +1,15 @@
 package com.depromeet.fairer.dto.team.response;
 
+import com.depromeet.fairer.domain.team.constant.TeamConstant;
+import com.depromeet.fairer.vo.team.InviteCodeVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor @AllArgsConstructor
@@ -15,7 +19,10 @@ public class TeamInviteCodeResponseDto {
     @ApiModelProperty(value = "팀 초대 코드")
     private String inviteCode;
 
-    public static TeamInviteCodeResponseDto from(String inviteCode) {
-        return new TeamInviteCodeResponseDto(inviteCode);
+    @ApiModelProperty(value = "초대 코드 만료 시각")
+    private LocalDateTime inviteCodeExpirationDateTime;
+
+    public static TeamInviteCodeResponseDto from(InviteCodeVo inviteCodeVo) {
+        return new TeamInviteCodeResponseDto(inviteCodeVo.getInviteCode(), inviteCodeVo.getInviteCodeExpirationDateTime());
     }
 }
