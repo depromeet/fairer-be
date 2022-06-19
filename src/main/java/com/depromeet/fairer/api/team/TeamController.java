@@ -1,11 +1,11 @@
 package com.depromeet.fairer.api.team;
 
-import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.team.request.TeamCreateRequestDto;
 import com.depromeet.fairer.dto.team.request.TeamJoinRequestDto;
 import com.depromeet.fairer.dto.team.request.TeamUpdateRequestDto;
 import com.depromeet.fairer.dto.team.response.*;
+import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.team.TeamService;
 import io.swagger.annotations.ApiOperation;
@@ -71,10 +71,13 @@ public class TeamController {
 //    }
 
     @ApiOperation(value = "팀 멤버 정보 조회", notes = "팀에 소속된 멤버 목록 조회")
-    @GetMapping("/members")
-    public ResponseEntity<TeamMemberListResponseDto> viewTeamMembers(@RequestMemberId Long memberId) {
-        Set<Member> teamMembers = teamService.getTeamMembers(memberId);
-        return ResponseEntity.ok(TeamMemberListResponseDto.from(teamMembers));
-    }
+    @GetMapping("/my")
+    public ResponseEntity<TeamInfoResponseDto> viewMyTeamInfo(@RequestMemberId Long memberId) {
+        Team team = teamService.getTeam(memberId);
+        if (team == null) {
+            throw new BadRequestException("그룹에 소속되어있지 않아 정보를 조회할 수 없습니다.");
+        }
 
+        return ResponseEntity.ok(TeamInfoResponseDto.from(teamService.getTeam(memberId)));
+    }
 }

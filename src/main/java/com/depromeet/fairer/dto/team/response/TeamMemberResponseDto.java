@@ -4,6 +4,10 @@ import com.depromeet.fairer.domain.member.Member;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Builder
 @Data
 public class TeamMemberResponseDto {
@@ -17,5 +21,9 @@ public class TeamMemberResponseDto {
                 .memberId(member.getMemberId())
                 .memberName(member.getMemberName())
                 .build();
+    }
+
+    public static List<TeamMemberResponseDto> toList(Set<Member> members) {
+        return members.stream().map(TeamMemberResponseDto::from).collect(Collectors.toList());
     }
 }
