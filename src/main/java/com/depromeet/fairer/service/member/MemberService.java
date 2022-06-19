@@ -30,8 +30,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberService {
 
-
     private final MemberRepository memberRepository;
+
+//    public Team getTeam(Long memberId) {
+//        return
+//        return memberRepository.findById(memberId).get().getTeam();
+//    }
 
     public Member find(Long memberId) {
         return memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("해당하는 멤버를 찾을 수 없습니다."));

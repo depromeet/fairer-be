@@ -36,6 +36,8 @@ public class HouseWorkService {
     private final MemberRepository memberRepository;
     private final AssignmentRepository assignmentRepository;
     private final TeamService teamService;
+    private final TeamRepository teamRepository;
+    private final MemberService memberService;
 
     @Transactional
     public List<HouseWorkResponseDto> createHouseWorks(Long memberId, List<HouseWorkRequestDto> houseWorksDto) {
@@ -105,7 +107,8 @@ public class HouseWorkService {
 
     @Transactional
     public HouseWorkMemberResponseDto getHouseWork(LocalDate scheduledDate, Long memberId){
-        Team team = teamService.getTeam(memberId);
+        //Team team = teamService.getTeam(memberId);
+        Team team = memberService.findWithTeam(memberId).getTeam();
 
         List<Member> memberList = memberRepository.findAllByTeam(Optional.ofNullable(team));
 
