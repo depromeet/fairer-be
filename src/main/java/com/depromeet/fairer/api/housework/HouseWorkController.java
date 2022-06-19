@@ -45,8 +45,12 @@ public class HouseWorkController {
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "집안일 수정 API ")
     @PutMapping("/{id}")
-    public ResponseEntity<HouseWorkResponseDto> editHouseWork(@ApiIgnore @RequestMemberId Long memberId, @RequestBody @Valid HouseWorkRequestDto dto, @PathVariable Long id) {
+    public ResponseEntity<HouseWorkResponseDto> editHouseWork(
+            @ApiIgnore @RequestMemberId Long memberId,
+            @RequestBody @Valid HouseWorkRequestDto dto,
+            @ApiParam(value = "수정할 집안일 ID", required = true) @PathVariable Long id) {
         return new ResponseEntity<>(houseWorkService.updateHouseWork(memberId, id, dto), HttpStatus.OK);
     }
 
