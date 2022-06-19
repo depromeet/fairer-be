@@ -8,11 +8,16 @@ import com.depromeet.fairer.dto.team.response.*;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.team.TeamService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.Set;
@@ -70,9 +75,12 @@ public class TeamController {
 //        return ResponseEntity.ok().build();
 //    }
 
-    @ApiOperation(value = "팀 멤버 정보 조회", notes = "팀에 소속된 멤버 목록 조회")
+    @ApiOperation(value = "팀 정보 조회 API", notes = "팀 정보 조회(팀 이름, 멤버 정보 등)")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
+    })
     @GetMapping("/my")
-    public ResponseEntity<TeamInfoResponseDto> viewMyTeamInfo(@RequestMemberId Long memberId) {
+    public ResponseEntity<TeamInfoResponseDto> viewMyTeamInfo(@ApiIgnore @RequestMemberId Long memberId) {
         Team team = teamService.getTeam(memberId);
         if (team == null) {
             throw new BadRequestException("그룹에 소속되어있지 않아 정보를 조회할 수 없습니다.");
