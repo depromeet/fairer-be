@@ -29,7 +29,6 @@ public class MemberService {
         return memberRepository.findWithTeamByMemberId(memberId).orElseThrow(()->new NoSuchMemberException("해당하는 멤버를 찾을 수 없습니다."));
     }
 
-    @Transactional
     public List<Member> getMemberList(Long memberId){
         Team team = findWithTeam(memberId).getTeam();
         return memberRepository.findAllByTeam(team);
@@ -43,4 +42,11 @@ public class MemberService {
         final Member reqMember = find(memberId);
         reqMember.update(memberName, profileUrl);
     }
-}
+
+    public Member updateMember(Long memberId, String memberName, String profilePath, String statusMessage) {
+        Member member = this.find(memberId);
+        member.setMemberName(memberName);
+        member.setProfilePath(profilePath);
+        member.setStatusMessage(statusMessage);
+        return memberRepository.save(member);
+    }}
