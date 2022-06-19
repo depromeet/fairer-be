@@ -5,6 +5,7 @@ import com.depromeet.fairer.dto.rule.request.RuleRequestDto;
 import com.depromeet.fairer.dto.rule.response.RuleResponseDto;
 import com.depromeet.fairer.dto.rule.response.RulesResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
+import com.depromeet.fairer.service.member.MemberService;
 import com.depromeet.fairer.service.rule.RuleService;
 import com.depromeet.fairer.service.team.TeamService;
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +29,7 @@ public class RuleController {
 
     private final RuleService ruleService;
     private final TeamService teamService;
+    private final MemberService memberService;
 
     @ApiOperation(value = "팀 규칙 생성", notes = "")
     @PostMapping(value = "")
@@ -44,7 +46,7 @@ public class RuleController {
             ruleResponseDtos.add(RuleResponseDto.createRule(rulee));
         }
 
-        Long teamId = teamService.getTeam(memberId).getTeamId();
+        Long teamId = memberService.findWithTeam(memberId).getTeam().getTeamId();
         return ok(RulesResponseDto.createRules(teamId, ruleResponseDtos));
     }
 
@@ -58,7 +60,7 @@ public class RuleController {
             ruleResponseDtos.add(RuleResponseDto.createRule(rulee));
         }
 
-        Long teamId = teamService.getTeam(memberId).getTeamId();
+        Long teamId = memberService.findWithTeam(memberId).getTeam().getTeamId();
         return ok(RulesResponseDto.createRules(teamId, ruleResponseDtos));
     }
 

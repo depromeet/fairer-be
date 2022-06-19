@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long>, MemberCustomRepository {
     Optional<Member> findByEmail(String email);
 
-    List<Member> findAllByTeam(Optional<Team> team);
+    List<Member> findAllByTeam(Team team);
 
     @EntityGraph(attributePaths = {"team"})
     Optional<Member> findWithTeamByEmail(String email);

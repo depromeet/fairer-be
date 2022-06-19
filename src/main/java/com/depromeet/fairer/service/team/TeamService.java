@@ -5,6 +5,7 @@ import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
+import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.team.TeamRepository;
 import com.depromeet.fairer.service.member.MemberService;
@@ -25,7 +26,6 @@ public class TeamService {
 
     private final MemberService memberService;
     private final TeamRepository teamRepository;
-    private final MemberRepository memberRepository;
 
     public Team createTeam(Long memberId, String teamName) {
         final Member reqMember = memberService.findWithTeam(memberId);
@@ -116,7 +116,10 @@ public class TeamService {
 //        teamRepository.save(foundTeam);
 //    }
 
-    public Team getTeam(Long memberId) {
-        return memberRepository.findById(memberId).get().getTeam();
-    }
+//    public Team getTeam(Long memberId) {
+//        return memberRepository.findById(memberId)
+//                .orElseThrow(() -> new MemberTokenNotFoundException("해당 맴버가 존재하지 않습니다"))
+//                .getTeam();
+//
+//    }
 }
