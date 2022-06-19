@@ -54,6 +54,7 @@ public class HouseWorkController {
         return new ResponseEntity<>(houseWorkService.updateHouseWork(memberId, id, dto), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "집안일 삭제 API ")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteHouseWork(
             @ApiIgnore @RequestMemberId Long memberId,
