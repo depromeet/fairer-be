@@ -14,12 +14,14 @@ import com.depromeet.fairer.service.member.MemberService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -37,11 +39,11 @@ public class HouseWorkController {
     private final MemberService memberService;
 
     @ApiOperation(value = "집안일 생성 API ")
-    @ApiImplicitParams({
+    /*@ApiImplicitParams({
             @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
-    })
+    })*/
     @PostMapping("")
-    public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@RequestMemberId Long memberId, @RequestBody @Valid HouseWorkListRequestDto dto) {
+    public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@ApiIgnore @RequestMemberId Long memberId, @RequestBody @Valid HouseWorkListRequestDto dto) {
         List<HouseWorkResponseDto> houseWorkList = houseWorkService.createHouseWorks(memberId, dto.getHouseWorks());
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
     }
@@ -58,12 +60,12 @@ public class HouseWorkController {
     }
 
     @ApiOperation(value = "날짜별 집안일 조회", notes = "본인 포함 팀원들의 집안일까지 모두 조회")
-    @ApiImplicitParams({
+    /*@ApiImplicitParams({
             @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
-    })
+    })*/
     @GetMapping(value = "")
     public ResponseEntity<List<HouseWorkDateResponseDto>> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
-                                                                   @RequestMemberId Long memberId){
+                                                                   @ApiIgnore @RequestMemberId Long memberId){
         LocalDate scheduledDateParse = LocalDate.parse(scheduledDate, DateTimeFormatter.ISO_DATE);
 
         List<Member> members = memberService.getMemberList(memberId);
@@ -101,7 +103,7 @@ public class HouseWorkController {
     }
 
     @GetMapping("/success/count")
-    public ResponseEntity<HouseWorkSuccessCountResponseDto> getSuccessCount(@RequestParam(required = true) String scheduledDate, @RequestMemberId Long memberId) {
+    public ResponseEntity<HouseWorkSuccessCountResponseDto> getSuccessCount(@RequestParam(required = true) String scheduledDate, @ApiIgnore @RequestMemberId Long memberId) {
         HouseWorkSuccessCountResponseDto houseWorkSuccessCountResponseDto = houseWorkService.getSuccessCount(scheduledDate, memberId);
         return ResponseEntity.ok(houseWorkSuccessCountResponseDto);
     }

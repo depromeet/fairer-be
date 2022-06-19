@@ -31,9 +31,9 @@ public class OauthLoginController {
 
     @PostMapping(value = "/login", headers = {"Content-type=application/json"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "OAuth 로그인 API", description = "Authorization code로 로그인 시 JWT 토큰 반환, 현재 GOOGLE만 지원")
-    @ApiImplicitParams({
+    /*@ApiImplicitParams({
             @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
-    })
+    })*/
     public ResponseEntity<ResponseJwtTokenDto> loginOauth(@RequestBody OauthRequestDto oauthRequestDto, HttpServletRequest httpServletRequest) {
         log.info("=== Oauth login start ===");
 
