@@ -9,6 +9,7 @@ import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.team.TeamRepository;
 import com.depromeet.fairer.service.member.MemberService;
+import com.depromeet.fairer.vo.team.InviteCodeVo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +67,7 @@ public class TeamService {
         }
     }
 
-    public String viewInviteCode(Long memberId) {
+    public InviteCodeVo viewInviteCode(Long memberId) {
         final Team reqTeam = memberService.findWithTeam(memberId).getTeam();
 
         if (reqTeam == null) {
@@ -77,7 +78,7 @@ public class TeamService {
         if (reqTeam.isExpiredInviteCode(LocalDateTime.now())) {
             reqTeam.createNewInviteCode();
         }
-        return reqTeam.getInviteCode();
+        return new InviteCodeVo(reqTeam.getInviteCode(), reqTeam.getInviteCodeExpirationDateTime());
     }
 
     public Team updateTeam(Long memberId, String teamName) {
