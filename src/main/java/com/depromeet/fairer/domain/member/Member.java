@@ -81,4 +81,8 @@ public class Member extends BaseTimeEntity {
         return this.team != null;
     }
 
+    public void update(String memberName, String profileUrl) {
+        this.memberName = memberName;
+        this.profilePath = profileUrl;
+    }
 }

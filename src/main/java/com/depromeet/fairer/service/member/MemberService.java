@@ -38,4 +38,9 @@ public class MemberService {
     public List<Member> getMemberListByHouseWorkId(Long houseWorkId) {
         return memberRepository.getMemberDtoListByHouseWorkId(houseWorkId);
     }
+
+    public void updateMember(Long memberId, String memberName, String profileUrl) {
+        final Member reqMember = find(memberId);
+        reqMember.update(memberName, profileUrl);
+    }
 }

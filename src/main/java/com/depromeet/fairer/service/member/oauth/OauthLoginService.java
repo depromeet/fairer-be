@@ -63,6 +63,9 @@ public class OauthLoginService {
 
         ResponseJwtTokenDto responseJwtTokenDto = modelMapper.map(tokenDto, ResponseJwtTokenDto.class);
         responseJwtTokenDto.setIsNewMember(isNewMember);
+        if (!isNewMember) {
+            responseJwtTokenDto.setMemberName(requestMember.getMemberName());
+        }
         responseJwtTokenDto.setHasTeam(hasTeam);
 
         return responseJwtTokenDto;
