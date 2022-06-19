@@ -3,16 +3,16 @@ package com.depromeet.fairer.service.housework;
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
+import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.housework.request.HouseWorkRequestDto;
-import com.depromeet.fairer.dto.housework.response.HouseWorkDateResponseDto;
-import com.depromeet.fairer.dto.housework.response.HouseWorkResponseDto;
-import com.depromeet.fairer.dto.housework.response.HouseWorkStatusResponseDto;
-import com.depromeet.fairer.dto.housework.response.HouseWorkSuccessCountResponseDto;
+import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.dto.member.MemberDto;
+import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
 import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
+import com.depromeet.fairer.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -31,12 +31,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class HouseWorkService {
     private final HouseWorkRepository houseWorkRepository;
     private final MemberRepository memberRepository;
     private final AssignmentRepository assignmentRepository;
+    private final MemberService memberService;
 
-    @Transactional
+
     public List<HouseWorkResponseDto> createHouseWorks(Long memberId, List<HouseWorkRequestDto> houseWorksDto) {
         List<HouseWorkResponseDto> houseWorks = new ArrayList<>();
         for (HouseWorkRequestDto houseWorkDto : houseWorksDto) {
@@ -47,12 +49,19 @@ public class HouseWorkService {
 
     private HouseWorkResponseDto createHouseWork(Long memberId, HouseWorkRequestDto houseWorkRequestDto) {
         HouseWork houseWork = houseWorkRequestDto.toEntity();
+        Member member = memberService.findWithTeam(memberId);
+        Team team = member.getTeam();
+        if (team == null) {
+            throw new BadRequestException("그룹에 소속되어있지 않아 집안일을 생성할 수 없습니다.");
+        }
+
+        houseWork.setTeam(team);
         houseWorkRepository.save(houseWork);
 
-        List<Long> assignees = new ArrayList<>(List.of(memberId));
+        List<Long> assignees = new ArrayList<>(houseWorkRequestDto.getAssignees());
         List<Member> members = memberRepository.findAllById(assignees);
-        for (Member member : members) {
-            Assignment assignment = Assignment.builder().houseWork(houseWork).member(member).build();
+        for (Member m : members) {
+            Assignment assignment = Assignment.builder().houseWork(houseWork).member(m).build();
             assignmentRepository.save(assignment);
         }
 
@@ -74,7 +83,7 @@ public class HouseWorkService {
 
 //        List<Assignment> assignments = assignmentRepository.findAllByHouseWorkAndMemberNotIn(houseWork, members);
 //        assignmentRepository.deleteAll(assignments);
-//
+
 //        for (Member member : members) {
 //            Optional<Assignment> assignment = assignmentRepository.findByHouseWorkAndMember(houseWork, member);
 //            if(assignment.isEmpty()) {
@@ -102,34 +111,41 @@ public class HouseWorkService {
         return HouseWorkSuccessCountResponseDto.of(count);
     }
 
-    /**
-     * 날짜별 집안일 조회
-     * @param scheduledDate 날짜
-     * @return 날짜별 집안일 dto list
-     */
+//    @Transactional
+//    public HouseWorkMemberResponseDto getHouseWork(LocalDate scheduledDate, Long memberId){
+//        Team team = memberService.findWithTeam(memberId).getTeam();
+//        List<Member> memberList = memberRepository.findAllByTeam(team);
+//
+//        List<HouseWorkDateResponseDto> houseWorkDateResponseDtos = new ArrayList<>();
+//
+//        for (Member memberr : memberList){
+//            List<Assignment> assignmentList = assignmentRepository.findAllByMember(memberr);
+//            List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsIn(scheduledDate, assignmentList);
+//
+//            List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorkList.stream().map(houseWork -> {
+//                List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWork.getHouseWorkId()).stream().map(MemberDto::from).collect(Collectors.toList());
+//
+//                return HouseWorkResponseDto.from(houseWork, memberDtoList);
+//            }).collect(Collectors.toList());
+//
+//            long countDone = houseWorkResponseDtoList.stream().filter(HouseWorkResponseDto::getSuccess).count();
+//            long countLeft = houseWorkResponseDtoList.stream().filter(houseWorkResponseDto -> !houseWorkResponseDto.getSuccess()).count();
+//
+//            houseWorkDateResponseDtos.add(HouseWorkDateResponseDto.from(memberr.getMemberId(), scheduledDate, countDone, countLeft, houseWorkResponseDtoList));
+//        }
+//
+//        return HouseWorkMemberResponseDto.from(team.getTeamId(), houseWorkDateResponseDtos);
+//    }
+
     @Transactional
-    public HouseWorkDateResponseDto getHouseWork(LocalDate scheduledDate, Long memberId){
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberTokenNotFoundException("존재하지 않는 id"));
+    public List<HouseWork> getHouseWorks(LocalDate scheduledDate, Member member){
         List<Assignment> assignmentList = assignmentRepository.findAllByMember(member);
         List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsIn(scheduledDate, assignmentList);
 
-        List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorkList.stream().map(houseWork -> {
-            List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWork.getHouseWorkId()).stream().map(MemberDto::from).collect(Collectors.toList());
-
-            return HouseWorkResponseDto.from(houseWork, memberDtoList);
-        }).collect(Collectors.toList());
-
-        long countDone = houseWorkResponseDtoList.stream().filter(HouseWorkResponseDto::getSuccess).count();
-        long countLeft = houseWorkResponseDtoList.stream().filter(houseWorkResponseDto -> !houseWorkResponseDto.getSuccess()).count();
-
-        return HouseWorkDateResponseDto.from(scheduledDate, countDone, countLeft, houseWorkResponseDtoList);
+        return houseWorkList;
     }
 
-    /**
-     * 개별 집안일 조회
-     * @param houseWorkId 집안일 id
-     * @return 집안일 정보 dto
-     */
+
     @Transactional
     public HouseWorkResponseDto getHouseWorkDetail(Long houseWorkId) {
         HouseWork houseWork = getHouseWorkById(houseWorkId);
@@ -137,12 +153,6 @@ public class HouseWorkService {
         return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
-    /**
-     * 집안일 완료 상태 변경
-     * @param houseWorkId 변경할 집안일 id
-     * @param toBeStatus 0 or 1
-     * @return 변경된 집안일 상태
-     */
     @Transactional
     public HouseWorkStatusResponseDto updateHouseWorkStatus(Long houseWorkId,
                                                             int toBeStatus) {

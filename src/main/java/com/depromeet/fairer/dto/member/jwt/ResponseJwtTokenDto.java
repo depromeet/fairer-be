@@ -28,4 +28,10 @@ public class ResponseJwtTokenDto {
 
     @ApiModelProperty(value = "신규 회원 여부")
     private Boolean isNewMember = false;
+
+    @ApiModelProperty(value = "팀 소속 여부")
+    private Boolean hasTeam = false;
+
+    @ApiModelProperty(value = "멤버 이름")
+    private String memberName;
 }

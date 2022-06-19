@@ -43,13 +43,19 @@ public class OauthLoginService {
 
         // 회원 가입 or 로그인
         Boolean isNewMember = false;
+        Boolean hasTeam = false;
         Member requestMember;
-        final Optional<Member> foundMember = memberRepository.findByEmail(socialUserInfo.getEmail());
+        final Optional<Member> foundMember = memberRepository.findWithTeamByEmail(socialUserInfo.getEmail());
         if (foundMember.isEmpty()) { // 기존 회원 아닐 때
             Member newMember = Member.create(socialUserInfo);
             requestMember = memberRepository.save(newMember);
             isNewMember = true;
-        } else requestMember = foundMember.get(); // 기존 회원일 때
+        } else {
+            requestMember = foundMember.get(); // 기존 회원일 때
+            if (requestMember.getTeam() != null) {
+                hasTeam = true;
+            }
+        }
 
         // JWT 토큰 생성
         TokenDto tokenDto = tokenProvider.createTokenDto(requestMember.getMemberId());
@@ -57,6 +63,10 @@ public class OauthLoginService {
 
         ResponseJwtTokenDto responseJwtTokenDto = modelMapper.map(tokenDto, ResponseJwtTokenDto.class);
         responseJwtTokenDto.setIsNewMember(isNewMember);
+        if (!isNewMember) {
+            responseJwtTokenDto.setMemberName(requestMember.getMemberName());
+        }
+        responseJwtTokenDto.setHasTeam(hasTeam);
 
         return responseJwtTokenDto;
     }
