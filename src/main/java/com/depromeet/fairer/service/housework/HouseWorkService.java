@@ -13,7 +13,6 @@ import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.service.member.MemberService;
-import com.depromeet.fairer.service.team.TeamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -38,9 +37,7 @@ public class HouseWorkService {
     private final MemberRepository memberRepository;
     private final AssignmentRepository assignmentRepository;
     private final MemberService memberService;
-    private final TeamService teamService;
-    private final TeamRepository teamRepository;
-    private final MemberService memberService;
+
 
     public List<HouseWorkResponseDto> createHouseWorks(Long memberId, List<HouseWorkRequestDto> houseWorksDto) {
         List<HouseWorkResponseDto> houseWorks = new ArrayList<>();
@@ -114,31 +111,31 @@ public class HouseWorkService {
         return HouseWorkSuccessCountResponseDto.of(count);
     }
 
-    @Transactional
-    public HouseWorkMemberResponseDto getHouseWork(LocalDate scheduledDate, Long memberId){
-        Team team = memberService.findWithTeam(memberId).getTeam();
-        List<Member> memberList = memberRepository.findAllByTeam(team);
-
-        List<HouseWorkDateResponseDto> houseWorkDateResponseDtos = new ArrayList<>();
-
-        for (Member memberr : memberList){
-            List<Assignment> assignmentList = assignmentRepository.findAllByMember(memberr);
-            List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsIn(scheduledDate, assignmentList);
-
-            List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorkList.stream().map(houseWork -> {
-                List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWork.getHouseWorkId()).stream().map(MemberDto::from).collect(Collectors.toList());
-
-                return HouseWorkResponseDto.from(houseWork, memberDtoList);
-            }).collect(Collectors.toList());
-
-            long countDone = houseWorkResponseDtoList.stream().filter(HouseWorkResponseDto::getSuccess).count();
-            long countLeft = houseWorkResponseDtoList.stream().filter(houseWorkResponseDto -> !houseWorkResponseDto.getSuccess()).count();
-
-            houseWorkDateResponseDtos.add(HouseWorkDateResponseDto.from(memberr.getMemberId(), scheduledDate, countDone, countLeft, houseWorkResponseDtoList));
-        }
-
-        return HouseWorkMemberResponseDto.from(team.getTeamId(), houseWorkDateResponseDtos);
-    }
+//    @Transactional
+//    public HouseWorkMemberResponseDto getHouseWork(LocalDate scheduledDate, Long memberId){
+//        Team team = memberService.findWithTeam(memberId).getTeam();
+//        List<Member> memberList = memberRepository.findAllByTeam(team);
+//
+//        List<HouseWorkDateResponseDto> houseWorkDateResponseDtos = new ArrayList<>();
+//
+//        for (Member memberr : memberList){
+//            List<Assignment> assignmentList = assignmentRepository.findAllByMember(memberr);
+//            List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsIn(scheduledDate, assignmentList);
+//
+//            List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorkList.stream().map(houseWork -> {
+//                List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWork.getHouseWorkId()).stream().map(MemberDto::from).collect(Collectors.toList());
+//
+//                return HouseWorkResponseDto.from(houseWork, memberDtoList);
+//            }).collect(Collectors.toList());
+//
+//            long countDone = houseWorkResponseDtoList.stream().filter(HouseWorkResponseDto::getSuccess).count();
+//            long countLeft = houseWorkResponseDtoList.stream().filter(houseWorkResponseDto -> !houseWorkResponseDto.getSuccess()).count();
+//
+//            houseWorkDateResponseDtos.add(HouseWorkDateResponseDto.from(memberr.getMemberId(), scheduledDate, countDone, countLeft, houseWorkResponseDtoList));
+//        }
+//
+//        return HouseWorkMemberResponseDto.from(team.getTeamId(), houseWorkDateResponseDtos);
+//    }
 
     @Transactional
     public List<HouseWork> getHouseWorks(LocalDate scheduledDate, Member member){

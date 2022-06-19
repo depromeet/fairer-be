@@ -26,6 +26,7 @@ public class TeamService {
 
     private final MemberService memberService;
     private final TeamRepository teamRepository;
+    private final MemberRepository memberRepository;
 
     public Team createTeam(Long memberId, String teamName) {
         final Member reqMember = memberService.findWithTeam(memberId);
@@ -116,10 +117,10 @@ public class TeamService {
 //        teamRepository.save(foundTeam);
 //    }
 
-//    public Team getTeam(Long memberId) {
-//        return memberRepository.findById(memberId)
-//                .orElseThrow(() -> new MemberTokenNotFoundException("해당 맴버가 존재하지 않습니다"))
-//                .getTeam();
-//
-//    }
+    public Team getTeam(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberTokenNotFoundException("해당 맴버가 존재하지 않습니다"))
+                .getTeam();
+
+    }
 }
