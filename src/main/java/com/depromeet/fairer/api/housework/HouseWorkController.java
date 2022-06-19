@@ -14,6 +14,7 @@ import com.depromeet.fairer.service.member.MemberService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -37,9 +38,9 @@ public class HouseWorkController {
     private final MemberService memberService;
 
     @ApiOperation(value = "집안일 생성 API ")
-    @ApiImplicitParams({
+    /*@ApiImplicitParams({
             @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
-    })
+    })*/
     @PostMapping("")
     public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@RequestMemberId Long memberId, @RequestBody @Valid HouseWorkListRequestDto dto) {
         List<HouseWorkResponseDto> houseWorkList = houseWorkService.createHouseWorks(memberId, dto.getHouseWorks());
@@ -58,9 +59,9 @@ public class HouseWorkController {
     }
 
     @ApiOperation(value = "날짜별 집안일 조회", notes = "본인 포함 팀원들의 집안일까지 모두 조회")
-    @ApiImplicitParams({
+    /*@ApiImplicitParams({
             @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
-    })
+    })*/
     @GetMapping(value = "")
     public ResponseEntity<List<HouseWorkDateResponseDto>> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
                                                                    @RequestMemberId Long memberId){

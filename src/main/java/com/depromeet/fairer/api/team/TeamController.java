@@ -75,9 +75,9 @@ public class TeamController {
 //    }
 
     @ApiOperation(value = "팀 정보 조회 API", notes = "팀 정보 조회(팀 이름, 멤버 정보 등)")
-    @ApiImplicitParams({
+    /*@ApiImplicitParams({
             @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
-    })
+    })*/
     @GetMapping("/my")
     public ResponseEntity<TeamInfoResponseDto> viewMyTeamInfo(@ApiIgnore @RequestMemberId Long memberId) {
         Team team = teamService.getTeam(memberId);
