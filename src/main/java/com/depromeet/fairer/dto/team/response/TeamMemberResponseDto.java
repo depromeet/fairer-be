@@ -20,10 +20,14 @@ public class TeamMemberResponseDto {
     @ApiModelProperty(value = "멤버 이름", example = "fairer")
     private String memberName;
 
+    @ApiModelProperty(value = "멤버 프로필이미지 url", example = "http://example.png 또는 '' (공백. 등록되지 않은 경우)")
+    private String profilePath;
+
     public static TeamMemberResponseDto from(Member member) {
         return TeamMemberResponseDto.builder()
                 .memberId(member.getMemberId())
                 .memberName(member.getMemberName())
+                .profilePath(member.getProfilePath())
                 .build();
     }
 

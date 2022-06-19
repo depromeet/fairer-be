@@ -15,11 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="member")
-@Getter @Setter
+@Table(name = "member")
+@Getter
+@Setter
 @ToString(exclude = {"team", "assignments"})
 @Builder
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -30,7 +32,7 @@ public class Member extends BaseTimeEntity {
     @Column(name = "email", columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "profile_path", columnDefinition = "VARCHAR(50)")
+    @Column(name = "profile_path", columnDefinition = "VARCHAR(50) default ''", nullable = false)
     private String profilePath;
 
     @Enumerated(EnumType.STRING)
@@ -53,6 +55,7 @@ public class Member extends BaseTimeEntity {
 
     /**
      * TODO 닉네임 동의 안했을 때 처리 (입력한 닉네임으로 변경)
+     *
      * @param socialUserInfo
      * @return
      */

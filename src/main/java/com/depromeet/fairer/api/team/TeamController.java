@@ -7,11 +7,11 @@ import com.depromeet.fairer.dto.team.request.TeamUpdateRequestDto;
 import com.depromeet.fairer.dto.team.response.*;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
+import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.service.team.TeamService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +29,6 @@ import java.util.Set;
 public class TeamController {
 
     private final TeamService teamService;
-
 
     @ApiOperation(value = "팀 생성", notes = "팀 생성 후 5분간 유효한 12글자 초대 코드 반환<br/><br/>" +
             "이미 속한 팀 있을 경우 예외 발생")
