@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class HouseWorkService {
     private final HouseWorkRepository houseWorkRepository;
     private final MemberRepository memberRepository;
@@ -41,7 +42,6 @@ public class HouseWorkService {
     private final MemberService memberService;
     private final TeamService teamService;
 
-    @Transactional
     public List<HouseWorkResponseDto> createHouseWorks(Long memberId, List<HouseWorkRequestDto> houseWorksDto) {
         List<HouseWorkResponseDto> houseWorks = new ArrayList<>();
         for (HouseWorkRequestDto houseWorkDto : houseWorksDto) {
