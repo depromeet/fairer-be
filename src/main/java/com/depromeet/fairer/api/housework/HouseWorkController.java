@@ -39,39 +39,40 @@ public class HouseWorkController {
     private final MemberService memberService;
 
     @ApiOperation(value = "집안일 생성 API ")
-    /*@ApiImplicitParams({
-            @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
-    })*/
     @PostMapping("")
     public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@ApiIgnore @RequestMemberId Long memberId, @RequestBody @Valid HouseWorkListRequestDto dto) {
         List<HouseWorkResponseDto> houseWorkList = houseWorkService.createHouseWorks(memberId, dto.getHouseWorks());
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "집안일 수정 API ")
     @PutMapping("/{id}")
-    public ResponseEntity<HouseWorkResponseDto> editHouseWork(@RequestBody @Valid HouseWorkRequestDto dto, @PathVariable Long id) {
-        return new ResponseEntity<>(houseWorkService.updateHouseWork(id, dto), HttpStatus.OK);
+    public ResponseEntity<HouseWorkResponseDto> editHouseWork(
+            @ApiIgnore @RequestMemberId Long memberId,
+            @RequestBody @Valid HouseWorkRequestDto dto,
+            @ApiParam(value = "수정할 집안일 ID", required = true) @PathVariable Long id) {
+        return new ResponseEntity<>(houseWorkService.updateHouseWork(memberId, id, dto), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "집안일 삭제 API ")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteHouseWork(@PathVariable Long id) {
-        houseWorkService.deleteHouseWork(id);
+    public ResponseEntity<?> deleteHouseWork(
+            @ApiIgnore @RequestMemberId Long memberId,
+            @ApiParam(value = "삭제할 집안일 ID", required = true) @PathVariable Long id) {
+        houseWorkService.deleteHouseWork(memberId, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @ApiOperation(value = "날짜별 집안일 조회", notes = "본인 포함 팀원들의 집안일까지 모두 조회")
-    /*@ApiImplicitParams({
-            @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
-    })*/
     @GetMapping(value = "")
     public ResponseEntity<List<HouseWorkDateResponseDto>> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
-                                                                   @ApiIgnore @RequestMemberId Long memberId){
+                                                                       @ApiIgnore @RequestMemberId Long memberId) {
         LocalDate scheduledDateParse = LocalDate.parse(scheduledDate, DateTimeFormatter.ISO_DATE);
 
         List<Member> members = memberService.getMemberList(memberId);
 
         List<HouseWorkDateResponseDto> houseWorkDateResponseDtos = new ArrayList<>();
-        for (Member member : members){
+        for (Member member : members) {
             List<HouseWork> houseWorks = houseWorkService.getHouseWorks(scheduledDateParse, member);
 
             List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorks.stream().map(houseWork -> {

@@ -8,7 +8,7 @@ import com.depromeet.fairer.dto.housework.request.HouseWorkRequestDto;
 import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
-import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
+import com.depromeet.fairer.global.exception.PermissionDeniedException;
 import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
@@ -19,6 +19,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -70,37 +72,52 @@ public class HouseWorkService {
     }
 
     @Transactional
-    public HouseWorkResponseDto updateHouseWork(Long id, HouseWorkRequestDto dto) {
-        HouseWork houseWork = getHouseWorkById(id);
+    public HouseWorkResponseDto updateHouseWork(Long memberId, Long houseWorkId, HouseWorkRequestDto dto) {
+        Member member = memberService.findWithTeam(memberId);
+        HouseWork houseWork = getHouseWorkById(houseWorkId);
+        if (member.getTeam() != houseWork.getTeam()) {
+            throw new PermissionDeniedException("집안일을 수정할 권한이 없습니다.");
+        }
+
+        List<Member> newAssignees = memberRepository.findAllById(dto.getAssignees());
+        Set<Long> teamMemberIds = houseWork.getTeam().getMembers().stream().map(Member::getMemberId).collect(Collectors.toSet());
+        Set<Member> assigneesNotInTeam = newAssignees.stream().filter(assignee -> !teamMemberIds.contains(assignee.getMemberId())).collect(Collectors.toSet());
+        if (assigneesNotInTeam.size() > 0) {
+            throw new BadRequestException("같은 팀에 소속되지 않은 멤버를 집안일 담당자로 지정할 수 없습니다.");
+        }
+
         houseWork.setSpace(dto.getSpace());
         houseWork.setHouseWorkName(dto.getHouseWorkName());
         houseWork.setScheduledDate(dto.getScheduledDate());
         houseWork.setScheduledTime(dto.getScheduledTime());
         houseWorkRepository.save(houseWork);
 
-//        TODO: Team 기능 도입되어 assignees 지정 가능한 경우 주석 해제
-//        List<Member> members = memberRepository.findAllById(dto.getAssignees());
+        List<Assignment> assignments = assignmentRepository.findAllByHouseWorkAndMemberNotIn(houseWork, newAssignees);
+        assignmentRepository.deleteAll(assignments);
 
-//        List<Assignment> assignments = assignmentRepository.findAllByHouseWorkAndMemberNotIn(houseWork, members);
-//        assignmentRepository.deleteAll(assignments);
+        for (Member assignee : newAssignees) {
+            Optional<Assignment> assignment = assignmentRepository.findByHouseWorkAndMember(houseWork, assignee);
+            if (assignment.isEmpty()) {
+                assignmentRepository.save(Assignment.builder().houseWork(houseWork).member(assignee).build());
+            }
+        }
 
-//        for (Member member : members) {
-//            Optional<Assignment> assignment = assignmentRepository.findByHouseWorkAndMember(houseWork, member);
-//            if(assignment.isEmpty()) {
-//                assignmentRepository.save(Assignment.builder().houseWork(houseWork).member(member).build());
-//            }
-//        }
-
-        List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(id).stream().map(MemberDto::from).collect(Collectors.toList());
+        List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWorkId).stream().map(MemberDto::from).collect(Collectors.toList());
         return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
     @Transactional
-    public void deleteHouseWork(Long id) {
-        try{
-            houseWorkRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new IllegalArgumentException("존재하지 않는 집안일 입니다.");
+    public void deleteHouseWork(Long memberId, Long houseWorkId) {
+        try {
+            HouseWork houseWork = houseWorkRepository.getById(houseWorkId);
+            Member member = memberService.findWithTeam(memberId);
+            if (member.getTeam() != houseWork.getTeam()) {
+                throw new PermissionDeniedException("집안일을 삭제할 권한이 없습니다.");
+            }
+            houseWorkRepository.deleteById(houseWorkId);
+
+        } catch (EntityNotFoundException e) {
+            throw new BadRequestException("존재하지 않는 집안일 입니다.");
         }
     }
 
@@ -138,7 +155,7 @@ public class HouseWorkService {
 //    }
 
     @Transactional
-    public List<HouseWork> getHouseWorks(LocalDate scheduledDate, Member member){
+    public List<HouseWork> getHouseWorks(LocalDate scheduledDate, Member member) {
         List<Assignment> assignmentList = assignmentRepository.findAllByMember(member);
         List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsIn(scheduledDate, assignmentList);
 
