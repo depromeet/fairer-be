@@ -19,6 +19,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -106,11 +107,17 @@ public class HouseWorkService {
     }
 
     @Transactional
-    public void deleteHouseWork(Long id) {
+    public void deleteHouseWork(Long memberId, Long houseWorkId) {
         try {
-            houseWorkRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new IllegalArgumentException("존재하지 않는 집안일 입니다.");
+            HouseWork houseWork = houseWorkRepository.getById(houseWorkId);
+            Member member = memberService.findWithTeam(memberId);
+            if (member.getTeam() != houseWork.getTeam()) {
+                throw new PermissionDeniedException("집안일을 삭제할 권한이 없습니다.");
+            }
+            houseWorkRepository.deleteById(houseWorkId);
+
+        } catch (EntityNotFoundException e) {
+            throw new BadRequestException("존재하지 않는 집안일 입니다.");
         }
     }
 

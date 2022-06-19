@@ -55,8 +55,10 @@ public class HouseWorkController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteHouseWork(@PathVariable Long id) {
-        houseWorkService.deleteHouseWork(id);
+    public ResponseEntity<?> deleteHouseWork(
+            @ApiIgnore @RequestMemberId Long memberId,
+            @ApiParam(value = "삭제할 집안일 ID", required = true) @PathVariable Long id) {
+        houseWorkService.deleteHouseWork(memberId, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
