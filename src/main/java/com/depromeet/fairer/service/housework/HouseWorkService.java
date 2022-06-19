@@ -13,8 +13,6 @@ import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.service.member.MemberService;
-import com.depromeet.fairer.repository.team.TeamRepository;
-import com.depromeet.fairer.service.member.MemberService;
 import com.depromeet.fairer.service.team.TeamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
