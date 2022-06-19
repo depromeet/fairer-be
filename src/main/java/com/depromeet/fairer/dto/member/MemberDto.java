@@ -1,7 +1,6 @@
 package com.depromeet.fairer.dto.member;
 
 import com.depromeet.fairer.domain.member.Member;
-import com.depromeet.fairer.dto.team.response.TeamMemberResponseDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -17,7 +16,7 @@ public class MemberDto {
     @ApiModelProperty(value = "멤버 ID", example = "1")
     private Long memberId;
 
-    @ApiModelProperty(value = "멤버 닉네임", example = "fairer")
+    @ApiModelProperty(value = "멤버 이름", example = "fairer")
     private String memberName;
 
     @ApiModelProperty(value = "멤버 프로필이미지 url", example = "http://example.png 또는 '' (공백. 등록되지 않은 경우)")
@@ -29,6 +28,10 @@ public class MemberDto {
                 .memberName(member.getMemberName())
                 .profilePath(member.getProfilePath())
                 .build();
+    }
+
+    public static List<MemberDto> toList(Set<Member> members) {
+        return members.stream().map(MemberDto::from).collect(Collectors.toList());
     }
 }
 

@@ -1,6 +1,7 @@
 package com.depromeet.fairer.dto.team.response;
 
 import com.depromeet.fairer.domain.team.Team;
+import com.depromeet.fairer.dto.member.MemberDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
@@ -19,13 +20,13 @@ public class TeamInfoResponseDto {
     private String teamName;
 
     @ApiModelProperty(value = "팀 멤버")
-    private List<TeamMemberResponseDto> members;
+    private List<MemberDto> members;
 
     public static TeamInfoResponseDto from(Team team) {
         return TeamInfoResponseDto.builder()
                 .teamId(team.getTeamId())
                 .teamName(team.getTeamName())
-                .members(TeamMemberResponseDto.toList(team.getMembers()))
+                .members(MemberDto.toList(team.getMembers()))
                 .build();
     }
 }
