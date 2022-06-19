@@ -1,14 +1,17 @@
 package com.depromeet.fairer.api.member;
 
+import com.depromeet.fairer.domain.member.constant.ProfileImage;
 import com.depromeet.fairer.dto.common.CommonApiResult;
 import com.depromeet.fairer.dto.member.MemberUpdateRequestDto;
 import com.depromeet.fairer.dto.member.request.MemberRequestDto;
+import com.depromeet.fairer.dto.member.response.MemberProfileImageResponseDto;
 import com.depromeet.fairer.dto.member.response.MemberResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.member.MemberService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -22,14 +25,32 @@ import javax.validation.Valid;
 public class MemberController {
     private final MemberService memberService;
 
+    @Value("${profile.domain}")
+    private String profileImageDomain;
+    @Value("${profile.default-path}")
+    private String profileImageDefaultPath;
+
     @GetMapping("/me")
     public ResponseEntity<MemberResponseDto> getMe(@RequestMemberId Long memberId) {
         return ResponseEntity.ok(MemberResponseDto.from(memberService.find(memberId)));
     }
 
-    @PostMapping("/me")
+    @PutMapping("/me")
     public ResponseEntity<MemberResponseDto> updateMe(@Valid MemberRequestDto request, @RequestMemberId Long memberId) {
         return ResponseEntity.ok(MemberResponseDto.from(memberService.updateMember(memberId, request.getMemberName(), request.getProfilePath(), request.getStatusMessage())));
+    }
+
+    /***
+     * 기본적으로 제공해주는 프로필 이미지는 profileImageDefaultPath 하위에 보관
+     * 추후에 유저가 업로드 하는 프로필 이미지는 각 유저 폴더에 보관
+     */
+    @GetMapping("/profile-image")
+    public ResponseEntity<MemberProfileImageResponseDto> getDefaultProfileImageList() {
+        return ResponseEntity.ok(
+                MemberProfileImageResponseDto.builder()
+                        .smallImageList(ProfileImage.getSmallImageFullPathList(profileImageDomain, profileImageDefaultPath))
+                        .bigImageList(ProfileImage.getBigImageFullPathList(profileImageDomain, profileImageDefaultPath))
+                        .build());
     }
 
     @ApiOperation(value = "멤버 업데이트", notes = "멤버 정보 업데이트<br/><br/>" +

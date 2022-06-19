@@ -24,7 +24,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(authInterceptor())
                 .order(1)
                 .addPathPatterns("/api/**")
-                .excludePathPatterns("/api/oauth/login");
+                .excludePathPatterns("/api/oauth/login", "/api/member/profile-image");
     }
 
     @Bean

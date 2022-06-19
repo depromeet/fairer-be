@@ -81,6 +81,11 @@ logging:
         type:
           descriptor:
             sql: trace
+
+profile:
+  domain: https://fairer-image.s3.ap-northeast-2.amazonaws.com
+  default-path: fairer-profile-images
+
 ---
 
 spring:
@@ -140,3 +145,7 @@ oauth2:
   clientId: 720771356142-qae75m7290099120eqfih689376on2or.apps.googleusercontent.com
   clientSecret: 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
   desc: access token redirect uri for dev
+
+profile:
+  domain: https://fairer-image.s3.ap-northeast-2.amazonaws.com
+  default-path: fairer-profile-images
