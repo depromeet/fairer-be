@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface MemberCustomRepository {
     List<Member> getMemberDtoListByHouseWorkId(Long houseWorkId);
+
 }

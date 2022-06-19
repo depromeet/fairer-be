@@ -132,6 +132,15 @@ public class HouseWorkService {
     }
 
     @Transactional
+    public List<HouseWork> getHouseWorks(LocalDate scheduledDate, Member member){
+        List<Assignment> assignmentList = assignmentRepository.findAllByMember(member);
+        List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsIn(scheduledDate, assignmentList);
+
+        return houseWorkList;
+    }
+
+
+    @Transactional
     public HouseWorkResponseDto getHouseWorkDetail(Long houseWorkId) {
         HouseWork houseWork = getHouseWorkById(houseWorkId);
         List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWorkId).stream().map(MemberDto::from).collect(Collectors.toList());
