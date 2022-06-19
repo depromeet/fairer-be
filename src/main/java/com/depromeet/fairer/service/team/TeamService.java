@@ -25,7 +25,6 @@ public class TeamService {
 
     private final MemberService memberService;
     private final TeamRepository teamRepository;
-    private final MemberRepository memberRepository;
 
     public Team createTeam(Long memberId, String teamName) {
         final Member reqMember = memberService.findWithTeam(memberId);
