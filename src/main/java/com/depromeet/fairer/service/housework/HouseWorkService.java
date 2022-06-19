@@ -39,6 +39,8 @@ public class HouseWorkService {
     private final AssignmentRepository assignmentRepository;
     private final MemberService memberService;
     private final TeamService teamService;
+    private final TeamRepository teamRepository;
+    private final MemberService memberService;
 
     public List<HouseWorkResponseDto> createHouseWorks(Long memberId, List<HouseWorkRequestDto> houseWorksDto) {
         List<HouseWorkResponseDto> houseWorks = new ArrayList<>();
@@ -114,11 +116,11 @@ public class HouseWorkService {
 
     @Transactional
     public HouseWorkMemberResponseDto getHouseWork(LocalDate scheduledDate, Long memberId){
-        Team team = teamService.getTeam(memberId);
-
-        List<Member> memberList = memberRepository.findAllByTeam(Optional.ofNullable(team));
+        Team team = memberService.findWithTeam(memberId).getTeam();
+        List<Member> memberList = memberRepository.findAllByTeam(team);
 
         List<HouseWorkDateResponseDto> houseWorkDateResponseDtos = new ArrayList<>();
+
         for (Member memberr : memberList){
             List<Assignment> assignmentList = assignmentRepository.findAllByMember(memberr);
             List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsIn(scheduledDate, assignmentList);
@@ -137,6 +139,15 @@ public class HouseWorkService {
 
         return HouseWorkMemberResponseDto.from(team.getTeamId(), houseWorkDateResponseDtos);
     }
+
+    @Transactional
+    public List<HouseWork> getHouseWorks(LocalDate scheduledDate, Member member){
+        List<Assignment> assignmentList = assignmentRepository.findAllByMember(member);
+        List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsIn(scheduledDate, assignmentList);
+
+        return houseWorkList;
+    }
+
 
     @Transactional
     public HouseWorkResponseDto getHouseWorkDetail(Long houseWorkId) {

@@ -4,6 +4,7 @@ import com.depromeet.fairer.domain.rule.Rule;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.rule.request.RuleRequestDto;
 import com.depromeet.fairer.repository.rule.RuleRepository;
+import com.depromeet.fairer.service.member.MemberService;
 import com.depromeet.fairer.service.team.TeamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,12 +17,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RuleService {
-    private final TeamService teamService;
     private final RuleRepository ruleRepository;
+    private final MemberService memberService;
 
     @Transactional
     public Rule createRules(Long memberId, String ruleName){
-        Team team = teamService.getTeam(memberId);
+        Team team = memberService.findWithTeam(memberId).getTeam();
         Rule rule = Rule.builder().team(team).ruleName(ruleName).build();
         ruleRepository.save(rule);
 
@@ -30,13 +31,13 @@ public class RuleService {
 
     @Transactional
     public List<Rule> getRules(Long memberId){
-        return ruleRepository.findAllByTeam(teamService.getTeam(memberId));
+        return ruleRepository.findAllByTeam(memberService.findWithTeam(memberId).getTeam());
     }
 
     @Transactional
     public List<Rule> deleteRules(Long memberId, Long ruleId){
         ruleRepository.deleteById(ruleId);
-        return ruleRepository.findAllByTeam(teamService.getTeam(memberId));
+        return ruleRepository.findAllByTeam(memberService.findWithTeam(memberId).getTeam());
     }
 
     public List<Rule> findAllByTeam(Team team) {
