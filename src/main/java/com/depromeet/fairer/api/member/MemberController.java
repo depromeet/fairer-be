@@ -1,6 +1,7 @@
 package com.depromeet.fairer.api.member;
 
 import com.depromeet.fairer.dto.common.CommonApiResult;
+import com.depromeet.fairer.dto.member.MemberUpdateRequestDto;
 import com.depromeet.fairer.dto.member.request.MemberRequestDto;
 import com.depromeet.fairer.dto.member.response.MemberResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
