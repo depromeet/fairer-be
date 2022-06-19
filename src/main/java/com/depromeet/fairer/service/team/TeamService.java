@@ -1,13 +1,14 @@
 package com.depromeet.fairer.service.team;
 
+
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
-import com.depromeet.fairer.dto.team.request.TeamUpdateRequestDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.team.TeamRepository;
 import com.depromeet.fairer.service.member.MemberService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -104,4 +105,7 @@ public class TeamService {
 //        teamRepository.save(foundTeam);
 //    }
 
+    public Team getTeam(Long memberId) {
+        return memberRepository.findById(memberId).get().getTeam();
+    }
 }

@@ -1,7 +1,9 @@
 package com.depromeet.fairer.domain.team;
 
+import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
+import com.depromeet.fairer.domain.rule.Rule;
 import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -18,7 +20,7 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Team {
+public class Team extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,9 +30,6 @@ public class Team {
     @NotNull
     @Column(name = "team_name", columnDefinition = "VARCHAR(50)", nullable = false)
     private String teamName;
-
-    @ElementCollection
-    private List<String> rules;
 
     private String inviteCode;
 
@@ -42,9 +41,8 @@ public class Team {
     @OneToMany(mappedBy = "team")
     private List<HouseWork> houseWorks;
 
-    public void addRule(String rule) {
-        this.rules.add(rule);
-    }
+    @OneToMany(mappedBy = "team")
+    private List<Rule> rules;
 
     @Builder
     public Team(Member member, String teamName) {
@@ -71,7 +69,7 @@ public class Team {
 
 
     public Boolean isExpiredInviteCode(LocalDateTime now) {
-        return now.isAfter(inviteCodeCreatedAt.plusMinutes(5));
+        return now.isAfter(inviteCodeCreatedAt.plusHours(24));
     }
 
     public void updateTeamName(String teamName) {
