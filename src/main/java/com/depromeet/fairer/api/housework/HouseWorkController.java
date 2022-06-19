@@ -10,6 +10,7 @@ import com.depromeet.fairer.dto.housework.request.HouseWorkRequestDto;
 import com.depromeet.fairer.dto.housework.request.HouseWorkStatusRequestDto;
 import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.service.member.MemberService;
+
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -35,9 +36,13 @@ public class HouseWorkController {
     private final HouseWorkService houseWorkService;
     private final MemberService memberService;
 
+    @ApiOperation(value = "집안일 생성 API ")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
+    })
     @PostMapping("")
-    public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@RequestMemberId Long memberId,  @RequestBody @Valid HouseWorkListRequestDto req) {
-        List<HouseWorkResponseDto> houseWorkList = houseWorkService.createHouseWorks(memberId, req.getHouseWorks());
+    public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@RequestMemberId Long memberId, @RequestBody @Valid HouseWorkListRequestDto dto) {
+        List<HouseWorkResponseDto> houseWorkList = houseWorkService.createHouseWorks(memberId, dto.getHouseWorks());
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
     }
 
@@ -85,13 +90,13 @@ public class HouseWorkController {
 
     @ApiOperation(value = "개별 집안일 조회", notes = "")
     @GetMapping(value = "{houseWorkId}/detail")
-    public ResponseEntity<HouseWorkResponseDto> getHouseWorkDetail(@PathVariable("houseWorkId") Long houseWorkId){
+    public ResponseEntity<HouseWorkResponseDto> getHouseWorkDetail(@PathVariable("houseWorkId") Long houseWorkId) {
         return ResponseEntity.ok(houseWorkService.getHouseWorkDetail(houseWorkId));
     }
 
     @ApiOperation(value = "집안일 완료여부 수정", notes = "toBeStatus=0이면 완료->미완료, toBeStatus=1이면 미완료->완료")
     @PatchMapping(value = "{houseWorkId}")
-    public ResponseEntity<HouseWorkStatusResponseDto> updateHouseWorkStatus(@PathVariable("houseWorkId") Long houseWorkId, @RequestBody @Valid HouseWorkStatusRequestDto req){
+    public ResponseEntity<HouseWorkStatusResponseDto> updateHouseWorkStatus(@PathVariable("houseWorkId") Long houseWorkId, @RequestBody @Valid HouseWorkStatusRequestDto req) {
         return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, req.getToBeStatus()));
     }
 

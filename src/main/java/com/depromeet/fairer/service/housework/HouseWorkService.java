@@ -7,9 +7,12 @@ import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.housework.request.HouseWorkRequestDto;
 import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.dto.member.MemberDto;
+import com.depromeet.fairer.global.exception.BadRequestException;
+import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
 import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
+import com.depromeet.fairer.service.member.MemberService;
 import com.depromeet.fairer.repository.team.TeamRepository;
 import com.depromeet.fairer.service.member.MemberService;
 import com.depromeet.fairer.service.team.TeamService;
@@ -31,15 +34,16 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class HouseWorkService {
     private final HouseWorkRepository houseWorkRepository;
     private final MemberRepository memberRepository;
     private final AssignmentRepository assignmentRepository;
+    private final MemberService memberService;
     private final TeamService teamService;
     private final TeamRepository teamRepository;
     private final MemberService memberService;
 
-    @Transactional
     public List<HouseWorkResponseDto> createHouseWorks(Long memberId, List<HouseWorkRequestDto> houseWorksDto) {
         List<HouseWorkResponseDto> houseWorks = new ArrayList<>();
         for (HouseWorkRequestDto houseWorkDto : houseWorksDto) {
@@ -50,12 +54,19 @@ public class HouseWorkService {
 
     private HouseWorkResponseDto createHouseWork(Long memberId, HouseWorkRequestDto houseWorkRequestDto) {
         HouseWork houseWork = houseWorkRequestDto.toEntity();
+        Member member = memberService.findWithTeam(memberId);
+        Team team = member.getTeam();
+        if (team == null) {
+            throw new BadRequestException("그룹에 소속되어있지 않아 집안일을 생성할 수 없습니다.");
+        }
+
+        houseWork.setTeam(team);
         houseWorkRepository.save(houseWork);
 
-        List<Long> assignees = new ArrayList<>(List.of(memberId));
+        List<Long> assignees = new ArrayList<>(houseWorkRequestDto.getAssignees());
         List<Member> members = memberRepository.findAllById(assignees);
-        for (Member member : members) {
-            Assignment assignment = Assignment.builder().houseWork(houseWork).member(member).build();
+        for (Member m : members) {
+            Assignment assignment = Assignment.builder().houseWork(houseWork).member(m).build();
             assignmentRepository.save(assignment);
         }
 

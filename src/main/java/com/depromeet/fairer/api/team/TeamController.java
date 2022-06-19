@@ -4,19 +4,23 @@ import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.team.request.TeamCreateRequestDto;
 import com.depromeet.fairer.dto.team.request.TeamJoinRequestDto;
 import com.depromeet.fairer.dto.team.request.TeamUpdateRequestDto;
-import com.depromeet.fairer.dto.team.response.TeamCreateResponseDto;
-import com.depromeet.fairer.dto.team.response.TeamInviteCodeResponseDto;
-import com.depromeet.fairer.dto.team.response.TeamJoinResponseDto;
-import com.depromeet.fairer.dto.team.response.TeamUpdateResponseDto;
+import com.depromeet.fairer.dto.team.response.*;
+import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
+import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.service.team.TeamService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -25,7 +29,6 @@ import javax.validation.Valid;
 public class TeamController {
 
     private final TeamService teamService;
-
 
     @ApiOperation(value = "팀 생성", notes = "팀 생성 후 5분간 유효한 12글자 초대 코드 반환<br/><br/>" +
             "이미 속한 팀 있을 경우 예외 발생")
@@ -71,4 +74,17 @@ public class TeamController {
 //        return ResponseEntity.ok().build();
 //    }
 
+    @ApiOperation(value = "팀 정보 조회 API", notes = "팀 정보 조회(팀 이름, 멤버 정보 등)")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
+    })
+    @GetMapping("/my")
+    public ResponseEntity<TeamInfoResponseDto> viewMyTeamInfo(@ApiIgnore @RequestMemberId Long memberId) {
+        Team team = teamService.getTeam(memberId);
+        if (team == null) {
+            throw new BadRequestException("그룹에 소속되어있지 않아 정보를 조회할 수 없습니다.");
+        }
+
+        return ResponseEntity.ok(TeamInfoResponseDto.from(teamService.getTeam(memberId)));
+    }
 }

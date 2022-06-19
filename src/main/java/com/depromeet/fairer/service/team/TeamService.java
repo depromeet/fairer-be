@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -82,7 +83,7 @@ public class TeamService {
         final Team reqTeam = memberService.findWithTeam(memberId).getTeam();
 
         if (reqTeam == null) {
-            throw new BadRequestException("속한 팀이 없습니다.");
+            throw new BadRequestException("소속된 팀이 없습니다.");
         }
 
         if (teamName != null) {
@@ -90,6 +91,16 @@ public class TeamService {
         }
 
         return reqTeam;
+    }
+
+    public Set<Member> getTeamMembers(Long memberId) {
+        Member member = memberService.findWithTeam(memberId);
+
+        if (member.hasTeam()) {
+            return member.getTeam().getMembers();
+        }
+
+        throw new BadRequestException("소속된 팀이 없습니다.");
     }
 
     // 2022.06.01 정책 아직 수립되지 않았으므로 구현 미룸 (신동빈)
