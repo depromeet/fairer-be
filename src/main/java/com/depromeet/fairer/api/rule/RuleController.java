@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
@@ -33,7 +34,7 @@ public class RuleController {
 
     @ApiOperation(value = "팀 규칙 생성", notes = "")
     @PostMapping(value = "")
-    public ResponseEntity<RulesResponseDto> createTeamRules(@RequestMemberId Long memberId,
+    public ResponseEntity<RulesResponseDto> createTeamRules(@ApiIgnore @RequestMemberId Long memberId,
                                                      @RequestBody @Valid RuleRequestDto req){
         // 규칙 생성
         Rule rule = ruleService.createRules(memberId, req.getRuleName());
@@ -52,7 +53,7 @@ public class RuleController {
 
     @ApiOperation(value = "팀 규칙 조회", notes = "memberId를 통한 팀 규칙 조회")
     @GetMapping(value = "")
-    public ResponseEntity<RulesResponseDto> getTeamRules(@RequestMemberId Long memberId){
+    public ResponseEntity<RulesResponseDto> getTeamRules(@ApiIgnore @RequestMemberId Long memberId){
         List<Rule> rules = ruleService.getRules(memberId);
 
         List<RuleResponseDto> ruleResponseDtos = new ArrayList<>();
@@ -66,7 +67,7 @@ public class RuleController {
 
     @ApiOperation(value = "팀 규칙 삭제", notes = "ruleId를 통한 규칙 삭제")
     @DeleteMapping(value = "{ruleId}")
-    public ResponseEntity<CommonApiResult> deleteTeamRules(@RequestMemberId Long memberId,
+    public ResponseEntity<CommonApiResult> deleteTeamRules(@ApiIgnore @RequestMemberId Long memberId,
                                                            @PathVariable Long ruleId){
         List<Rule> rules = ruleService.deleteRules(memberId, ruleId);
 
