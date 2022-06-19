@@ -46,6 +46,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "password", columnDefinition = "VARCHAR(300)", nullable = false)
     private String password;
 
+    @Column(name = "status_message", columnDefinition = "VARCHAR(40)")
+    private String statusMessage;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Assignment> assignments;
 
