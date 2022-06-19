@@ -13,6 +13,7 @@ import java.util.List;
 @Data
 @Builder
 public class HouseWorkDateResponseDto {
+    private Long memberId;
 
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
@@ -22,9 +23,10 @@ public class HouseWorkDateResponseDto {
     private Long countLeft;
     private List<HouseWorkResponseDto> houseWorks;
 
-    public static HouseWorkDateResponseDto from(LocalDate scheduledDate, Long countDone, Long countLeft,
+    public static HouseWorkDateResponseDto from(Long memberId, LocalDate scheduledDate, Long countDone, Long countLeft,
                                            List<HouseWorkResponseDto> houseWorkResponseDtos){
         return new HouseWorkDateResponseDtoBuilder()
+                .memberId(memberId)
                 .scheduledDate(scheduledDate)
                 .countDone(countDone)
                 .countLeft(countLeft)

@@ -1,5 +1,6 @@
 package com.depromeet.fairer.domain.member;
 
+import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import com.depromeet.fairer.dto.member.oauth.OAuthAttributes;
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.memberToken.MemberToken;
@@ -19,7 +20,7 @@ import java.util.List;
 @ToString(exclude = {"team", "assignments"})
 @Builder
 @AllArgsConstructor @NoArgsConstructor
-public class Member {
+public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
