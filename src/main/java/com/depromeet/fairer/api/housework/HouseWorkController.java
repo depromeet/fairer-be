@@ -10,9 +10,12 @@ import com.depromeet.fairer.dto.housework.request.HouseWorkRequestDto;
 import com.depromeet.fairer.dto.housework.request.HouseWorkStatusRequestDto;
 import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.service.member.MemberService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +53,9 @@ public class HouseWorkController {
     }
 
     @ApiOperation(value = "날짜별 집안일 조회", notes = "본인 포함 팀원들의 집안일까지 모두 조회")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
+    })
     @GetMapping(value = "")
     public ResponseEntity<List<HouseWorkDateResponseDto>> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
                                                                    @RequestMemberId Long memberId){
