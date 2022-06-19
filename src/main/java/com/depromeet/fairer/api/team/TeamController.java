@@ -7,21 +7,16 @@ import com.depromeet.fairer.dto.team.request.TeamUpdateRequestDto;
 import com.depromeet.fairer.dto.team.response.*;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
-import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.service.team.TeamService;
 import com.depromeet.fairer.vo.team.InviteCodeVo;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import java.util.Set;
 
 @Slf4j
 @RestController
@@ -76,9 +71,6 @@ public class TeamController {
 //    }
 
     @ApiOperation(value = "팀 정보 조회 API", notes = "팀 정보 조회(팀 이름, 멤버 정보 등)")
-    /*@ApiImplicitParams({
-            @ApiImplicitParam(name = HttpHeaders.AUTHORIZATION, defaultValue = "authorization code", dataType = "String", value = "authorization code", required = true, paramType = "header")
-    })*/
     @GetMapping("/my")
     public ResponseEntity<TeamInfoResponseDto> viewMyTeamInfo(@ApiIgnore @RequestMemberId Long memberId) {
         Team team = teamService.getTeam(memberId);

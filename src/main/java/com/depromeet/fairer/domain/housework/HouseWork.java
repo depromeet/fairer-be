@@ -15,11 +15,13 @@ import java.util.List;
 
 @Entity
 @Table(name = "housework")
-@Getter @Setter
+@Getter
+@Setter
 @ToString(exclude = {"assignments"})
 @EqualsAndHashCode
 @Builder
-@NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class HouseWork extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,6 +52,6 @@ public class HouseWork extends BaseTimeEntity {
     private Team team;
 
     @Builder.Default
-    @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval=true)
+    @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Assignment> assignments = new ArrayList<>();
 }

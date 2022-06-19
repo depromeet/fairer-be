@@ -2,6 +2,7 @@ package com.depromeet.fairer.global.exception.handler;
 
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
+import com.depromeet.fairer.global.exception.PermissionDeniedException;
 import com.depromeet.fairer.global.exception.dto.ErrorResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -43,7 +44,7 @@ public class GlobalExceptionHandler {
 
         BindingResult bindingResult = e.getBindingResult();
         StringBuilder sb = new StringBuilder();
-        if(bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
             for (FieldError fieldError : fieldErrors) {
                 sb.append(fieldError.getDefaultMessage()).append("\n");
@@ -83,9 +84,11 @@ public class GlobalExceptionHandler {
     /**
      * Authentication 객체가 필요한 권한을 보유하지 않은 경우 발생합
      */
-    @ExceptionHandler(AccessDeniedException.class)
-    protected ResponseEntity<ErrorResponseDto> handleAccessDeniedException(AccessDeniedException e, HttpServletRequest request) {
-        log.error("handleAccessDeniedException", e);
+    @ExceptionHandler(PermissionDeniedException.class)
+    protected ResponseEntity<ErrorResponseDto> handlePermissionDeniedException(
+            PermissionDeniedException e,
+            HttpServletRequest request) {
+        log.error("PermissionDeniedException", e);
         return exceptionResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN, request.getRequestURI());
     }
 
@@ -100,8 +103,9 @@ public class GlobalExceptionHandler {
 
     /**
      * exception 발생사 ResponseEntity 로 변환 후 반환
-     * @param message 에러 메세지
-     * @param status http 상태
+     *
+     * @param message    에러 메세지
+     * @param status     http 상태
      * @param requestURI 요청한 uri
      * @return ResponseEntity<ErrorResponseDto>
      */
