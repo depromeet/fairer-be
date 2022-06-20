@@ -32,7 +32,7 @@ public class Member extends BaseTimeEntity {
     @Column(name = "email", columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "profile_path", columnDefinition = "VARCHAR(50) default ''", nullable = false)
+    @Column(name = "profile_path", columnDefinition = "VARCHAR(200) default ''", nullable = false)
     private String profilePath;
 
     @Enumerated(EnumType.STRING)
