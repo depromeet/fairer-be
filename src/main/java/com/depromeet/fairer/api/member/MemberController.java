@@ -2,8 +2,7 @@ package com.depromeet.fairer.api.member;
 
 import com.depromeet.fairer.domain.member.constant.ProfileImage;
 import com.depromeet.fairer.dto.common.CommonApiResult;
-import com.depromeet.fairer.dto.member.MemberUpdateRequestDto;
-import com.depromeet.fairer.dto.member.request.MemberRequestDto;
+import com.depromeet.fairer.dto.member.request.MemberUpdateRequestDto;
 import com.depromeet.fairer.dto.member.response.MemberProfileImageResponseDto;
 import com.depromeet.fairer.dto.member.response.MemberResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
@@ -40,7 +39,7 @@ public class MemberController {
 
     @Tag(name = "members")
     @PutMapping("/me")
-    public ResponseEntity<MemberResponseDto> updateMe(@Valid MemberRequestDto request, @RequestMemberId Long memberId) {
+    public ResponseEntity<MemberResponseDto> updateMe(@Valid MemberUpdateRequestDto request, @RequestMemberId Long memberId) {
         return ResponseEntity.ok(MemberResponseDto.from(memberService.updateMember(memberId, request.getMemberName(), request.getProfilePath(), request.getStatusMessage())));
     }
 
@@ -62,7 +61,7 @@ public class MemberController {
     @ApiOperation(value = "멤버 업데이트", notes = "멤버 정보 업데이트<br/><br/>" +
             "멤버 이름<br/>프로필 url")
     @PatchMapping(value = "")
-    public ResponseEntity<CommonApiResult> updateTeam(@ApiIgnore @RequestMemberId Long memberId, @RequestBody MemberUpdateRequestDto requestDto) {
+    public ResponseEntity<CommonApiResult> updateTeam(@ApiIgnore @RequestMemberId Long memberId, @RequestBody com.depromeet.fairer.dto.member.MemberUpdateRequestDto requestDto) {
         // TODO 이름, url 정규식 검증
         memberService.updateMember(memberId, requestDto.getMemberName(), requestDto.getProfileUrl());
         return ResponseEntity.ok(CommonApiResult.createOk("멤버 정보가 업데이트 되었습니다."));
