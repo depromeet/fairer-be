@@ -22,6 +22,6 @@ public class LoggingFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(requestWrapper, responseWrapper);
 
-        log.info("{} - [{}|{}], req : {}, res : {}", request.getMethod(), request.getServletPath(), responseWrapper.getStatus(), new String(StreamUtils.copyToByteArray(requestWrapper.getInputStream())), new String(StreamUtils.copyToByteArray(responseWrapper.getContentInputStream())));
+//        log.info("{} - [{}|{}], req : {}, res : {}", request.getMethod(), request.getServletPath(), responseWrapper.getStatus(), new String(StreamUtils.copyToByteArray(requestWrapper.getInputStream())), new String(StreamUtils.copyToByteArray(responseWrapper.getContentInputStream())));
     }
 }
