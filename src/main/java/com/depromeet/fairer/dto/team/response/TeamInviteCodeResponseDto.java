@@ -22,7 +22,10 @@ public class TeamInviteCodeResponseDto {
     @ApiModelProperty(value = "초대 코드 만료 시각")
     private LocalDateTime inviteCodeExpirationDateTime;
 
+    @ApiModelProperty(value = "팀 이름")
+    private String teamName;
+
     public static TeamInviteCodeResponseDto from(InviteCodeVo inviteCodeVo) {
-        return new TeamInviteCodeResponseDto(inviteCodeVo.getInviteCode(), inviteCodeVo.getInviteCodeExpirationDateTime());
+        return new TeamInviteCodeResponseDto(inviteCodeVo.getInviteCode(), inviteCodeVo.getInviteCodeExpirationDateTime(), inviteCodeVo.getTeamName());
     }
 }

@@ -11,4 +11,5 @@ public class InviteCodeVo {
 
     private String inviteCode;
     private LocalDateTime inviteCodeExpirationDateTime;
+    private String teamName;
 }
