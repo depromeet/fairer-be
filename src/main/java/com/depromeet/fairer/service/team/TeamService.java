@@ -78,7 +78,7 @@ public class TeamService {
         if (reqTeam.isExpiredInviteCode(LocalDateTime.now())) {
             reqTeam.createNewInviteCode();
         }
-        return new InviteCodeVo(reqTeam.getInviteCode(), reqTeam.getInviteCodeExpirationDateTime());
+        return new InviteCodeVo(reqTeam.getInviteCode(), reqTeam.getInviteCodeExpirationDateTime(), reqTeam.getTeamName());
     }
 
     public Team updateTeam(Long memberId, String teamName) {
