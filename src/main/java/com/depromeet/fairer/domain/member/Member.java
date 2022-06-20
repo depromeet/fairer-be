@@ -64,7 +64,6 @@ public class Member extends BaseTimeEntity {
      */
     public static Member create(OAuthAttributes socialUserInfo) {
         return Member.builder()
-                .memberName(socialUserInfo.getName())
                 .email(socialUserInfo.getEmail())
                 .socialType(socialUserInfo.getSocialType())
                 .password(socialUserInfo.getPassword())
