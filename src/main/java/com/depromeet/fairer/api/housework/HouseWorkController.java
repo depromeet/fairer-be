@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -33,11 +34,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "houseWorks", description = "집안일 API")
 @RequestMapping("/api/houseworks")
 public class HouseWorkController {
     private final HouseWorkService houseWorkService;
     private final MemberService memberService;
 
+    @Tag(name = "houseWorks")
     @ApiOperation(value = "집안일 생성 API ")
     @PostMapping("")
     public ResponseEntity<HouseWorkListResponseDto> createHouseWorks(@ApiIgnore @RequestMemberId Long memberId, @RequestBody @Valid HouseWorkListRequestDto dto) {
@@ -45,6 +48,7 @@ public class HouseWorkController {
         return new ResponseEntity<>(new HouseWorkListResponseDto(houseWorkList), HttpStatus.CREATED);
     }
 
+    @Tag(name = "houseWorks")
     @ApiOperation(value = "집안일 수정 API ")
     @PutMapping("/{id}")
     public ResponseEntity<HouseWorkResponseDto> editHouseWork(
@@ -54,6 +58,7 @@ public class HouseWorkController {
         return new ResponseEntity<>(houseWorkService.updateHouseWork(memberId, id, dto), HttpStatus.OK);
     }
 
+    @Tag(name = "houseWorks")
     @ApiOperation(value = "집안일 삭제 API ")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteHouseWork(
@@ -63,6 +68,7 @@ public class HouseWorkController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Tag(name = "houseWorks")
     @ApiOperation(value = "날짜별 집안일 조회", notes = "본인 포함 팀원들의 집안일까지 모두 조회")
     @GetMapping(value = "")
     public ResponseEntity<List<HouseWorkDateResponseDto>> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
@@ -91,18 +97,21 @@ public class HouseWorkController {
         return ResponseEntity.ok(houseWorkDateResponseDtos);
     }
 
+    @Tag(name = "houseWorks")
     @ApiOperation(value = "개별 집안일 조회", notes = "")
     @GetMapping(value = "{houseWorkId}/detail")
     public ResponseEntity<HouseWorkResponseDto> getHouseWorkDetail(@PathVariable("houseWorkId") Long houseWorkId) {
         return ResponseEntity.ok(houseWorkService.getHouseWorkDetail(houseWorkId));
     }
 
+    @Tag(name = "houseWorks")
     @ApiOperation(value = "집안일 완료여부 수정", notes = "toBeStatus=0이면 완료->미완료, toBeStatus=1이면 미완료->완료")
     @PatchMapping(value = "{houseWorkId}")
     public ResponseEntity<HouseWorkStatusResponseDto> updateHouseWorkStatus(@PathVariable("houseWorkId") Long houseWorkId, @RequestBody @Valid HouseWorkStatusRequestDto req) {
         return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, req.getToBeStatus()));
     }
 
+    @Tag(name = "houseWorks")
     @GetMapping("/success/count")
     public ResponseEntity<HouseWorkSuccessCountResponseDto> getSuccessCount(@RequestParam(required = true) String scheduledDate, @ApiIgnore @RequestMemberId Long memberId) {
         HouseWorkSuccessCountResponseDto houseWorkSuccessCountResponseDto = houseWorkService.getSuccessCount(scheduledDate, memberId);

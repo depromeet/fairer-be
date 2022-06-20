@@ -9,6 +9,7 @@ import com.depromeet.fairer.service.member.MemberService;
 import com.depromeet.fairer.service.rule.RuleService;
 import com.depromeet.fairer.service.team.TeamService;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import static org.springframework.http.ResponseEntity.ok;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "rules", description = "규칙 API")
 @RequestMapping("/api/rules")
 public class RuleController {
 
@@ -32,6 +34,7 @@ public class RuleController {
     private final TeamService teamService;
     private final MemberService memberService;
 
+    @Tag(name = "rules")
     @ApiOperation(value = "팀 규칙 생성", notes = "")
     @PostMapping(value = "")
     public ResponseEntity<RulesResponseDto> createTeamRules(@ApiIgnore @RequestMemberId Long memberId,
@@ -51,6 +54,7 @@ public class RuleController {
         return ok(RulesResponseDto.createRules(teamId, ruleResponseDtos));
     }
 
+    @Tag(name = "rules")
     @ApiOperation(value = "팀 규칙 조회", notes = "memberId를 통한 팀 규칙 조회")
     @GetMapping(value = "")
     public ResponseEntity<RulesResponseDto> getTeamRules(@ApiIgnore @RequestMemberId Long memberId){
@@ -65,6 +69,7 @@ public class RuleController {
         return ok(RulesResponseDto.createRules(teamId, ruleResponseDtos));
     }
 
+    @Tag(name = "rules")
     @ApiOperation(value = "팀 규칙 삭제", notes = "ruleId를 통한 규칙 삭제")
     @DeleteMapping(value = "{ruleId}")
     public ResponseEntity<CommonApiResult> deleteTeamRules(@ApiIgnore @RequestMemberId Long memberId,
