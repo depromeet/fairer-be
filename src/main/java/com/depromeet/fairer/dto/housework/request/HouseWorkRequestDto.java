@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -15,6 +16,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Data
+@ApiModel(value = "집안일 생성 요청 객체", description = "집안일 생성 요청 객체")
 public class HouseWorkRequestDto {
 
     @ApiModelProperty(value = "집안일 담당자 목록", example = "[1, 13] (동일한 그룹 내 유저 id만 가능)", required = true)
