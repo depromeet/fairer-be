@@ -68,6 +68,7 @@ public class Member extends BaseTimeEntity {
                 .socialType(socialUserInfo.getSocialType())
                 .password(socialUserInfo.getPassword())
                 .assignments(new ArrayList<>())
+                .memberName(socialUserInfo.getName())
                 .build();
     }
 
