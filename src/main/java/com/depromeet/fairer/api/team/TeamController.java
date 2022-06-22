@@ -69,12 +69,13 @@ public class TeamController {
         return ResponseEntity.ok(TeamUpdateResponseDto.from(updatedTeam));
     }
 
-    // 2022.06.01 정책 아직 수립되지 않았으므로 구현 미룸 (신동빈)
-//    @PostMapping(value = "/leave")
-//    public ResponseEntity<?> leaveTeam(@RequestMemberId Long memberId) {
-//        teamService.leaveTeam(memberId);
-//        return ResponseEntity.ok().build();
-//    }
+    @Tag(name = "teams")
+    @ApiOperation(value = "팀 나가기", notes = "팀 나가기 - 소속된 팀에서 나가기 처리 <br/>속한 팀이 없을 경우 400 에러 반환")
+    @PostMapping(value = "/leave")
+    public ResponseEntity<?> leaveTeam(@RequestMemberId Long memberId) {
+        teamService.leaveTeam(memberId);
+        return ResponseEntity.ok().build();
+    }
 
     @Tag(name = "teams")
     @ApiOperation(value = "팀 정보 조회 API", notes = "팀 정보 조회(팀 이름, 멤버 정보 등)")

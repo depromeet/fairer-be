@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -105,18 +106,17 @@ public class TeamService {
         throw new BadRequestException("소속된 팀이 없습니다.");
     }
 
-    // 2022.06.01 정책 아직 수립되지 않았으므로 구현 미룸 (신동빈)
-//    public void leaveTeam(Long memberId) {
-//        final Member reqMember = memberService.findWithTeam(memberId);
-//        final Team team = reqMember.getTeam();
-//        reqMember.setTeam(null);
-//        memberRepository.save(reqMember);
-//
-//        log.info("names: {}", team.getMembers().stream().map(Member::getMemberName).collect(Collectors.toList()));
+    public void leaveTeam(Long memberId) {
+        final Member member = memberService.findWithTeam(memberId);
 
-//        foundTeam.getMembers().remove(reqMember);
-//        teamRepository.save(foundTeam);
-//    }
+        if (!member.hasTeam()) {
+            throw new BadRequestException("소속된 팀이 없습니다.");
+        }
+        Team team = member.getTeam();
+        team.getMembers().remove(member);
+        member.setTeam(null);
+        memberRepository.save(member);
+    }
 
     public Team getTeam(Long memberId) {
         return memberRepository.findById(memberId)
