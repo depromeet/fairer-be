@@ -43,19 +43,19 @@ public class TeamService {
         return teamRepository.save(newTeam);
     }
 
-    public Team joinTeam(Long memberId, Long teamId, String inviteCode) {
+    public Team joinTeam(Long memberId, String inviteCode) {
         final Member reqMember = memberService.findWithTeam(memberId);
 
         if (reqMember.getTeam() != null) {
             throw new CannotJoinTeamException();
         }
-        final Team team = teamRepository.findWithMembersByTeamId(teamId)
+        final Team team = teamRepository.findWithMembersByInviteCode(inviteCode)
                 .orElseThrow(() -> new BadRequestException("해당하는 팀이 존재하지 않습니다."));
 
         validateInviteCode(team, inviteCode);
 
-        reqMember.joinTeam(team);
-        return team;
+        Member member = reqMember.joinTeam(team);
+        return member.getTeam();
     }
 
     private void validateInviteCode(Team team, String reqInviteCode) {

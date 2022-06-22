@@ -12,4 +12,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 
     @EntityGraph(attributePaths = {"members"})
     Optional<Team> findWithMembersByTeamId(Long teamId);
+
+    @EntityGraph(attributePaths = {"members"})
+    Optional<Team> findWithMembersByInviteCode(String inviteCode);
 }

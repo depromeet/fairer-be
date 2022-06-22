@@ -46,7 +46,7 @@ public class TeamController {
             "- 요청한 초대코드의 만료 시간(5분)이 지났을 때")
     @PostMapping(value = "/join")
     public ResponseEntity<TeamJoinResponseDto> joinTeam(@ApiIgnore @RequestMemberId Long memberId, @RequestBody @Valid TeamJoinRequestDto req) {
-        final Team joinedTeam = teamService.joinTeam(memberId, req.getTeamId(), req.getInviteCode());
+        final Team joinedTeam = teamService.joinTeam(memberId, req.getInviteCode());
         return ResponseEntity.ok(TeamJoinResponseDto.from(joinedTeam));
     }
 
