@@ -72,12 +72,13 @@ public class Member extends BaseTimeEntity {
                 .build();
     }
 
-    public void joinTeam(Team team) {
+    public Member joinTeam(Team team) {
         if (this.team != null) {
             this.team.getMembers().remove(this);
         }
         this.team = team;
         team.getMembers().add(this);
+        return this;
     }
 
     public boolean hasTeam() {
