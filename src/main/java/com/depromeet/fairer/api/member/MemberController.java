@@ -33,7 +33,7 @@ public class MemberController {
 
     @Tag(name = "members")
     @GetMapping("/me")
-    public ResponseEntity<MemberResponseDto> getMe(@RequestMemberId Long memberId) {
+    public ResponseEntity<MemberResponseDto> getMe(@ApiIgnore @RequestMemberId Long memberId) {
         return ResponseEntity.ok(MemberResponseDto.from(memberService.find(memberId)));
     }
 
