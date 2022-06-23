@@ -6,6 +6,7 @@ import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.memberToken.MemberToken;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.domain.member.constant.SocialType;
+import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -73,6 +74,9 @@ public class Member extends BaseTimeEntity {
     }
 
     public Member joinTeam(Team team) {
+        if (6 < team.getMembers().size()) {
+            throw new CannotJoinTeamException("해당 팀에 구성원이 가득차 참여할 수 없습니다.");
+        }
         if (this.team != null) {
             this.team.getMembers().remove(this);
         }
