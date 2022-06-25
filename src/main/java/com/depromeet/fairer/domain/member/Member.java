@@ -6,6 +6,7 @@ import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.memberToken.MemberToken;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.domain.member.constant.SocialType;
+import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -68,11 +69,16 @@ public class Member extends BaseTimeEntity {
                 .socialType(socialUserInfo.getSocialType())
                 .password(socialUserInfo.getPassword())
                 .assignments(new ArrayList<>())
-                .memberName(socialUserInfo.getName())
+                .memberName("") // 회원가입 할때는 빈값으로 세팅, 이후 멤버 업데이트 api 로 변경
+                .profilePath("")
+                .statusMessage("")
                 .build();
     }
 
     public Member joinTeam(Team team) {
+        if (6 < team.getMembers().size()) {
+            throw new CannotJoinTeamException("해당 팀에 구성원이 가득차 참여할 수 없습니다.");
+        }
         if (this.team != null) {
             this.team.getMembers().remove(this);
         }
