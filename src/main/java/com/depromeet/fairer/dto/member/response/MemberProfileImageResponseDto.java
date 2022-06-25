@@ -8,6 +8,5 @@ import java.util.List;
 @Data
 @Builder
 public class MemberProfileImageResponseDto {
-    List<String> smallImageList;
     List<String> bigImageList;
 }
