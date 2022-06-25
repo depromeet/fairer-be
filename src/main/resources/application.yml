@@ -75,7 +75,7 @@ token:
   refresh-token-expiration-time: 99999999999
 
 profile:
-  domain: https://fairer-image.s3.ap-northeast-2.amazonaws.com
+  domain: https://firebasestorage.googleapis.com/v0/b/fairer-def59.appspot.com/o/
   default-path: fairer-profile-images
 
 ---
@@ -128,5 +128,5 @@ oauth2:
   desc: access token redirect uri for real
 
 profile:
-  domain: https://fairer-image.s3.ap-northeast-2.amazonaws.com
+  domain: https://firebasestorage.googleapis.com/v0/b/fairer-def59.appspot.com/o/
   default-path: fairer-profile-images

@@ -53,7 +53,6 @@ public class MemberController {
     public ResponseEntity<MemberProfileImageResponseDto> getDefaultProfileImageList() {
         return ResponseEntity.ok(
                 MemberProfileImageResponseDto.builder()
-                        .smallImageList(ProfileImage.getSmallImageFullPathList(profileImageDomain, profileImageDefaultPath))
                         .bigImageList(ProfileImage.getBigImageFullPathList(profileImageDomain, profileImageDefaultPath))
                         .build());
     }
