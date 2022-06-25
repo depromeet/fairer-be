@@ -15,6 +15,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@NamedEntityGraph(name = "Member.withMyTeamMembers", attributeNodes = {
+        @NamedAttributeNode(value = "team", subgraph = "team")
+    },
+    subgraphs = @NamedSubgraph(name = "team", attributeNodes = {
+        @NamedAttributeNode("members")
+    })
+)
 @Entity
 @Table(name = "member")
 @Getter

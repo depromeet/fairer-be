@@ -8,5 +8,8 @@ import java.util.List;
 public interface HouseWorkCustomRepository {
     Long getHouseWorkSuccessCount(Long memberId, LocalDate startDate, LocalDate endDate);
 
+    List<HouseWork> getHouseWorkAndAssignee(Long memberId, LocalDate localDate);
+
+
     // List<HouseWork> getHouseWorkList(LocalDate scheduledDate, Long memberId);
 }

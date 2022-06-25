@@ -4,6 +4,7 @@ import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +21,5 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberCus
 
     @EntityGraph(attributePaths = {"team"})
     Optional<Member> findWithTeamByMemberId(Long memberId);
+
 }

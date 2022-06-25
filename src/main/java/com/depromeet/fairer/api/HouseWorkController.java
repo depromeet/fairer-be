@@ -4,6 +4,7 @@ import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
+import com.depromeet.fairer.global.util.DateTimeUtils;
 import com.depromeet.fairer.service.housework.HouseWorkService;
 import com.depromeet.fairer.dto.housework.request.HouseWorksCreateRequestDto;
 import com.depromeet.fairer.dto.housework.request.HouseWorkUpdateRequestDto;
@@ -12,6 +13,7 @@ import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.service.member.MemberService;
 
 import com.depromeet.fairer.vo.houseWork.HouseWorkUpdateVo;
+import com.depromeet.fairer.vo.houseWork.PooClass;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +27,6 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,7 +50,7 @@ public class HouseWorkController {
     }
 
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 수정 API ")
+    @ApiOperation(value = "집안일 수정 API")
     @PutMapping("/{houseWorkId}")
     public ResponseEntity<HouseWorkResponseDto> editHouseWork(@ApiIgnore @RequestMemberId Long memberId,
                                                               @RequestBody @Valid HouseWorkUpdateRequestDto dto,
@@ -72,33 +73,46 @@ public class HouseWorkController {
     }
 
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "날짜별 집안일 조회", notes = "본인 포함 팀원들의 집안일까지 모두 조회")
-    @GetMapping(value = "")
-    public ResponseEntity<List<HouseWorkDateResponseDto>> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
-                                                                       @ApiIgnore @RequestMemberId Long memberId) {
-        LocalDate scheduledDateParse = LocalDate.parse(scheduledDate, DateTimeFormatter.ISO_DATE);
-
-        List<Member> members = memberService.getMemberList(memberId);
-
-        List<HouseWorkDateResponseDto> houseWorkDateResponseDtos = new ArrayList<>();
-        for (Member member : members) {
-            List<HouseWork> houseWorks = houseWorkService.getHouseWorks(scheduledDateParse, member);
-
-            List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorks.stream().map(houseWork -> {
-                List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(houseWork.getHouseWorkId())
-                        .stream().map(MemberDto::from).collect(Collectors.toList());
-
-                return HouseWorkResponseDto.from(houseWork, memberDtoList);
-            }).collect(Collectors.toList());
-
-            long countDone = houseWorkResponseDtoList.stream().filter(HouseWorkResponseDto::getSuccess).count();
-            long countLeft = houseWorkResponseDtoList.stream().filter(houseWorkResponseDto -> !houseWorkResponseDto.getSuccess()).count();
-
-            houseWorkDateResponseDtos.add(HouseWorkDateResponseDto.from(member.getMemberId(), scheduledDateParse, countDone, countLeft, houseWorkResponseDtoList));
-        }
-
-        return ResponseEntity.ok(houseWorkDateResponseDtos);
+    @ApiOperation(value = "특정 멤버의 날짜별 집안일 조회", notes = "특정 멤버의 날짜별 집안일 조회")
+    @GetMapping("")
+    public ResponseEntity<PooClass> getTheMemberHouseWork(@RequestParam("reqDate") String reqDate,
+                                                  @RequestParam("memberId") Long memberId,
+                                                  @ApiIgnore @RequestMemberId Long reqMemberId) {
+        final LocalDate localDate = DateTimeUtils.stringToLocalDate(reqDate);
+        final PooClass theMemberHouseWorks = houseWorkService.getTheMemberHouseWorks(reqMemberId, memberId, localDate);
+        return ResponseEntity.ok(theMemberHouseWorks);
     }
+
+//    @Tag(name = "houseWorks")
+//    @ApiOperation(value = "날짜별 집안일 조회", notes = "본인 포함 팀원들의 집안일까지 모두 조회")
+//    @GetMapping(value = "")
+//    public ResponseEntity<List<HouseWorkDateResponseDto>> getHouseWork(@RequestParam("reqDate") String reqDate,
+//                                                                       @ApiIgnore @RequestMemberId Long memberId) {
+//        final LocalDate reqDateParse = DateTimeUtils.stringToLocalDate(reqDate);
+//
+//        houseWorkService.getMyTeamAllHouseWorksByDate(memberId, reqDate);
+//
+//        List<Member> members = memberService.getMyTeamMembers(memberId);
+//
+//        List<HouseWorkDateResponseDto> houseWorkDateResponseDtos = new ArrayList<>();
+//        for (Member member : members) {
+//            List<HouseWork> houseWorks = houseWorkService.getHouseWorks(reqDateParse, member);
+//
+//            List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorks.stream().map(houseWork -> {
+//                List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(houseWork.getHouseWorkId())
+//                        .stream().map(MemberDto::from).collect(Collectors.toList());
+//
+//                return HouseWorkResponseDto.from(houseWork, memberDtoList);
+//            }).collect(Collectors.toList());
+//
+//            long countDone = houseWorkResponseDtoList.stream().filter(HouseWorkResponseDto::getSuccess).count();
+//            long countLeft = houseWorkResponseDtoList.stream().filter(houseWorkResponseDto -> !houseWorkResponseDto.getSuccess()).count();
+//
+//            houseWorkDateResponseDtos.add(HouseWorkDateResponseDto.from(member.getMemberId(), reqDateParse, countDone, countLeft, houseWorkResponseDtoList));
+//        }
+//
+//        return ResponseEntity.ok(houseWorkDateResponseDtos);
+//    }
 
     @Tag(name = "houseWorks")
     @ApiOperation(value = "개별 집안일 조회", notes = "")

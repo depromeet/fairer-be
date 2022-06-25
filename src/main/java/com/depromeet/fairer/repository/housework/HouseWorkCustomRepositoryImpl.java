@@ -29,4 +29,17 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
                 .stream()
                 .count();
     }
+
+    @Override
+    public List<HouseWork> getHouseWorkAndAssignee(Long memberId, LocalDate localDate) {
+        return jpaQueryFactory.selectFrom(houseWork)
+                .innerJoin(assignment.member, member)
+                .innerJoin(houseWork.assignments, assignment)
+                .where(member.memberId.eq(memberId)
+                        .and(houseWork.scheduledDate.eq(localDate)))
+                .fetch();
+
+    }
+
+
 }

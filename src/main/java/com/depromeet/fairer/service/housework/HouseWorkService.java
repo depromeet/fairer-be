@@ -13,9 +13,13 @@ import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.service.member.MemberService;
+import com.depromeet.fairer.service.team.TeamService;
+import com.depromeet.fairer.vo.houseWork.HouseWorkAndAssigneeVo;
 import com.depromeet.fairer.vo.houseWork.HouseWorkUpdateVo;
+import com.depromeet.fairer.vo.houseWork.PooClass;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +43,7 @@ public class HouseWorkService {
     private final MemberRepository memberRepository;
     private final AssignmentRepository assignmentRepository;
     private final MemberService memberService;
+    private final TeamService teamService;
 
 
     public List<HouseWorkResponseDto> createHouseWorks(Long memberId, List<HouseWorkUpdateRequestDto> houseWorksDto) {
@@ -184,5 +189,42 @@ public class HouseWorkService {
     public HouseWork getHouseWorkById(Long houseWorkId) {
         return houseWorkRepository.findById(houseWorkId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일 입니다."));
+    }
+
+    public PooClass getTheMemberHouseWorks(Long reqMemberId, Long memberId, LocalDate localDate) {
+        teamService.validateSameTeam(reqMemberId, memberId);
+        // 이 멤버 아이디로 집안일 조회
+        // 집안일에 할당된 assignee 리스트 가져오기
+        final List<HouseWork> houseWorkAndAssignee = houseWorkRepository.getHouseWorkAndAssignee(memberId, localDate);
+
+        final List<HouseWorkAndAssigneeVo> response = houseWorkAndAssignee.stream().map(h -> {
+            final HouseWorkAndAssigneeVo houseWorkAndAssigneeVo = new HouseWorkAndAssigneeVo();
+            houseWorkAndAssigneeVo.setHouseWorkId(h.getHouseWorkId());
+            houseWorkAndAssigneeVo.setSpace(h.getSpace());
+            houseWorkAndAssigneeVo.setScheduledTime(h.getScheduledTime());
+            houseWorkAndAssigneeVo.setSuccessDateTime(h.getSuccessDateTime());
+            houseWorkAndAssigneeVo.setSuccess(h.getSuccess());
+
+            final List<HouseWorkAndAssigneeVo.MemberVo> memberVos = h.getAssignments().stream()
+                    .map(Assignment::getMember)
+                    .collect(Collectors.toList())
+                    .stream()
+                    .map(this::makeMemberVo).collect(Collectors.toList());
+
+            houseWorkAndAssigneeVo.setAssignees(memberVos);
+            return houseWorkAndAssigneeVo;
+        }).collect(Collectors.toList());
+        final long successCount = houseWorkAndAssignee.stream().filter(HouseWork::getSuccess).count();
+
+        return new PooClass(response, successCount, houseWorkAndAssignee.size() - successCount);
+    }
+
+    @NotNull
+    private HouseWorkAndAssigneeVo.MemberVo makeMemberVo(Member member) {
+        final HouseWorkAndAssigneeVo.MemberVo memberVo = new HouseWorkAndAssigneeVo.MemberVo();
+        memberVo.setMemberId(member.getMemberId());
+        memberVo.setMemberName(member.getMemberName());
+        memberVo.setProfilePath(member.getProfilePath());
+        return memberVo;
     }
 }
