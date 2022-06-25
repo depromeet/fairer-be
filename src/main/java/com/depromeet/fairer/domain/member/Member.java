@@ -6,6 +6,7 @@ import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.memberToken.MemberToken;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.domain.member.constant.SocialType;
+import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -15,11 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="member")
-@Getter @Setter
+@Table(name = "member")
+@Getter
+@Setter
 @ToString(exclude = {"team", "assignments"})
 @Builder
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -30,7 +33,7 @@ public class Member extends BaseTimeEntity {
     @Column(name = "email", columnDefinition = "VARCHAR(50)", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "profile_path", columnDefinition = "VARCHAR(50)")
+    @Column(name = "profile_path", columnDefinition = "VARCHAR(200) default ''", nullable = false)
     private String profilePath;
 
     @Enumerated(EnumType.STRING)
@@ -44,6 +47,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "password", columnDefinition = "VARCHAR(300)", nullable = false)
     private String password;
 
+    @Column(name = "status_message", columnDefinition = "VARCHAR(40)")
+    private String statusMessage;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Assignment> assignments;
 
@@ -53,25 +59,40 @@ public class Member extends BaseTimeEntity {
 
     /**
      * TODO 닉네임 동의 안했을 때 처리 (입력한 닉네임으로 변경)
+     *
      * @param socialUserInfo
      * @return
      */
     public static Member create(OAuthAttributes socialUserInfo) {
         return Member.builder()
-                .memberName(socialUserInfo.getName())
                 .email(socialUserInfo.getEmail())
                 .socialType(socialUserInfo.getSocialType())
                 .password(socialUserInfo.getPassword())
                 .assignments(new ArrayList<>())
+                .memberName("") // 회원가입 할때는 빈값으로 세팅, 이후 멤버 업데이트 api 로 변경
+                .profilePath("")
+                .statusMessage("")
                 .build();
     }
 
-    public void joinTeam(Team team) {
+    public Member joinTeam(Team team) {
+        if (6 < team.getMembers().size()) {
+            throw new CannotJoinTeamException("해당 팀에 구성원이 가득차 참여할 수 없습니다.");
+        }
         if (this.team != null) {
             this.team.getMembers().remove(this);
         }
         this.team = team;
         team.getMembers().add(this);
+        return this;
     }
 
+    public boolean hasTeam() {
+        return this.team != null;
+    }
+
+    public void update(String memberName, String profileUrl) {
+        this.memberName = memberName;
+        this.profilePath = profileUrl;
+    }
 }

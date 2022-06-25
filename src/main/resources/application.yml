@@ -74,13 +74,10 @@ token:
   access-token-expiration-time: 99999999999
   refresh-token-expiration-time: 99999999999
 
-logging:
-  level:
-    org:
-      hibernate:
-        type:
-          descriptor:
-            sql: trace
+profile:
+  domain: https://fairer-image.s3.ap-northeast-2.amazonaws.com
+  default-path: fairer-profile-images
+
 ---
 
 spring:
@@ -109,14 +106,6 @@ spring:
       # swagger
       matching-strategy: ant_path_matcher
 
-logging:
-  level:
-    org:
-      hibernate:
-        type:
-          descriptor:
-            sql: trace
-
 # swagger
 springfox:
   documentation:
@@ -132,11 +121,12 @@ token:
   access-token-expiration-time: 900000  # 15분
   refresh-token-expiration-time: 1210500000 # 2주
 
-
-
-# TODO oauth2 redirect uri 추가
 oauth2:
   redirectUri: https://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com/login/oauth2/code/google
   clientId: 720771356142-qae75m7290099120eqfih689376on2or.apps.googleusercontent.com
   clientSecret: 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
-  desc: access token redirect uri for dev
+  desc: access token redirect uri for real
+
+profile:
+  domain: https://fairer-image.s3.ap-northeast-2.amazonaws.com
+  default-path: fairer-profile-images

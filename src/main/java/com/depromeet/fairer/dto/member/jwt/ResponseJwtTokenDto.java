@@ -26,6 +26,15 @@ public class ResponseJwtTokenDto {
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Seoul")
     private Date refreshTokenExpireTime;
 
-    @ApiModelProperty(value = "신규 회원 여부")
+    @ApiModelProperty(value = "신규 회원 여부 - 이름이 저장되어 있는지 여부")
     private Boolean isNewMember = false;
+
+    @ApiModelProperty(value = "팀 소속 여부")
+    private Boolean hasTeam = false;
+
+    @ApiModelProperty(value = "멤버 이름")
+    private String memberName;
+
+    @ApiModelProperty(value = "멤버 ID")
+    private Long memberId;
 }

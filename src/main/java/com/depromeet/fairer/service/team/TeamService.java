@@ -1,19 +1,24 @@
 package com.depromeet.fairer.service.team;
 
+
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
-import com.depromeet.fairer.dto.team.request.TeamUpdateRequestDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
+import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.team.TeamRepository;
 import com.depromeet.fairer.service.member.MemberService;
+import com.depromeet.fairer.vo.team.InviteCodeVo;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,19 +44,19 @@ public class TeamService {
         return teamRepository.save(newTeam);
     }
 
-    public Team joinTeam(Long memberId, Long teamId, String inviteCode) {
+    public Team joinTeam(Long memberId, String inviteCode) {
         final Member reqMember = memberService.findWithTeam(memberId);
 
         if (reqMember.getTeam() != null) {
             throw new CannotJoinTeamException();
         }
-        final Team team = teamRepository.findWithMembersByTeamId(teamId)
+        final Team team = teamRepository.findWithMembersByInviteCode(inviteCode)
                 .orElseThrow(() -> new BadRequestException("해당하는 팀이 존재하지 않습니다."));
 
         validateInviteCode(team, inviteCode);
 
-        reqMember.joinTeam(team);
-        return team;
+        Member member = reqMember.joinTeam(team);
+        return member.getTeam();
     }
 
     private void validateInviteCode(Team team, String reqInviteCode) {
@@ -63,7 +68,7 @@ public class TeamService {
         }
     }
 
-    public String viewInviteCode(Long memberId) {
+    public InviteCodeVo viewInviteCode(Long memberId) {
         final Team reqTeam = memberService.findWithTeam(memberId).getTeam();
 
         if (reqTeam == null) {
@@ -74,14 +79,14 @@ public class TeamService {
         if (reqTeam.isExpiredInviteCode(LocalDateTime.now())) {
             reqTeam.createNewInviteCode();
         }
-        return reqTeam.getInviteCode();
+        return new InviteCodeVo(reqTeam.getInviteCode(), reqTeam.getInviteCodeExpirationDateTime(), reqTeam.getTeamName());
     }
 
     public Team updateTeam(Long memberId, String teamName) {
         final Team reqTeam = memberService.findWithTeam(memberId).getTeam();
 
         if (reqTeam == null) {
-            throw new BadRequestException("속한 팀이 없습니다.");
+            throw new BadRequestException("소속된 팀이 없습니다.");
         }
 
         if (teamName != null) {
@@ -91,17 +96,32 @@ public class TeamService {
         return reqTeam;
     }
 
-    // 2022.06.01 정책 아직 수립되지 않았으므로 구현 미룸 (신동빈)
-//    public void leaveTeam(Long memberId) {
-//        final Member reqMember = memberService.findWithTeam(memberId);
-//        final Team team = reqMember.getTeam();
-//        reqMember.setTeam(null);
-//        memberRepository.save(reqMember);
-//
-//        log.info("names: {}", team.getMembers().stream().map(Member::getMemberName).collect(Collectors.toList()));
+    public Set<Member> getTeamMembers(Long memberId) {
+        Member member = memberService.findWithTeam(memberId);
 
-//        foundTeam.getMembers().remove(reqMember);
-//        teamRepository.save(foundTeam);
-//    }
+        if (member.hasTeam()) {
+            return member.getTeam().getMembers();
+        }
 
+        throw new BadRequestException("소속된 팀이 없습니다.");
+    }
+
+    public void leaveTeam(Long memberId) {
+        final Member member = memberService.findWithTeam(memberId);
+
+        if (!member.hasTeam()) {
+            throw new BadRequestException("소속된 팀이 없습니다.");
+        }
+        Team team = member.getTeam();
+        team.getMembers().remove(member);
+        member.setTeam(null);
+        memberRepository.save(member);
+    }
+
+    public Team getTeam(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberTokenNotFoundException("해당 맴버가 존재하지 않습니다"))
+                .getTeam();
+
+    }
 }
