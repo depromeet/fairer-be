@@ -1,11 +1,14 @@
 package com.depromeet.fairer.service.team;
 
 
+import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
+import com.depromeet.fairer.repository.assignment.AssignmentRepository;
+import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.team.TeamRepository;
 import com.depromeet.fairer.service.member.MemberService;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,6 +33,8 @@ public class TeamService {
     private final MemberService memberService;
     private final TeamRepository teamRepository;
     private final MemberRepository memberRepository;
+    private final AssignmentRepository assignmentRepository;
+    private final HouseWorkRepository houseWorkRepository;
 
     public Team createTeam(Long memberId, String teamName) {
         final Member reqMember = memberService.findWithTeam(memberId);
@@ -112,6 +118,17 @@ public class TeamService {
         if (!member.hasTeam()) {
             throw new BadRequestException("소속된 팀이 없습니다.");
         }
+
+        List<Assignment> assignmentList = assignmentRepository.findAllByMember(member);
+        assignmentRepository.deleteAll(assignmentList);
+
+        for(Assignment assignment : assignmentList) {
+            int count = assignmentRepository.findAllByHouseWorkAndMemberNotIn(assignment.getHouseWork(), List.of(member)).size();
+            if(count == 0) {
+                houseWorkRepository.delete(assignment.getHouseWork());
+            }
+        }
+
         Team team = member.getTeam();
         team.getMembers().remove(member);
         member.setTeam(null);
