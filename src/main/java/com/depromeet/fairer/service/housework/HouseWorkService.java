@@ -15,6 +15,7 @@ import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.service.member.MemberService;
 import com.depromeet.fairer.service.team.TeamService;
 import com.depromeet.fairer.vo.houseWork.HouseWorkAndAssigneeVo;
+import com.depromeet.fairer.vo.houseWork.HouseWorkDetailVo;
 import com.depromeet.fairer.vo.houseWork.HouseWorkUpdateVo;
 import com.depromeet.fairer.vo.houseWork.PooClass;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +29,7 @@ import java.time.LocalDate;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -193,8 +191,30 @@ public class HouseWorkService {
 
     public PooClass getTheMemberHouseWorks(Long reqMemberId, Long memberId, LocalDate localDate) {
         teamService.validateSameTeam(reqMemberId, memberId);
+        final List<HouseWorkDetailVo> houseWorkDetailVoList = houseWorkRepository.getHouseWorkAndAssignees(memberId, localDate);
+
+        Map<Long, List<HouseWorkAndAssigneeVo.MemberVo>> houseWorkMap = houseWorkDetailVoList.stream()
+                .collect(Collectors.groupingBy(
+                        HouseWorkDetailVo::getHouseWorkId,
+                        Collectors.mapping(houseWorkDetailVo -> HouseWorkAndAssigneeVo.MemberVo.builder().memberId(houseWorkDetailVo.getMemberId()).memberName(houseWorkDetailVo.getMemberName()).profilePath(houseWorkDetailVo.getProfilePath()).build(), Collectors.toList())));
+
+        List<HouseWorkAndAssigneeVo> response = houseWorkDetailVoList.stream().map(houseWorkDetailVo ->
+                HouseWorkAndAssigneeVo.builder()
+                        .houseWorkId(houseWorkDetailVo.getHouseWorkId())
+                        .space(houseWorkDetailVo.getSpace())
+                        .houseWorkName(houseWorkDetailVo.getHouseWorkName())
+                        .scheduledTime(houseWorkDetailVo.getScheduledTime())
+                        .successDateTime(houseWorkDetailVo.getSuccessDateTime())
+                        .success(houseWorkDetailVo.getSuccess())
+                        .assignees(houseWorkMap.get(houseWorkDetailVo.getHouseWorkId()))
+                        .build())
+                .distinct().collect(Collectors.toList());
+        final long successCount = response.stream().filter(HouseWorkAndAssigneeVo::getSuccess).count();
+        return new PooClass(response, successCount, response.size() - successCount);
+
         // 이 멤버 아이디로 집안일 조회
         // 집안일에 할당된 assignee 리스트 가져오기
+        /*
         final List<HouseWork> houseWorkAndAssignee = houseWorkRepository.getHouseWorkAndAssignee(memberId, localDate);
 
         final List<HouseWorkAndAssigneeVo> response = houseWorkAndAssignee.stream().map(h -> {
@@ -217,14 +237,15 @@ public class HouseWorkService {
         final long successCount = houseWorkAndAssignee.stream().filter(HouseWork::getSuccess).count();
 
         return new PooClass(response, successCount, houseWorkAndAssignee.size() - successCount);
+        */
     }
 
-    @NotNull
-    private HouseWorkAndAssigneeVo.MemberVo makeMemberVo(Member member) {
-        final HouseWorkAndAssigneeVo.MemberVo memberVo = new HouseWorkAndAssigneeVo.MemberVo();
-        memberVo.setMemberId(member.getMemberId());
-        memberVo.setMemberName(member.getMemberName());
-        memberVo.setProfilePath(member.getProfilePath());
-        return memberVo;
-    }
+//    @NotNull
+//    private HouseWorkAndAssigneeVo.MemberVo makeMemberVo(Member member) {
+//        final HouseWorkAndAssigneeVo.MemberVo memberVo = new HouseWorkAndAssigneeVo.MemberVo();
+//        memberVo.setMemberId(member.getMemberId());
+//        memberVo.setMemberName(member.getMemberName());
+//        memberVo.setProfilePath(member.getProfilePath());
+//        return memberVo;
+//    }
 }

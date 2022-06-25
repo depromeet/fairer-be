@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Getter @Setter
+@Builder
 public class HouseWorkAndAssigneeVo {
 
     private Long houseWorkId;
@@ -33,7 +35,7 @@ public class HouseWorkAndAssigneeVo {
 
     private Boolean success;
 
-    @Getter @Setter
+    @Getter @Setter @Builder
     public static class MemberVo{
         private Long memberId;
         private String memberName;
