@@ -72,7 +72,7 @@ public class TeamController {
     @Tag(name = "teams")
     @ApiOperation(value = "팀 나가기", notes = "팀 나가기 - 소속된 팀에서 나가기 처리 <br/>속한 팀이 없을 경우 400 에러 반환")
     @PostMapping(value = "/leave")
-    public ResponseEntity<?> leaveTeam(@RequestMemberId Long memberId) {
+    public ResponseEntity<?> leaveTeam(@ApiIgnore @RequestMemberId Long memberId) {
         teamService.leaveTeam(memberId);
         return ResponseEntity.ok().build();
     }
