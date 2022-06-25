@@ -34,4 +34,7 @@ public class ResponseJwtTokenDto {
 
     @ApiModelProperty(value = "멤버 이름")
     private String memberName;
+
+    @ApiModelProperty(value = "멤버 ID")
+    private Long memberId;
 }

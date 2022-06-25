@@ -65,6 +65,7 @@ public class OauthLoginService {
         if (!isNewMember) {
             responseJwtTokenDto.setMemberName(requestMember.getMemberName());
         }
+        responseJwtTokenDto.setMemberId(requestMember.getMemberId());
         responseJwtTokenDto.setHasTeam(hasTeam);
 
         return responseJwtTokenDto;
