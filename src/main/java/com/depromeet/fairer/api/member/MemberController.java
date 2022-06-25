@@ -7,6 +7,7 @@ import com.depromeet.fairer.dto.member.response.MemberProfileImageResponseDto;
 import com.depromeet.fairer.dto.member.response.MemberResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.member.MemberService;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class MemberController {
 
     @Tag(name = "members")
     @PutMapping("/me")
-    public ResponseEntity<MemberResponseDto> updateMe(@Valid MemberUpdateRequestDto request, @RequestMemberId Long memberId) {
+    public ResponseEntity<MemberResponseDto> updateMe(@Valid MemberUpdateRequestDto request, @ApiIgnore @RequestMemberId Long memberId) {
         return ResponseEntity.ok(MemberResponseDto.from(memberService.updateMember(memberId, request.getMemberName(), request.getProfilePath(), request.getStatusMessage())));
     }
 
