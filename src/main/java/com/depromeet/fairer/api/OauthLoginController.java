@@ -1,4 +1,4 @@
-package com.depromeet.fairer.api.oauth;
+package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.dto.member.oauth.OauthLoginDto;
 import com.depromeet.fairer.dto.member.oauth.OauthRequestDto;

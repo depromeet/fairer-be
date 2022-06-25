@@ -9,9 +9,9 @@ import java.util.List;
 
 @Data
 @ApiModel(value = "집안일 리스트 생성 요청 객체", description = "집안일 리스트 생성 요청 객체")
-public class HouseWorkListRequestDto {
+public class HouseWorksCreateRequestDto {
 
     @ApiModelProperty(value = "생성할 집안일 목록")
     @NotNull
-    private List<HouseWorkRequestDto> houseWorks;
+    private List<HouseWorkUpdateRequestDto> houseWorks;
 }

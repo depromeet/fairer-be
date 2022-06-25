@@ -1,4 +1,4 @@
-package com.depromeet.fairer.api.team;
+package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.team.request.TeamCreateRequestDto;

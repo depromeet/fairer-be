@@ -1,4 +1,4 @@
-package com.depromeet.fairer.api.rule;
+package com.depromeet.fairer.api;
 import com.depromeet.fairer.domain.rule.Rule;
 import com.depromeet.fairer.dto.common.CommonApiResult;
 import com.depromeet.fairer.dto.rule.request.RuleRequestDto;

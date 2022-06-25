@@ -1,4 +1,4 @@
-package com.depromeet.fairer.api.preset;
+package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.preset.constant.Space;
 import com.depromeet.fairer.dto.preset.response.HouseWorkPresetListResponseDto;

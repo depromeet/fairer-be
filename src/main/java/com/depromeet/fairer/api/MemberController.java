@@ -1,4 +1,4 @@
-package com.depromeet.fairer.api.member;
+package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.member.constant.ProfileImage;
 import com.depromeet.fairer.dto.common.CommonApiResult;
