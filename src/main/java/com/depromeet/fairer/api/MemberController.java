@@ -61,9 +61,9 @@ public class MemberController {
     @ApiOperation(value = "멤버 업데이트", notes = "멤버 정보 업데이트<br/><br/>" +
             "멤버 이름<br/>프로필 url")
     @PatchMapping(value = "")
-    public ResponseEntity<CommonApiResult> updateTeam(@ApiIgnore @RequestMemberId Long memberId, @RequestBody com.depromeet.fairer.dto.member.MemberUpdateRequestDto requestDto) {
+    public ResponseEntity<CommonApiResult> updateTeam(@ApiIgnore @RequestMemberId Long memberId, @RequestBody MemberUpdateRequestDto requestDto) {
         // TODO 이름, url 정규식 검증
-        memberService.updateMember(memberId, requestDto.getMemberName(), requestDto.getProfileUrl());
+        memberService.updateMember(memberId, requestDto.getMemberName(), requestDto.getProfilePath(), requestDto.getStatusMessage());
         return ResponseEntity.ok(CommonApiResult.createOk("멤버 정보가 업데이트 되었습니다."));
     }
 }
