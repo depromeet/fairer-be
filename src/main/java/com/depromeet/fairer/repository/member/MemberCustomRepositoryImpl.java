@@ -31,16 +31,14 @@ public class MemberCustomRepositoryImpl implements MemberCustomRepository{
 
     @Override
     public List<Member> getMyTeamMembers(Long memberId) {
-        final QMember teamMember = new QMember("teamMember");
-        final QTeam aTeam = new QTeam("ATeam");
-//        return jpaQueryFactory.select(teamMember)
-//                .leftJoin(teamMember.team, ateam)
-//                .where(JPAExpressions
-//                                .selectFrom(team)
-//                                .leftJoin(member.team, team)
-//                                .where(member.memberId.eq(memberId))
-//                ), aTeam).fetch();
-        return null;
+        final QMember member1 = QMember.member;
+        final QMember member2 = QMember.member;
+        final QTeam team = QTeam.team;
+        return jpaQueryFactory.select(member1)
+                .from(team)
+                .innerJoin(member2).on(member2.team.eq(team))
+                .where(member2.memberId.eq(memberId))
+                .fetch();
     }
 
 }

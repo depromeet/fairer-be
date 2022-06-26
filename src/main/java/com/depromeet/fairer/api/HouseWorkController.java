@@ -1,8 +1,5 @@
 package com.depromeet.fairer.api;
 
-import com.depromeet.fairer.domain.housework.HouseWork;
-import com.depromeet.fairer.domain.member.Member;
-import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.global.util.DateTimeUtils;
 import com.depromeet.fairer.service.housework.HouseWorkService;
@@ -13,7 +10,7 @@ import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.service.member.MemberService;
 
 import com.depromeet.fairer.vo.houseWork.HouseWorkUpdateVo;
-import com.depromeet.fairer.vo.houseWork.PooClass;
+import com.depromeet.fairer.vo.houseWork.HouseWorkAndAssigneeResponseDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,9 +24,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -75,11 +70,11 @@ public class HouseWorkController {
     @Tag(name = "houseWorks")
     @ApiOperation(value = "특정 멤버의 날짜별 집안일 조회", notes = "특정 멤버의 날짜별 집안일 조회")
     @GetMapping("")
-    public ResponseEntity<PooClass> getTheMemberHouseWork(@RequestParam("reqDate") String reqDate,
-                                                  @RequestParam("memberId") Long memberId,
-                                                  @ApiIgnore @RequestMemberId Long reqMemberId) {
+    public ResponseEntity<HouseWorkAndAssigneeResponseDto> getTheMemberHouseWork(@RequestParam("reqDate") String reqDate,
+                                                                                 @RequestParam("memberId") Long memberId,
+                                                                                 @ApiIgnore @RequestMemberId Long reqMemberId) {
         final LocalDate localDate = DateTimeUtils.stringToLocalDate(reqDate);
-        final PooClass theMemberHouseWorks = houseWorkService.getTheMemberHouseWorks(reqMemberId, memberId, localDate);
+        final HouseWorkAndAssigneeResponseDto theMemberHouseWorks = houseWorkService.getTheMemberHouseWorks(reqMemberId, memberId, localDate);
         return ResponseEntity.ok(theMemberHouseWorks);
     }
 
