@@ -17,7 +17,7 @@ import com.depromeet.fairer.service.team.TeamService;
 import com.depromeet.fairer.vo.houseWork.HouseWorkAndAssigneeVo;
 import com.depromeet.fairer.vo.houseWork.HouseWorkDetailVo;
 import com.depromeet.fairer.vo.houseWork.HouseWorkUpdateVo;
-import com.depromeet.fairer.vo.houseWork.PooClass;
+import com.depromeet.fairer.vo.houseWork.HouseWorkAndAssigneeResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -189,16 +189,23 @@ public class HouseWorkService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일 입니다."));
     }
 
-    public PooClass getTheMemberHouseWorks(Long reqMemberId, Long memberId, LocalDate localDate) {
+    public HouseWorkAndAssigneeResponseDto getTheMemberHouseWorks(Long reqMemberId, Long memberId, LocalDate localDate) {
         teamService.validateSameTeam(reqMemberId, memberId);
         final List<HouseWorkDetailVo> houseWorkDetailVoList = houseWorkRepository.getHouseWorkAndAssignees(memberId, localDate);
 
+        List<HouseWorkAndAssigneeVo> houseWorkAndAssigneeVos = makeHouseWorkAndAssigneeVos(houseWorkDetailVoList);
+        final long successCount = houseWorkAndAssigneeVos.stream().filter(HouseWorkAndAssigneeVo::getSuccess).count();
+        return new HouseWorkAndAssigneeResponseDto(houseWorkAndAssigneeVos, successCount, houseWorkAndAssigneeVos.size() - successCount);
+    }
+
+    @NotNull
+    private List<HouseWorkAndAssigneeVo> makeHouseWorkAndAssigneeVos(List<HouseWorkDetailVo> houseWorkDetailVoList) {
         Map<Long, List<HouseWorkAndAssigneeVo.MemberVo>> houseWorkMap = houseWorkDetailVoList.stream()
                 .collect(Collectors.groupingBy(
                         HouseWorkDetailVo::getHouseWorkId,
                         Collectors.mapping(houseWorkDetailVo -> HouseWorkAndAssigneeVo.MemberVo.builder().memberId(houseWorkDetailVo.getMemberId()).memberName(houseWorkDetailVo.getMemberName()).profilePath(houseWorkDetailVo.getProfilePath()).build(), Collectors.toList())));
 
-        List<HouseWorkAndAssigneeVo> response = houseWorkDetailVoList.stream().map(houseWorkDetailVo ->
+        return houseWorkDetailVoList.stream().map(houseWorkDetailVo ->
                 HouseWorkAndAssigneeVo.builder()
                         .houseWorkId(houseWorkDetailVo.getHouseWorkId())
                         .space(houseWorkDetailVo.getSpace())
@@ -209,43 +216,5 @@ public class HouseWorkService {
                         .assignees(houseWorkMap.get(houseWorkDetailVo.getHouseWorkId()))
                         .build())
                 .distinct().collect(Collectors.toList());
-        final long successCount = response.stream().filter(HouseWorkAndAssigneeVo::getSuccess).count();
-        return new PooClass(response, successCount, response.size() - successCount);
-
-        // 이 멤버 아이디로 집안일 조회
-        // 집안일에 할당된 assignee 리스트 가져오기
-        /*
-        final List<HouseWork> houseWorkAndAssignee = houseWorkRepository.getHouseWorkAndAssignee(memberId, localDate);
-
-        final List<HouseWorkAndAssigneeVo> response = houseWorkAndAssignee.stream().map(h -> {
-            final HouseWorkAndAssigneeVo houseWorkAndAssigneeVo = new HouseWorkAndAssigneeVo();
-            houseWorkAndAssigneeVo.setHouseWorkId(h.getHouseWorkId());
-            houseWorkAndAssigneeVo.setSpace(h.getSpace());
-            houseWorkAndAssigneeVo.setScheduledTime(h.getScheduledTime());
-            houseWorkAndAssigneeVo.setSuccessDateTime(h.getSuccessDateTime());
-            houseWorkAndAssigneeVo.setSuccess(h.getSuccess());
-
-            final List<HouseWorkAndAssigneeVo.MemberVo> memberVos = h.getAssignments().stream()
-                    .map(Assignment::getMember)
-                    .collect(Collectors.toList())
-                    .stream()
-                    .map(this::makeMemberVo).collect(Collectors.toList());
-
-            houseWorkAndAssigneeVo.setAssignees(memberVos);
-            return houseWorkAndAssigneeVo;
-        }).collect(Collectors.toList());
-        final long successCount = houseWorkAndAssignee.stream().filter(HouseWork::getSuccess).count();
-
-        return new PooClass(response, successCount, houseWorkAndAssignee.size() - successCount);
-        */
     }
-
-//    @NotNull
-//    private HouseWorkAndAssigneeVo.MemberVo makeMemberVo(Member member) {
-//        final HouseWorkAndAssigneeVo.MemberVo memberVo = new HouseWorkAndAssigneeVo.MemberVo();
-//        memberVo.setMemberId(member.getMemberId());
-//        memberVo.setMemberName(member.getMemberName());
-//        memberVo.setProfilePath(member.getProfilePath());
-//        return memberVo;
-//    }
 }
