@@ -38,15 +38,8 @@ public class MemberService {
         return memberRepository.getMemberDtoListByHouseWorkId(houseWorkId);
     }
 
-    public void updateMember(Long memberId, String memberName, String profileUrl) {
-        final Member reqMember = find(memberId);
-        reqMember.update(memberName, profileUrl);
-    }
-
     public Member updateMember(Long memberId, String memberName, String profilePath, String statusMessage) {
         Member member = this.find(memberId);
-        member.setMemberName(memberName);
-        member.setProfilePath(profilePath);
-        member.setStatusMessage(statusMessage);
+        member.update(memberName, profilePath, statusMessage);
         return memberRepository.save(member);
     }}
