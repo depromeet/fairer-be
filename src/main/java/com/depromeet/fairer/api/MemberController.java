@@ -34,14 +34,9 @@ public class MemberController {
 
     @Tag(name = "members")
     @GetMapping("/me")
+    @ApiOperation(value = "내 정보 조회")
     public ResponseEntity<MemberResponseDto> getMe(@ApiIgnore @RequestMemberId Long memberId) {
         return ResponseEntity.ok(MemberResponseDto.from(memberService.find(memberId)));
-    }
-
-    @Tag(name = "members")
-    @PutMapping("/me")
-    public ResponseEntity<MemberResponseDto> updateMe(@Valid MemberUpdateRequestDto request, @ApiIgnore @RequestMemberId Long memberId) {
-        return ResponseEntity.ok(MemberResponseDto.from(memberService.updateMember(memberId, request.getMemberName(), request.getProfilePath(), request.getStatusMessage())));
     }
 
     /***
@@ -50,6 +45,7 @@ public class MemberController {
      */
     @Tag(name = "members")
     @GetMapping("/profile-image")
+    @ApiOperation(value = "기본 프로필 이미지 리스트 조회")
     public ResponseEntity<MemberProfileImageResponseDto> getDefaultProfileImageList() {
         return ResponseEntity.ok(
                 MemberProfileImageResponseDto.builder()
