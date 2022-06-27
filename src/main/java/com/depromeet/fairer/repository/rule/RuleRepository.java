@@ -11,4 +11,5 @@ import java.util.List;
 public interface RuleRepository extends JpaRepository<Rule, Long> {
 
     List<Rule> findAllByTeam(Team team);
+    long countByTeam(Team team);
 }
