@@ -31,6 +31,10 @@ public enum ProfileImage {
     final String bigImageName;
 
     public static List<String> getBigImageFullPathList(String domain, String path) {
-        return Arrays.stream(values()).map(profileImage -> UriComponentsBuilder.fromHttpUrl(domain).path(path).path(profileImage.bigImageName).build().toString()).collect(Collectors.toList());
+        return Arrays.stream(values())
+                .map(profileImage -> UriComponentsBuilder.fromHttpUrl(domain)
+                        .path(path).path(profileImage.bigImageName)
+                        .build().toString())
+                .collect(Collectors.toList());
     }
 }
