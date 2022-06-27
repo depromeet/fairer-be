@@ -7,6 +7,7 @@ import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
+import com.depromeet.fairer.global.exception.PermissionDeniedException;
 import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
@@ -140,5 +141,11 @@ public class TeamService {
                 .orElseThrow(() -> new MemberTokenNotFoundException("해당 맴버가 존재하지 않습니다"))
                 .getTeam();
 
+    }
+
+    public void validateSameTeam(Long reqMemberId, Long memberId) {
+        if (memberService.getMyTeamMembers(reqMemberId).stream().noneMatch(m -> m.getMemberId().equals(memberId))) {
+            throw new PermissionDeniedException("해당 멤버의 정보를 가져올 수 없습니다.");
+        }
     }
 }

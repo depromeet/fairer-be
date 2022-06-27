@@ -1,6 +1,5 @@
 package com.depromeet.fairer.service.member;
 
-import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.domain.member.Member;
 
 import com.depromeet.fairer.global.exception.NoSuchMemberException;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -29,11 +29,6 @@ public class MemberService {
         return memberRepository.findWithTeamByMemberId(memberId).orElseThrow(()->new NoSuchMemberException("해당하는 멤버를 찾을 수 없습니다."));
     }
 
-    public List<Member> getMemberList(Long memberId){
-        Team team = findWithTeam(memberId).getTeam();
-        return memberRepository.findAllByTeam(team);
-    }
-
     public List<Member> getMemberListByHouseWorkId(Long houseWorkId) {
         return memberRepository.getMemberDtoListByHouseWorkId(houseWorkId);
     }
@@ -42,4 +37,9 @@ public class MemberService {
         Member member = this.find(memberId);
         member.update(memberName, profilePath, statusMessage);
         return memberRepository.save(member);
-    }}
+    }
+
+    public List<Member> getMyTeamMembers(Long memberId) {
+        return memberRepository.getMyTeamMembers(memberId);
+    }
+}

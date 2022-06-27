@@ -1,7 +1,9 @@
 package com.depromeet.fairer.global.util;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class DateTimeUtils {
@@ -9,5 +11,9 @@ public class DateTimeUtils {
         return date.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
+    }
+
+    public static LocalDate stringToLocalDate(String localDate) {
+        return LocalDate.parse(localDate, DateTimeFormatter.ISO_DATE);
     }
 }
