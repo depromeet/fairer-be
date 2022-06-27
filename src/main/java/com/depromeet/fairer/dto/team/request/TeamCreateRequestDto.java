@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+
 @Data
 @Builder
 @NoArgsConstructor @AllArgsConstructor
@@ -14,5 +16,6 @@ import lombok.NoArgsConstructor;
 public class TeamCreateRequestDto {
 
     @ApiModelProperty(value = "팀 이름")
+    @NotBlank
     private String teamName;
 }

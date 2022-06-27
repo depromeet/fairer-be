@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
+
 @Data
 @Getter
 @Builder
@@ -12,7 +14,6 @@ import lombok.*;
 public class TeamUpdateRequestDto {
 
     @ApiModelProperty(value = "팀 이름")
+    @NotBlank
     private String teamName;
-
-
 }

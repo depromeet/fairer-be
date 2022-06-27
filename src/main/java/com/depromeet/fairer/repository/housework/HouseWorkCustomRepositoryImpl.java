@@ -1,6 +1,8 @@
 package com.depromeet.fairer.repository.housework;
 
+import com.depromeet.fairer.domain.assignment.QAssignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
+import com.depromeet.fairer.domain.housework.QHouseWork;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -28,5 +30,19 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
                         .and(houseWork.success.eq(true)))
                 .stream()
                 .count();
+    }
+
+    @Override
+    public List<HouseWork> getHouseWorkListOnlyAssignedMember(Long memberId) {
+        QHouseWork houseWork = QHouseWork.houseWork;
+        QAssignment assignmentByMember = QAssignment.assignment;
+        QAssignment assignmentByHousework = QAssignment.assignment;
+        return jpaQueryFactory.selectFrom(houseWork)
+                .innerJoin(assignmentByHousework).on(houseWork.houseWorkId.eq(assignmentByHousework.houseWork.houseWorkId))
+                .innerJoin(assignmentByMember).on(assignmentByMember.houseWork.houseWorkId.eq(assignmentByHousework.houseWork.houseWorkId))
+                .where(assignmentByMember.member.memberId.eq(memberId))
+                .groupBy(assignmentByHousework.member.memberId)
+                .having(assignmentByHousework.member.memberId.count().eq(1L))
+                .fetch();
     }
 }

@@ -86,6 +86,6 @@ public class TeamController {
             throw new BadRequestException("그룹에 소속되어있지 않아 정보를 조회할 수 없습니다.");
         }
 
-        return ResponseEntity.ok(TeamInfoResponseDto.from(teamService.getTeam(memberId)));
+        return ResponseEntity.ok(TeamInfoResponseDto.from(team));
     }
 }

@@ -2,6 +2,7 @@ package com.depromeet.fairer.service.team;
 
 
 import com.depromeet.fairer.domain.assignment.Assignment;
+import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.global.exception.BadRequestException;
@@ -95,9 +96,7 @@ public class TeamService {
             throw new BadRequestException("소속된 팀이 없습니다.");
         }
 
-        if (teamName != null) {
-            reqTeam.updateTeamName(teamName);
-        }
+        reqTeam.updateTeamName(teamName);
 
         return reqTeam;
     }
@@ -119,15 +118,13 @@ public class TeamService {
             throw new BadRequestException("소속된 팀이 없습니다.");
         }
 
+        // 멤버에만 할당된 집안일 제거
+        List<HouseWork> houseWorkList = houseWorkRepository.getHouseWorkListOnlyAssignedMember(memberId);
+        houseWorkRepository.deleteAll(houseWorkList);
+
+        // 멤버에 할당된 내역 제거
         List<Assignment> assignmentList = assignmentRepository.findAllByMember(member);
         assignmentRepository.deleteAll(assignmentList);
-
-        for(Assignment assignment : assignmentList) {
-            int count = assignmentRepository.findAllByHouseWorkAndMemberNotIn(assignment.getHouseWork(), List.of(member)).size();
-            if(count == 0) {
-                houseWorkRepository.delete(assignment.getHouseWork());
-            }
-        }
 
         Team team = member.getTeam();
         team.getMembers().remove(member);

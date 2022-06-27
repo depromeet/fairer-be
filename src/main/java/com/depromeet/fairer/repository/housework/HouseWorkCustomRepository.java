@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface HouseWorkCustomRepository {
     Long getHouseWorkSuccessCount(Long memberId, LocalDate startDate, LocalDate endDate);
+    List<HouseWork> getHouseWorkListOnlyAssignedMember(Long memberId);
 
     // List<HouseWork> getHouseWorkList(LocalDate scheduledDate, Long memberId);
 }
