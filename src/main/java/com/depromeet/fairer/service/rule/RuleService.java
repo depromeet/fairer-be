@@ -21,12 +21,9 @@ public class RuleService {
     private final MemberService memberService;
 
     @Transactional
-    public Rule createRules(Long memberId, String ruleName){
-        Team team = memberService.findWithTeam(memberId).getTeam();
+    public Rule createRules(Team team, String ruleName){
         Rule rule = Rule.builder().team(team).ruleName(ruleName).build();
-        ruleRepository.save(rule);
-
-        return rule;
+        return ruleRepository.save(rule);
     }
 
     @Transactional
@@ -43,4 +40,9 @@ public class RuleService {
     public List<Rule> findAllByTeam(Team team) {
         return ruleRepository.findAllByTeam(team);
     }
+
+    public Long countRules(Team team) {
+        return ruleRepository.countByTeam(team);
+    }
+
 }

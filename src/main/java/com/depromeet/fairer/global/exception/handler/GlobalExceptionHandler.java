@@ -1,8 +1,6 @@
 package com.depromeet.fairer.global.exception.handler;
 
-import com.depromeet.fairer.global.exception.BadRequestException;
-import com.depromeet.fairer.global.exception.CannotJoinTeamException;
-import com.depromeet.fairer.global.exception.PermissionDeniedException;
+import com.depromeet.fairer.global.exception.*;
 import com.depromeet.fairer.global.exception.dto.ErrorResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -92,6 +90,12 @@ public class GlobalExceptionHandler {
         return exceptionResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN, request.getRequestURI());
     }
 
+    @ExceptionHandler(NoSuchMemberException.class)
+    protected ResponseEntity<ErrorResponseDto> handleNoSuchMemberException(NoSuchMemberException e, HttpServletRequest request) {
+        log.error("NoSuchMemberException", e);
+        return exceptionResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND, request.getRequestURI());
+    }
+
     /**
      * 어떤 객체를 생성하지 못할 경우 발생
      */
@@ -100,6 +104,20 @@ public class GlobalExceptionHandler {
         log.error("CannotJoinTeamException", e);
         return exceptionResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE, request.getRequestURI());
     }
+
+    @ExceptionHandler(FeignClientException.class)
+    protected ResponseEntity<ErrorResponseDto> handleFeignClientException(FeignClientException e, HttpServletRequest request) {
+        log.error("FeignClientException", e);
+        return exceptionResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, request.getRequestURI());
+    }
+
+    @ExceptionHandler(MemberTokenNotFoundException.class)
+    protected ResponseEntity<ErrorResponseDto> handleMemberTokenNotFoundException(MemberTokenNotFoundException e, HttpServletRequest request) {
+        log.error("MemberTokenNotFoundException", e);
+        return exceptionResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND, request.getRequestURI());
+    }
+
+
 
     /**
      * exception 발생사 ResponseEntity 로 변환 후 반환

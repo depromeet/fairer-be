@@ -34,14 +34,9 @@ public class MemberController {
 
     @Tag(name = "members")
     @GetMapping("/me")
+    @ApiOperation(value = "내 정보 조회")
     public ResponseEntity<MemberResponseDto> getMe(@ApiIgnore @RequestMemberId Long memberId) {
         return ResponseEntity.ok(MemberResponseDto.from(memberService.find(memberId)));
-    }
-
-    @Tag(name = "members")
-    @PutMapping("/me")
-    public ResponseEntity<MemberResponseDto> updateMe(@Valid MemberUpdateRequestDto request, @ApiIgnore @RequestMemberId Long memberId) {
-        return ResponseEntity.ok(MemberResponseDto.from(memberService.updateMember(memberId, request.getMemberName(), request.getProfilePath(), request.getStatusMessage())));
     }
 
     /***
@@ -50,10 +45,10 @@ public class MemberController {
      */
     @Tag(name = "members")
     @GetMapping("/profile-image")
+    @ApiOperation(value = "기본 프로필 이미지 리스트 조회")
     public ResponseEntity<MemberProfileImageResponseDto> getDefaultProfileImageList() {
         return ResponseEntity.ok(
                 MemberProfileImageResponseDto.builder()
-                        .smallImageList(ProfileImage.getSmallImageFullPathList(profileImageDomain, profileImageDefaultPath))
                         .bigImageList(ProfileImage.getBigImageFullPathList(profileImageDomain, profileImageDefaultPath))
                         .build());
     }
@@ -62,9 +57,9 @@ public class MemberController {
     @ApiOperation(value = "멤버 업데이트", notes = "멤버 정보 업데이트<br/><br/>" +
             "멤버 이름<br/>프로필 url")
     @PatchMapping(value = "")
-    public ResponseEntity<CommonApiResult> updateTeam(@ApiIgnore @RequestMemberId Long memberId, @RequestBody com.depromeet.fairer.dto.member.MemberUpdateRequestDto requestDto) {
+    public ResponseEntity<CommonApiResult> updateTeam(@ApiIgnore @RequestMemberId Long memberId, @Valid @RequestBody MemberUpdateRequestDto requestDto) {
         // TODO 이름, url 정규식 검증
-        memberService.updateMember(memberId, requestDto.getMemberName(), requestDto.getProfileUrl());
+        memberService.updateMember(memberId, requestDto.getMemberName(), requestDto.getProfilePath(), requestDto.getStatusMessage());
         return ResponseEntity.ok(CommonApiResult.createOk("멤버 정보가 업데이트 되었습니다."));
     }
 }
