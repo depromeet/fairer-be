@@ -62,15 +62,10 @@ public class RuleController {
     @ApiOperation(value = "팀 규칙 조회", notes = "memberId를 통한 팀 규칙 조회")
     @GetMapping(value = "")
     public ResponseEntity<RulesResponseDto> getTeamRules(@ApiIgnore @RequestMemberId Long memberId){
-        List<Rule> rules = ruleService.getRules(memberId);
-
-        List<RuleResponseDto> ruleResponseDtos = new ArrayList<>();
-        for(Rule rulee : rules){
-            ruleResponseDtos.add(RuleResponseDto.createRule(rulee));
-        }
-
-        Long teamId = memberService.findWithTeam(memberId).getTeam().getTeamId();
-        return ok(RulesResponseDto.createRules(teamId, ruleResponseDtos));
+        Team team = memberService.findWithTeam(memberId).getTeam();
+        List<Rule> rules = ruleService.findAllByTeam(team);
+        List<RuleResponseDto> ruleResponseDtos = rules.stream().map(RuleResponseDto::createRule).collect(Collectors.toList());
+        return ok(RulesResponseDto.createRules(team.getTeamId(), ruleResponseDtos));
     }
 
     @Tag(name = "rules")
@@ -78,8 +73,7 @@ public class RuleController {
     @DeleteMapping(value = "{ruleId}")
     public ResponseEntity<CommonApiResult> deleteTeamRules(@ApiIgnore @RequestMemberId Long memberId,
                                                            @PathVariable Long ruleId){
-        List<Rule> rules = ruleService.deleteRules(memberId, ruleId);
-
+        ruleService.deleteRules(memberId, ruleId);
         return ResponseEntity.ok(CommonApiResult.createOk("규칙 삭제 완료"));
     }
 }

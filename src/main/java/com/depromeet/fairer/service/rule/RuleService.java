@@ -3,6 +3,7 @@ package com.depromeet.fairer.service.rule;
 import com.depromeet.fairer.domain.rule.Rule;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.rule.request.RuleRequestDto;
+import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.repository.rule.RuleRepository;
 import com.depromeet.fairer.service.member.MemberService;
 import com.depromeet.fairer.service.team.TeamService;
@@ -32,9 +33,13 @@ public class RuleService {
     }
 
     @Transactional
-    public List<Rule> deleteRules(Long memberId, Long ruleId){
-        ruleRepository.deleteById(ruleId);
-        return ruleRepository.findAllByTeam(memberService.findWithTeam(memberId).getTeam());
+    public void deleteRules(Long memberId, Long ruleId){
+        Team team = memberService.findWithTeam(memberId).getTeam();
+        Rule rule = ruleRepository.findById(ruleId).orElseThrow(() -> new BadRequestException("해당하는 rule id값이 존재하지 않습니다."));
+        if(!team.equals(rule.getTeam())) {
+            new BadRequestException("팀과 규칙이 매칭되지 않습니다.");
+        }
+        ruleRepository.delete(rule);
     }
 
     public List<Rule> findAllByTeam(Team team) {
