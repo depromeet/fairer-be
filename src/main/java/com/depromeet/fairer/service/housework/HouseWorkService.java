@@ -217,4 +217,11 @@ public class HouseWorkService {
                         .build())
                 .distinct().collect(Collectors.toList());
     }
+
+    public HouseWorkAndAssigneeResponseDto getHouseWorkByDate(Long reqMemberId, LocalDate localDate) {
+        final List<HouseWorkDetailVo> houseWorkDetailVos = houseWorkRepository.getHouseWorkAndAssigneesByDate(reqMemberId, localDate);
+        final List<HouseWorkAndAssigneeVo> houseWorkAndAssigneeVos = makeHouseWorkAndAssigneeVos(houseWorkDetailVos);
+        final long successCount = houseWorkAndAssigneeVos.stream().filter(HouseWorkAndAssigneeVo::getSuccess).count();
+        return new HouseWorkAndAssigneeResponseDto(houseWorkAndAssigneeVos, successCount, houseWorkDetailVos.size() - successCount);
+    }
 }

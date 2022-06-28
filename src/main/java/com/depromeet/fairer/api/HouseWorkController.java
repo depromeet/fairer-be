@@ -78,6 +78,15 @@ public class HouseWorkController {
         return ResponseEntity.ok(theMemberHouseWorks);
     }
 
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "특정 날짜별 집안일 조회", notes = "특정 날짜별 집안일 조회")
+    @GetMapping("/date")
+    public ResponseEntity<HouseWorkAndAssigneeResponseDto> getHouseWorkByDate(@RequestParam("reqDate") String reqDate, @ApiIgnore @RequestMemberId Long reqMemberId) {
+        final LocalDate localDate = DateTimeUtils.stringToLocalDate(reqDate);
+        final HouseWorkAndAssigneeResponseDto responseDto = houseWorkService.getHouseWorkByDate(reqMemberId, localDate);
+        return ResponseEntity.ok(responseDto);
+    }
+
 //    @Tag(name = "houseWorks")
 //    @ApiOperation(value = "날짜별 집안일 조회", notes = "본인 포함 팀원들의 집안일까지 모두 조회")
 //    @GetMapping(value = "")
