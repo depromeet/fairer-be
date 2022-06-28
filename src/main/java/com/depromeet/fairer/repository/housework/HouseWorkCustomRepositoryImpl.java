@@ -4,7 +4,7 @@ import com.depromeet.fairer.domain.assignment.QAssignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.housework.QHouseWork;
 import com.depromeet.fairer.domain.member.QMember;
-import com.depromeet.fairer.vo.houseWork.HouseWorkAndAssigneeVo;
+import com.depromeet.fairer.domain.team.QTeam;
 import com.depromeet.fairer.vo.houseWork.HouseWorkDetailVo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -70,6 +70,32 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
                 .innerJoin(member).on(assignment2.member.memberId.eq(member.memberId))
                 .where(houseWork.scheduledDate.eq(localDate)
                         .and(assignment1.member.memberId.eq(memberId)))
+                .fetch();
+    }
+
+    @Override
+    public List<HouseWorkDetailVo> getHouseWorkAndAssigneesByDate(Long reqMemberId, LocalDate localDate) {
+        QMember reqMember = QMember.member;
+        QHouseWork houseWork = QHouseWork.houseWork;
+        QTeam team = QTeam.team;
+
+        return jpaQueryFactory.select(Projections.bean(HouseWorkDetailVo.class,
+                houseWork.houseWorkId,
+                houseWork.space,
+                houseWork.houseWorkName,
+                houseWork.scheduledTime,
+                houseWork.successDateTime,
+                houseWork.success,
+                member.memberId,
+                member.memberName,
+                member.profilePath))
+                .from(team)
+                .innerJoin(reqMember).on(reqMember.team.teamId.eq(team.teamId))
+                .innerJoin(member).on(member.team.teamId.eq(team.teamId))
+                .innerJoin(assignment).on(assignment.member.memberId.eq(member.memberId))
+                .innerJoin(houseWork).on(assignment.houseWork.houseWorkId.eq(houseWork.houseWorkId))
+                .where(reqMember.memberId.eq(reqMemberId)
+                        .and(houseWork.scheduledDate.eq(localDate)))
                 .fetch();
     }
 }
