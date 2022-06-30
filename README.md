@@ -67,6 +67,27 @@ fairer의 백엔드 레포지토리 입니다.
     
 <br/>
 
+## 🗂 Directory
+```
+📂 fairer
+    📂 api
+    📂 domain
+    📂 dto
+    📂 global
+     ├── 📂 config
+     ├── 📂 exception
+     |	 ├── 📂 dto
+     |   └── 📂 handler
+     ├── 📂 resolver
+     └── 📂 util
+    📂 repository
+    📂 service
+    📂 vo
+	- Application.java
+```
+
+<br/>
+
 ## 📝ERD
 <img src="https://user-images.githubusercontent.com/77181984/176247477-e1c0277b-e4d1-4049-817c-16e08668976b.PNG" width="550"/>
 
