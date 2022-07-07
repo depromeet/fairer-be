@@ -8,7 +8,7 @@
 <img src="https://user-images.githubusercontent.com/77181984/175760346-a164f36f-3c12-41ab-9a06-2f86885baf9a.png" width="650"/><br/>
 집안일을 하는 모든 이들의 평화를 위한 집안일 관리, 분담 서비스 👨‍👧‍👧<br/>
 fairer의 백엔드 레포지토리 입니다.
-> Play 스토어 : link
+> Play 스토어 : https://play.google.com/store/apps/details?id=com.depromeet.housekeeper
 
 <br/>
 
@@ -90,6 +90,22 @@ fairer의 백엔드 레포지토리 입니다.
 
 ## 📝ERD
 <img src="https://user-images.githubusercontent.com/77181984/176247477-e1c0277b-e4d1-4049-817c-16e08668976b.PNG" width="550"/>
+
+<br/>
+
+## 💻 Build & Run
+1. 빌드
+```
+$ ./gradlew build
+```
+2. 빌드된 파일 (*.jar) 실행
+```
+$ fairer-0.0.1-SNAPSHOT.jar
+$ java -jar fairer-0.0.1-SNAPSHOT.jar
+```
+
+<br/>
+
 
 ## 📢 Commit message
 
