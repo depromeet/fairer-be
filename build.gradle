@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 plugins {
     id 'org.springframework.boot' version '2.6.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
@@ -13,11 +15,12 @@ jib {
         image = "adoptopenjdk/openjdk16:x86_64-alpine-jdk-16.0.1_9"
     }
     to {
-        image = "ehdqls4013/fairer-dev-repo"
-        tags = ["latest"]
+        image = "registry.hub.docker.com/ehdqls4013/fairer-dev-repo"
+        tags = ['latest', new SimpleDateFormat('yyyyMMddHHmmss').format(System.currentTimeMillis())] // 2개의 태그에 모두 push
     }
     container {
-        jvmFlags = ["-Xms128m", "-Xmx128m"]
+        creationTime = "USE_CURRENT_TIMESTAMP"
+        jvmFlags = ['-Dspring.profiles.active=dev', '-XX:+UseContainerSupport', '-Dfile.encoding=UTF-8']
     }
 }
 
