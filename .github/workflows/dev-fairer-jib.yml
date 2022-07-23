@@ -54,4 +54,14 @@ jobs:
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}" # 빌드 완료 시간 출력하기
         shell: bash
+        
+  deploy:
+    needs: build
+    name: Deploy
+    runs-on: [ self-hosted ]
+    steps:
+      - name: Docker run
+        run: |
+              sudo docker ps -q --filter "name=fairer-dev" | grep -q . && sudo docker stop "fairer-dev" && sudo docker rmi  "ehdqls4013/fairer:lastest"
+              sudo docker run -d --name fairer-dev --rm -p 8080:8080 ehdqls4013/fairer:lastest
 
