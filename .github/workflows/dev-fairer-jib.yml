@@ -58,7 +58,7 @@ jobs:
   deploy:
     needs: build
     name: Deploy
-    runs-on: [ self-hosted ]
+    runs-on: self-hosted
     steps:
       - name: Docker run
         run: |
