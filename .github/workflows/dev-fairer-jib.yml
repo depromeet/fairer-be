@@ -37,7 +37,7 @@ jobs:
         shell: bash
 
       - name: JIB Build with Gradle
-        run: ./gradlew clean jib # 프로젝트 빌드
+        run: ./gradlew jib # 프로젝트 빌드
         shell: bash
 
       - name: Get current time
