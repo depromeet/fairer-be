@@ -62,6 +62,6 @@ jobs:
     steps:
       - name: Docker run
         run: |
-              sudo docker ps -q --filter "name=fairer-dev" | grep -q . && sudo docker stop "fairer-dev" && sudo docker rmi  "ehdqls4013/fairer:lastest"
-              sudo docker run -d --name fairer-dev --rm -p 8080:8080 ehdqls4013/fairer:lastest
+              sudo docker ps -q --filter "name=fairer-dev" | grep -q . && sudo docker stop "fairer-dev" && sudo docker rmi  "ehdqls4013/fairer-dev-repo:latest"
+              sudo docker run -d --name fairer-dev --rm -p 8080:8080 ehdqls4013/fairer-dev-repo:latest
 
