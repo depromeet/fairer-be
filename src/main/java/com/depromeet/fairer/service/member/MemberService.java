@@ -1,5 +1,6 @@
 package com.depromeet.fairer.service.member;
 
+import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.domain.member.Member;
 
 import com.depromeet.fairer.global.exception.NoSuchMemberException;
@@ -27,6 +28,11 @@ public class MemberService {
 
     public Member findWithTeam(Long memberId) {
         return memberRepository.findWithTeamByMemberId(memberId).orElseThrow(()->new NoSuchMemberException("해당하는 멤버를 찾을 수 없습니다."));
+    }
+
+    public List<Member> getMemberList(Long memberId){
+        Team team = findWithTeam(memberId).getTeam();
+        return memberRepository.findAllByTeam(team);
     }
 
     public List<Member> getMemberListByHouseWorkId(Long houseWorkId) {
