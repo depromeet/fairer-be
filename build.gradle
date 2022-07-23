@@ -3,7 +3,22 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     // querydsl 추가
     id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+    // jib
+    id 'com.google.cloud.tools.jib' version '3.2.1'
     id 'java'
+}
+
+jib {
+    from {
+        image = "adoptopenjdk/openjdk16:x86_64-alpine-jdk-16.0.1_9"
+    }
+    to {
+        image = "ehdqls4013/fairer-dev-repo"
+        tags = ["latest"]
+    }
+    container {
+        jvmFlags = ["-Xms128m", "-Xmx128m"]
+    }
 }
 
 group = 'com.depromeet'
