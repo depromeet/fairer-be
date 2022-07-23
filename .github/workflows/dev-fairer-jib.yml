@@ -35,6 +35,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew # gradle wrapper를 실행할 수 있도록 권한 부여
         shell: bash
+        
+      - name: Set timezone to Seoul
+        run: sudo timedatectl set-timezone Asia/Seoul
+        shell: bash
 
       - name: JIB Build with Gradle
         run: ./gradlew jib # 프로젝트 빌드
