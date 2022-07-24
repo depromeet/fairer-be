@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
@@ -27,13 +28,13 @@ public class FCMController {
 
     @Tag(name = "fcm")
     @PostMapping("/token")
-    public ResponseEntity<SaveTokenResponse> saveToken(@Valid SaveTokenRequest request, @ApiIgnore @RequestMemberId Long memberId) {
+    public ResponseEntity<SaveTokenResponse> saveToken(@Valid @RequestBody SaveTokenRequest request, @ApiIgnore @RequestMemberId Long memberId) {
         return ResponseEntity.ok(fcmService.saveToken(request, memberId));
     }
 
     @Tag(name = "fcm")
     @PostMapping("/message")
-    public ResponseEntity<FCMMessageResponse> sendMessage(@Valid FCMMessageRequest request) {
+    public ResponseEntity<FCMMessageResponse> sendMessage(@Valid @RequestBody FCMMessageRequest request) {
         return ResponseEntity.ok(fcmService.sendMessage(request));
     }
 }
