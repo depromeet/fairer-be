@@ -25,11 +25,13 @@ import javax.validation.Valid;
 public class FCMController {
     private final FCMService fcmService;
 
+    @Tag(name = "fcm")
     @PostMapping("/token")
     public ResponseEntity<SaveTokenResponse> saveToken(@Valid SaveTokenRequest request, @ApiIgnore @RequestMemberId Long memberId) {
         return ResponseEntity.ok(fcmService.saveToken(request, memberId));
     }
 
+    @Tag(name = "fcm")
     @PostMapping("/message")
     public ResponseEntity<FCMMessageResponse> sendMessage(@Valid FCMMessageRequest request) {
         return ResponseEntity.ok(fcmService.sendMessage(request));
