@@ -27,7 +27,7 @@ spring:
       on-profile: ["dev"]
 
 swagger:
-  url: http://ec2-13-125-232-180.ap-northeast-2.compute.amazonaws.com:8080
+  url: http://ec2-3-39-60-64.ap-northeast-2.compute.amazonaws.com:8080
   desc: for dev usages
 
 oauth2:
