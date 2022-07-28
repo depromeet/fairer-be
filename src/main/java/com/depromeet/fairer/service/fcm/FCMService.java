@@ -38,7 +38,8 @@ public class FCMService {
                 .orElseThrow(() -> new IllegalArgumentException("memberId에 해당하는 회원을 찾지 못했습니다."));
         member.setFcmToken(request.getToken());
         member.setFcmTokenDate(LocalDateTime.now());
-        return new SaveTokenResponse();
+        memberRepository.save(member);
+        return SaveTokenResponse.of(request.getToken());
     }
 
     public FCMMessageResponse sendMessage(FCMMessageRequest fcmMessageRequest) {
@@ -53,7 +54,8 @@ public class FCMService {
 
         HttpEntity<FCMSendRequest> request = new HttpEntity<>(fcmSendRequest, headers);
         Message message = restTemplate.postForObject(FCM_DOMAIN, request, Message.class);
-        return new FCMMessageResponse();
+        log.info("Send FCM Message : {}, request : {}", message, fcmMessageRequest);
+        return FCMMessageResponse.of(fcmMessageRequest.getTitle(), fcmMessageRequest.getBody(), fcmMessageRequest.getMemberId());
     }
 
     private FCMSendRequest createMessage(String token, String title, String body) {
