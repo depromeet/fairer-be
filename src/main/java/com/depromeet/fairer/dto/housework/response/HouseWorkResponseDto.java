@@ -1,7 +1,7 @@
 package com.depromeet.fairer.dto.housework.response;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
-import com.depromeet.fairer.domain.preset.constant.Space;
+import com.depromeet.fairer.domain.preset.Space;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

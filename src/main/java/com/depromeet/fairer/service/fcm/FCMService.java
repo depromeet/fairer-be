@@ -6,7 +6,7 @@ import com.depromeet.fairer.dto.fcm.request.FCMMessageRequest;
 import com.depromeet.fairer.dto.fcm.request.SaveTokenRequest;
 import com.depromeet.fairer.dto.fcm.response.FCMMessageResponse;
 import com.depromeet.fairer.dto.fcm.response.SaveTokenResponse;
-import com.depromeet.fairer.global.exception.handler.FairerException;
+import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.factory.RestTemplateFactory;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;

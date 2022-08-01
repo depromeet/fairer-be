@@ -2,7 +2,7 @@ package com.depromeet.fairer.domain.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.base.BaseTimeEntity;
-import com.depromeet.fairer.domain.preset.constant.Space;
+import com.depromeet.fairer.domain.preset.Space;
 import com.depromeet.fairer.domain.team.Team;
 import lombok.*;
 

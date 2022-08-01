@@ -1,7 +1,7 @@
 package com.depromeet.fairer.dto.housework.request;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
-import com.depromeet.fairer.domain.preset.constant.Space;
+import com.depromeet.fairer.domain.preset.Space;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
