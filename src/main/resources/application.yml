@@ -42,6 +42,9 @@ spring:
   config:
     activate:
       on-profile: ["local", "dev"]
+  redis:
+    host: localhost
+    port: 6379
 
   datasource:
     url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer_dev
@@ -84,6 +87,9 @@ spring:
   config:
     activate:
       on-profile: "real"
+  redis:
+    host: localhost
+    port: 6379
 
   datasource:
     url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer

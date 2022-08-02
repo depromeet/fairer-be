@@ -73,6 +73,9 @@ dependencies {
     //swagger
     implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
 
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
     implementation 'org.jetbrains:annotations:20.1.0'
     compileOnly 'org.projectlombok:lombok'
