@@ -15,7 +15,7 @@ jib {
         image = "adoptopenjdk/openjdk16:x86_64-alpine-jdk-16.0.1_9"
     }
     to {
-        image = "registry.hub.docker.com/ehdqls4013/fairer-dev-repo"
+        image = "registry.hub.docker.com/fairerbe/fairer-dev-repo"
         tags = ['latest', new SimpleDateFormat('yyyyMMddHHmmss').format(System.currentTimeMillis())] // 2개의 태그에 모두 push
     }
     container {
