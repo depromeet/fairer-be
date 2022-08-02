@@ -50,10 +50,6 @@ public class Member extends BaseTimeEntity {
     @Column(name = "member_name", columnDefinition = "VARCHAR(50)", nullable = false)
     private String memberName;
 
-    @JsonIgnore
-    @Column(name = "password", columnDefinition = "VARCHAR(300)", nullable = false)
-    private String password;
-
     @Column(name = "status_message", columnDefinition = "VARCHAR(40)")
     private String statusMessage;
 
@@ -80,7 +76,6 @@ public class Member extends BaseTimeEntity {
         return Member.builder()
                 .email(socialUserInfo.getEmail())
                 .socialType(socialUserInfo.getSocialType())
-                .password(socialUserInfo.getPassword())
                 .assignments(new ArrayList<>())
                 .memberName("") // 회원가입 할때는 빈값으로 세팅, 이후 멤버 업데이트 api 로 변경
                 .profilePath("")

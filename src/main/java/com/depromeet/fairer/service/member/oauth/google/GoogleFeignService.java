@@ -36,7 +36,6 @@ public class GoogleFeignService {
     @Value("${oauth2.clientSecret}")
     private String CLIENT_SECRET;
 
-    private final String PASSWORD = "autoPassword";
     private final String GRANT_TYPE = "authorization_code";
     private final String REQUEST_URI = "https://www.googleapis.com/oauth2/v4/token";
 
@@ -53,7 +52,6 @@ public class GoogleFeignService {
                 .email(StringUtils.isBlank(googleUserInfo.getEmail()) ? googleUserInfo.getId() : googleUserInfo.getEmail()) // 이메일 동의 x 경우
                 .name(googleUserInfo.getName())
                 .socialType(SocialType.GOOGLE)
-                .password(passwordEncoder.encode(PASSWORD))
                 .build();
     }
 
