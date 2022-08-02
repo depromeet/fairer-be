@@ -117,6 +117,11 @@ public class GlobalExceptionHandler {
         return exceptionResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND, request.getRequestURI());
     }
 
+    @ExceptionHandler(FairerException.class)
+    protected ResponseEntity<ErrorResponseDto> handleFairerException(FairerException e, HttpServletRequest request) {
+        log.error("FairerException", e);
+        return exceptionResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, request.getRequestURI());
+    }
 
 
     /**

@@ -1,12 +1,11 @@
 package com.depromeet.fairer.vo.houseWork;
 
-import com.depromeet.fairer.domain.preset.constant.Space;
+import com.depromeet.fairer.domain.preset.Space;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 @Getter
 @Setter
