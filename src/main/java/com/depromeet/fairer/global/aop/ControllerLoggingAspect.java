@@ -21,7 +21,7 @@ public class ControllerLoggingAspect {
     public Object aroundControllerPointCut(ProceedingJoinPoint joinPoint) throws Throwable {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         Object[] args = joinPoint.getArgs();
-        log.info("[{}] request : {}", request.getRequestURI(), args);
+        log.info("[{}|{}] request : {}", request.getRequestURI(), request.getMethod(), args);
         Object response = joinPoint.proceed();
         ResponseEntity<?> responseEntity = (ResponseEntity<?>)response;
         log.info("[{}|{}] response : {}", request.getRequestURI(), responseEntity.getStatusCode(), responseEntity.getBody());
