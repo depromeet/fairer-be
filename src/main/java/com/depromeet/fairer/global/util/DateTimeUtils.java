@@ -16,4 +16,8 @@ public class DateTimeUtils {
     public static LocalDate stringToLocalDate(String localDate) {
         return LocalDate.parse(localDate, DateTimeFormatter.ISO_DATE);
     }
+
+    public static String localDateToString(LocalDate localDate) {
+        return localDate.format(DateTimeFormatter.ISO_DATE);
+    }
 }
