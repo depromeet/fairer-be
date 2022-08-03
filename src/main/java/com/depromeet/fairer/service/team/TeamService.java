@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Slf4j
@@ -148,8 +149,11 @@ public class TeamService {
 
     }
 
-    public void validateSameTeam(Long reqMemberId, Long memberId) {
-        if (memberService.getMyTeamMembers(reqMemberId).stream().noneMatch(m -> m.getMemberId().equals(memberId))) {
+    public void checkJoinSameTeam(Long teamMemberId, Long memberId) {
+        Member teamMember = memberService.find(teamMemberId);
+        Member member = memberService.find(memberId);
+
+        if (!Objects.equals(member.getTeam(), teamMember.getTeam())) {
             throw new PermissionDeniedException("해당 멤버의 정보를 가져올 수 없습니다.");
         }
     }

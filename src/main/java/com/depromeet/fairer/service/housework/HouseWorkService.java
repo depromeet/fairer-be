@@ -14,13 +14,9 @@ import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.service.member.MemberService;
 import com.depromeet.fairer.service.team.TeamService;
-import com.depromeet.fairer.vo.houseWork.HouseWorkAndAssigneeVo;
-import com.depromeet.fairer.vo.houseWork.HouseWorkDetailVo;
 import com.depromeet.fairer.vo.houseWork.HouseWorkUpdateVo;
-import com.depromeet.fairer.vo.houseWork.HouseWorkAndAssigneeResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,7 +70,6 @@ public class HouseWorkService {
         return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
-    @Transactional
     public HouseWorkResponseDto updateHouseWork(HouseWorkUpdateVo houseWorkUpdateVo) {
         Member member = memberService.findWithTeam(houseWorkUpdateVo.getMemberId());
         HouseWork houseWork = getHouseWorkById(houseWorkUpdateVo.getHouseWorkId());
@@ -109,7 +104,6 @@ public class HouseWorkService {
         return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
-    @Transactional
     public void deleteHouseWork(Long memberId, Long houseWorkId) {
         try {
             HouseWork houseWork = houseWorkRepository.getById(houseWorkId);
@@ -131,33 +125,7 @@ public class HouseWorkService {
         return HouseWorkSuccessCountResponseDto.of(count);
     }
 
-//    @Transactional
-//    public HouseWorkMemberResponseDto getHouseWork(LocalDate scheduledDate, Long memberId){
-//        Team team = memberService.findWithTeam(memberId).getTeam();
-//        List<Member> memberList = memberRepository.findAllByTeam(team);
-//
-//        List<HouseWorkDateResponseDto> houseWorkDateResponseDtos = new ArrayList<>();
-//
-//        for (Member memberr : memberList){
-//            List<Assignment> assignmentList = assignmentRepository.findAllByMember(memberr);
-//            List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsIn(scheduledDate, assignmentList);
-//
-//            List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorkList.stream().map(houseWork -> {
-//                List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWork.getHouseWorkId()).stream().map(MemberDto::from).collect(Collectors.toList());
-//
-//                return HouseWorkResponseDto.from(houseWork, memberDtoList);
-//            }).collect(Collectors.toList());
-//
-//            long countDone = houseWorkResponseDtoList.stream().filter(HouseWorkResponseDto::getSuccess).count();
-//            long countLeft = houseWorkResponseDtoList.stream().filter(houseWorkResponseDto -> !houseWorkResponseDto.getSuccess()).count();
-//
-//            houseWorkDateResponseDtos.add(HouseWorkDateResponseDto.from(memberr.getMemberId(), scheduledDate, countDone, countLeft, houseWorkResponseDtoList));
-//        }
-//
-//        return HouseWorkMemberResponseDto.from(team.getTeamId(), houseWorkDateResponseDtos);
-//    }
-
-    @Transactional
+    @Deprecated
     public List<HouseWork> getHouseWorks(LocalDate scheduledDate, Member member) {
         List<Assignment> assignmentList = assignmentRepository.findAllByMember(member);
         List<HouseWork> houseWorkList = houseWorkRepository.findAllByScheduledDateAndAssignmentsIn(scheduledDate, assignmentList);
@@ -165,15 +133,21 @@ public class HouseWorkService {
         return houseWorkList;
     }
 
+    public List<HouseWork> getHouseWorkByDate(Member member, LocalDate fromDate, LocalDate toDate) {
+        List<Assignment> assignmentList = assignmentRepository.findAllByMember(member);
+        return houseWorkRepository.findAllByScheduledDateBetweenAndAssignmentsIn(fromDate, toDate, assignmentList);
+    }
 
-    @Transactional
+    public List<HouseWork> getHouseWorkByDateAndTeam(Team team, LocalDate fromDate, LocalDate toDate) {
+        return houseWorkRepository.findAllByScheduledDateBetweenAndTeam(fromDate, toDate, team);
+    }
+
     public HouseWorkResponseDto getHouseWorkDetail(Long houseWorkId) {
         HouseWork houseWork = getHouseWorkById(houseWorkId);
         List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWorkId).stream().map(MemberDto::from).collect(Collectors.toList());
         return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
-    @Transactional
     public HouseWorkStatusResponseDto updateHouseWorkStatus(Long houseWorkId,
                                                             int toBeStatus) {
         boolean status = toBeStatus == 1;
@@ -187,41 +161,5 @@ public class HouseWorkService {
     public HouseWork getHouseWorkById(Long houseWorkId) {
         return houseWorkRepository.findById(houseWorkId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일 입니다."));
-    }
-
-    public HouseWorkAndAssigneeResponseDto getTheMemberHouseWorks(Long reqMemberId, Long memberId, LocalDate localDate) {
-        teamService.validateSameTeam(reqMemberId, memberId);
-        final List<HouseWorkDetailVo> houseWorkDetailVoList = houseWorkRepository.getHouseWorkAndAssignees(memberId, localDate);
-
-        List<HouseWorkAndAssigneeVo> houseWorkAndAssigneeVos = makeHouseWorkAndAssigneeVos(houseWorkDetailVoList);
-        final long successCount = houseWorkAndAssigneeVos.stream().filter(HouseWorkAndAssigneeVo::getSuccess).count();
-        return new HouseWorkAndAssigneeResponseDto(houseWorkAndAssigneeVos, successCount, houseWorkAndAssigneeVos.size() - successCount);
-    }
-
-    @NotNull
-    private List<HouseWorkAndAssigneeVo> makeHouseWorkAndAssigneeVos(List<HouseWorkDetailVo> houseWorkDetailVoList) {
-        Map<Long, List<HouseWorkAndAssigneeVo.MemberVo>> houseWorkMap = houseWorkDetailVoList.stream()
-                .collect(Collectors.groupingBy(
-                        HouseWorkDetailVo::getHouseWorkId,
-                        Collectors.mapping(houseWorkDetailVo -> HouseWorkAndAssigneeVo.MemberVo.builder().memberId(houseWorkDetailVo.getMemberId()).memberName(houseWorkDetailVo.getMemberName()).profilePath(houseWorkDetailVo.getProfilePath()).build(), Collectors.toList())));
-
-        return houseWorkDetailVoList.stream().map(houseWorkDetailVo ->
-                HouseWorkAndAssigneeVo.builder()
-                        .houseWorkId(houseWorkDetailVo.getHouseWorkId())
-                        .space(houseWorkDetailVo.getSpace())
-                        .houseWorkName(houseWorkDetailVo.getHouseWorkName())
-                        .scheduledTime(houseWorkDetailVo.getScheduledTime())
-                        .successDateTime(houseWorkDetailVo.getSuccessDateTime())
-                        .success(houseWorkDetailVo.getSuccess())
-                        .assignees(houseWorkMap.get(houseWorkDetailVo.getHouseWorkId()))
-                        .build())
-                .distinct().collect(Collectors.toList());
-    }
-
-    public HouseWorkAndAssigneeResponseDto getHouseWorkByDate(Long reqMemberId, LocalDate localDate) {
-        final List<HouseWorkDetailVo> houseWorkDetailVos = houseWorkRepository.getHouseWorkAndAssigneesByDate(reqMemberId, localDate);
-        final List<HouseWorkAndAssigneeVo> houseWorkAndAssigneeVos = makeHouseWorkAndAssigneeVos(houseWorkDetailVos);
-        final long successCount = houseWorkAndAssigneeVos.stream().filter(HouseWorkAndAssigneeVo::getSuccess).count();
-        return new HouseWorkAndAssigneeResponseDto(houseWorkAndAssigneeVos, successCount, houseWorkDetailVos.size() - successCount);
     }
 }

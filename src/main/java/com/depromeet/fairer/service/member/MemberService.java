@@ -44,8 +44,4 @@ public class MemberService {
         member.update(memberName, profilePath, statusMessage);
         return memberRepository.save(member);
     }
-
-    public List<Member> getMyTeamMembers(Long memberId) {
-        return memberRepository.getMyTeamMembers(memberId);
-    }
 }
