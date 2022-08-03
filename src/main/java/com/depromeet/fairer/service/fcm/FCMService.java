@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,20 +51,9 @@ public class FCMService {
                 .orElseThrow(() -> new IllegalArgumentException("memberId에 해당하는 회원을 찾지 못했습니다."));
 
         FCMSendRequest fcmSendRequest = createMessage(member.getFcmToken(), fcmMessageRequest.getTitle(), fcmMessageRequest.getBody());
+        this.sendFCMMessage(fcmSendRequest);
 
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken());
-            headers.add(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8");
-
-            HttpEntity<String> request = new HttpEntity<>(objectMapper.writeValueAsString(fcmSendRequest), headers);
-            Message message = restTemplate.postForObject(FCM_DOMAIN, request, Message.class);
-            log.info("Send FCM Message : {}, request : {}", message, fcmMessageRequest);
-            return FCMMessageResponse.of(fcmMessageRequest.getTitle(), fcmMessageRequest.getBody(), fcmMessageRequest.getMemberId());
-        } catch (Exception e) {
-            log.error("Error to send message.", e);
-            throw new FairerException(e);
-        }
+        return FCMMessageResponse.of(fcmMessageRequest.getTitle(), fcmMessageRequest.getBody(), fcmMessageRequest.getMemberId());
     }
 
     private FCMSendRequest createMessage(String token, String title, String body) {
@@ -72,10 +62,22 @@ public class FCMService {
                 .setNotification(new Notification(title, body))
                 .build();
 
-        FCMSendRequest request = new FCMSendRequest();
-        request.setValidate_only(false);
-        request.setMessage(message);
-        return request;
+        return FCMSendRequest.of(message, false);
+    }
+
+    @Async(value = "fcmTaskExecutor")
+    private void sendFCMMessage(FCMSendRequest fcmSendRequest) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken());
+            headers.add(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8");
+
+            HttpEntity<String> request = new HttpEntity<>(objectMapper.writeValueAsString(fcmSendRequest), headers);
+            Message message = restTemplate.postForObject(FCM_DOMAIN, request, Message.class);
+            log.info("Send FCM Message : {}, request : {}", message, fcmSendRequest);
+        } catch (Exception e) {
+            log.error("Error to send message.", e);
+        }
     }
 
     private String getAccessToken() throws IOException {
