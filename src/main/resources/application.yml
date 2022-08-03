@@ -43,7 +43,7 @@ spring:
     activate:
       on-profile: ["local", "dev"]
   redis:
-    host: localhost
+    host: 3.39.60.64
     port: 6379
 
   datasource:
