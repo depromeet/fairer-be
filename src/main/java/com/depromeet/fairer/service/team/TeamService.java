@@ -4,6 +4,7 @@ package com.depromeet.fairer.service.team;
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
+import com.depromeet.fairer.dto.fcm.request.FCMMessageRequest;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
@@ -12,6 +13,7 @@ import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.team.TeamRepository;
+import com.depromeet.fairer.service.fcm.FCMService;
 import com.depromeet.fairer.service.member.MemberService;
 import com.depromeet.fairer.vo.team.InviteCodeVo;
 
@@ -23,7 +25,6 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,6 +37,7 @@ public class TeamService {
     private final MemberRepository memberRepository;
     private final AssignmentRepository assignmentRepository;
     private final HouseWorkRepository houseWorkRepository;
+    private final FCMService fcmService;
 
     public Team createTeam(Long memberId, String teamName) {
         final Member reqMember = memberService.findWithTeam(memberId);
@@ -63,7 +65,20 @@ public class TeamService {
         validateInviteCode(team, inviteCode);
 
         Member member = reqMember.joinTeam(team);
+
+        pushMessageToTeamMember(team.getMembers());
+
         return member.getTeam();
+    }
+
+    private void pushMessageToTeamMember(Set<Member> members) {
+        for(Member member : members) {
+            FCMMessageRequest request = new FCMMessageRequest();
+            request.setMemberId(member.getMemberId());
+            request.setTitle(String.format("%s님이 %s에 참여", member.getMemberName(), member.getTeam().getTeamName()));
+            request.setBody("앞으로 함께 평화롭게 집안일 해보아요✨");
+            fcmService.sendMessage(request);
+        }
     }
 
     private void validateInviteCode(Team team, String reqInviteCode) {
@@ -101,16 +116,6 @@ public class TeamService {
         }
 
         return reqTeam;
-    }
-
-    public Set<Member> getTeamMembers(Long memberId) {
-        Member member = memberService.findWithTeam(memberId);
-
-        if (member.hasTeam()) {
-            return member.getTeam().getMembers();
-        }
-
-        throw new BadRequestException("소속된 팀이 없습니다.");
     }
 
     public void leaveTeam(Long memberId) {
