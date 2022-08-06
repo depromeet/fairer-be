@@ -119,11 +119,8 @@ public class HouseWorkController {
         teamService.checkJoinSameTeam(teamMemberId, memberId);
 
         Member teamMember = memberService.find(teamMemberId);
-
         List<HouseWork> houseWorkList = houseWorkService.getHouseWorkByDate(teamMember, from, to);
-
         Map<LocalDate, List<HouseWorkResponseDto>> houseWorkListGroupByScheduledDate = getHouseWorkListGroupByScheduledDate(houseWorkList);
-
         return ResponseEntity.ok(makeHouseWorkListResponse(teamMemberId, houseWorkListGroupByScheduledDate));
     }
 
@@ -137,11 +134,8 @@ public class HouseWorkController {
         final LocalDate to = DateTimeUtils.stringToLocalDate(toDate);
 
         Member member = memberService.find(memberId);
-
         List<HouseWork> houseWorkList = houseWorkService.getHouseWorkByDateAndTeam(member.getTeam(), from, to);
-
         Map<LocalDate, List<HouseWorkResponseDto>> houseWorkListGroupByScheduledDate = getHouseWorkListGroupByScheduledDate(houseWorkList);
-
         return ResponseEntity.ok(makeHouseWorkListResponse(memberId, houseWorkListGroupByScheduledDate));
     }
 
