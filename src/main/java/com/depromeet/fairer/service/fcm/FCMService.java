@@ -6,7 +6,6 @@ import com.depromeet.fairer.dto.fcm.request.FCMMessageRequest;
 import com.depromeet.fairer.dto.fcm.request.SaveTokenRequest;
 import com.depromeet.fairer.dto.fcm.response.FCMMessageResponse;
 import com.depromeet.fairer.dto.fcm.response.SaveTokenResponse;
-import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.factory.RestTemplateFactory;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,8 +72,7 @@ public class FCMService {
             headers.add(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8");
 
             HttpEntity<String> request = new HttpEntity<>(objectMapper.writeValueAsString(fcmSendRequest), headers);
-            Message message = restTemplate.postForObject(FCM_DOMAIN, request, Message.class);
-            log.info("Send FCM Message : {}, request : {}", message, fcmSendRequest);
+            String message = restTemplate.postForObject(FCM_DOMAIN, request, String.class);
         } catch (Exception e) {
             log.error("Error to send message.", e);
         }
