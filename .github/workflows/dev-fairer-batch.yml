@@ -46,7 +46,7 @@ jobs:
         shell: bash
 
       - name: JIB Build with Gradle
-        run: ./gradlew jib # 프로젝트 빌드
+        run: ./gradlew :fairer-batch:jib # 프로젝트 빌드
         shell: bash
 
       - name: Get current time
@@ -67,6 +67,5 @@ jobs:
     steps:
       - name: Docker run
         run: |
-          sudo docker ps -q --filter "name=fairer-batch-dev" | grep -q . && sudo docker stop "fairer-batch-dev" && sudo docker rmi  "fairer-batch/fairer-batch-dev:latest"
-          sudo docker run -d --name fairer-batch-dev --rm -p 8081:8081 fairer-batch/fairer-batch-dev:latest
-
+          sudo docker ps -q --filter "name=fairer-batch-dev" | grep -q . && sudo docker stop "fairer-batch-dev" && sudo docker rmi  "fairer-batch:latest"
+          sudo docker run -d --name fairer-batch-dev --rm -p 8081:8081 fairer-batch:latest
