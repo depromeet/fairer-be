@@ -2,6 +2,8 @@ package com.depromeet.fairer.domain.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.base.BaseTimeEntity;
+import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
+import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.domain.preset.Space;
 import com.depromeet.fairer.domain.team.Team;
 import lombok.*;
@@ -17,7 +19,7 @@ import java.util.List;
 @Table(name = "housework")
 @Getter
 @Setter
-@ToString(exclude = {"assignments"})
+@ToString(exclude = {"assignments", "houseworkComplete"})
 @EqualsAndHashCode
 @Builder
 @NoArgsConstructor
@@ -54,4 +56,16 @@ public class HouseWork extends BaseTimeEntity {
     @Builder.Default
     @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Assignment> assignments = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "repeat_cycle", columnDefinition = "VARCHAR(30)")
+    private  RepeatCycle repeatCycle;
+
+    @Column(name = "end_date", columnDefinition = "DATE")
+    private LocalDate endDate;
+
+    @OneToMany(mappedBy = "successDateTime", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HouseworkComplete> houseworkComplete;
+
+    private String rrule;
 }
