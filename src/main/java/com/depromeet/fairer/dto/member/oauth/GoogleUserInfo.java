@@ -28,4 +28,7 @@ public class GoogleUserInfo {
 
     @JsonProperty("locale")
     private String locale;
+
+    @JsonProperty("hd")
+    private String hd;
 }
