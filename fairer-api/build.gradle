@@ -9,7 +9,10 @@ plugins {
 
 jib {
     from {
-        image = "adoptopenjdk/openjdk11:x86_64-alpine-jdk-11.0.11_9"
+        image = "adoptopenjdk/openjdk11:centos-jre"
+    }
+    container {
+        environment = [TZ:"Asia/Seoul"]
     }
     to {
         image = "registry.hub.docker.com/fairerbe/fairer-dev-repo"
@@ -17,7 +20,7 @@ jib {
     }
     container {
         creationTime = "USE_CURRENT_TIMESTAMP"
-        jvmFlags = ['-Dspring.profiles.active=dev', '-XX:+UseContainerSupport', '-Dfile.encoding=UTF-8']
+        jvmFlags = ['-Dspring.profiles.active=dev', '-XX:+UseContainerSupport', '-Dfile.encoding=UTF-8', '-Duser.timezone="Asia/Seoul"']
     }
 }
 
@@ -50,7 +53,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     //firebase sdk
-    implementation 'com.google.firebase:firebase-admin:6.8.1'
+    implementation 'com.google.firebase:firebase-admin:9.0.0'
 
     //modelMapper
     implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.1.0'

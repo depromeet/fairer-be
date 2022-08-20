@@ -6,8 +6,10 @@ import com.depromeet.fairer.dto.fcm.request.FCMMessageRequest;
 import com.depromeet.fairer.dto.fcm.request.SaveTokenRequest;
 import com.depromeet.fairer.dto.fcm.response.FCMMessageResponse;
 import com.depromeet.fairer.dto.fcm.response.SaveTokenResponse;
+import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.factory.RestTemplateFactory;
 import com.depromeet.fairer.repository.member.MemberRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.messaging.Message;
@@ -50,31 +52,43 @@ public class FCMService {
                 .orElseThrow(() -> new IllegalArgumentException("memberId에 해당하는 회원을 찾지 못했습니다."));
 
         FCMSendRequest fcmSendRequest = createMessage(member.getFcmToken(), fcmMessageRequest.getTitle(), fcmMessageRequest.getBody());
-        this.sendFCMMessage(fcmSendRequest);
+        String body = convertFCMSendRequestToString(fcmSendRequest);
+        this.sendFCMMessage(body);
 
         return FCMMessageResponse.of(fcmMessageRequest.getTitle(), fcmMessageRequest.getBody(), fcmMessageRequest.getMemberId());
+    }
+
+    private String convertFCMSendRequestToString(FCMSendRequest fcmSendRequest) {
+        try {
+            return objectMapper.writeValueAsString(fcmSendRequest);
+        } catch (JsonProcessingException e) {
+            throw new FairerException("객체 파싱 실패");
+        }
     }
 
     private FCMSendRequest createMessage(String token, String title, String body) {
         Message message = Message.builder()
                 .setToken(token)
-                .setNotification(new Notification(title, body))
+                .setNotification(Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .build())
                 .build();
 
         return FCMSendRequest.of(message, false);
     }
 
     @Async(value = "fcmTaskExecutor")
-    private void sendFCMMessage(FCMSendRequest fcmSendRequest) {
+    private void sendFCMMessage(String body) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken());
             headers.add(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8");
 
-            HttpEntity<String> request = new HttpEntity<>(objectMapper.writeValueAsString(fcmSendRequest), headers);
+            HttpEntity<String> request = new HttpEntity<>(body, headers);
             String message = restTemplate.postForObject(FCM_DOMAIN, request, String.class);
         } catch (Exception e) {
-            log.error("Error to send message.", e);
+            log.error("Error to send message. body : {}", body, e);
         }
     }
 
