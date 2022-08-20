@@ -1,0 +1,70 @@
+server:
+  port: 8081
+
+spring:
+  profiles:
+    active: "local"
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    root: info
+
+# spring actuator endpoints 기본으로 disable 적용
+management:
+  endpoints:
+    enabled-by-default: false
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: ["local"]
+
+  datasource:
+    url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer_dev
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: 'fairer'
+    password: '>BRLtas~%j2>(\6#eC2M'
+
+domain:
+  apiUrl: http://localhost:8080
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: ["dev"]
+
+  datasource:
+    url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer_dev
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: 'fairer'
+    password: '>BRLtas~%j2>(\6#eC2M'
+
+domain:
+  apiUrl: http://ec2-3-39-60-64.ap-northeast-2.compute.amazonaws.com:8080
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "real"
+
+  datasource:
+    url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: 'fairer'
+    password: '>BRLtas~%j2>(\6#eC2M'
+
+domain:
+  apiUrl: http://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com:8080

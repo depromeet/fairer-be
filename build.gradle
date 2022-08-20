@@ -1,121 +1,35 @@
-import java.text.SimpleDateFormat
-
-plugins {
-    id 'org.springframework.boot' version '2.6.5'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    // querydsl 추가
-    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
-    // jib
-    id 'com.google.cloud.tools.jib' version '3.2.1'
-    id 'java'
-}
-
-jib {
-    from {
-        image = "adoptopenjdk/openjdk16:x86_64-alpine-jdk-16.0.1_9"
+buildscript {
+    repositories {
+        mavenCentral()
     }
-    to {
-        image = "registry.hub.docker.com/fairerbe/fairer-dev-repo"
-        tags = ['latest', new SimpleDateFormat('yyyyMMddHHmmss').format(System.currentTimeMillis())] // 2개의 태그에 모두 push
-    }
-    container {
-        creationTime = "USE_CURRENT_TIMESTAMP"
-        jvmFlags = ['-Dspring.profiles.active=dev', '-XX:+UseContainerSupport', '-Dfile.encoding=UTF-8']
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.6.5")
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
     }
 }
 
-group = 'com.depromeet'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+allprojects {
+    group = 'com.depromeet'
+    version = '0.0.1-SNAPSHOT'
+}
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    sourceCompatibility = '11'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        //mysql connector
+        implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
+
+        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
     }
 }
-
-ext{
-    set('springCloudVersion', "2021.0.2")
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-    }
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
-
-    //firebase sdk
-    implementation 'com.google.firebase:firebase-admin:6.8.1'
-
-    //mysql connector
-    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
-
-    //modelMapper
-    implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.1.0'
-
-    //lucy
-    implementation group: 'com.navercorp.lucy', name: 'lucy-xss-servlet', version: '2.0.1'
-
-    //jwt
-    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.2'
-
-    //swagger
-    implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
-
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
-    implementation 'org.jetbrains:annotations:20.1.0'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-    // feign
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-
-    // logger
-    implementation 'org.slf4j:jcl-over-slf4j'
-    implementation 'ch.qos.logback:logback-classic'
-
-    // querydsl
-    implementation 'com.querydsl:querydsl-jpa'
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
-jar {
-    enabled = false
-}
-
-// querydsl
-def querydslDir = "$buildDir/generated/querydsl"
-
-querydsl {
-    library = "com.querydsl:querydsl-apt"
-    jpa = true
-    querydslSourcesDir = querydslDir
-}
-sourceSets {
-    main.java.srcDir querydslDir
-}
-configurations {
-    querydsl.extendsFrom compileClasspath
-
-}
-compileQuerydsl {
-    options.annotationProcessorPath = configurations.querydsl
-}
-// querydsl 끝
