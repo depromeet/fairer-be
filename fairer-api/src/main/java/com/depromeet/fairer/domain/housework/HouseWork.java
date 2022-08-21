@@ -64,8 +64,11 @@ public class HouseWork extends BaseTimeEntity {
     @Column(name = "end_date", columnDefinition = "DATE")
     private LocalDate endDate;
 
-    @OneToMany(mappedBy = "successDateTime", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HouseworkComplete> houseworkComplete;
 
     private String rrule;
+
+    @Column(name = "day_of_week", columnDefinition = "VARCHAR(30)")
+    private String dayOfWeek;
 }
