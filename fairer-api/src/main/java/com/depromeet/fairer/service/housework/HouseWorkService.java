@@ -119,8 +119,8 @@ public class HouseWorkService {
     }
 
     public HouseWorkSuccessCountResponseDto getSuccessCount(String scheduledDate, Long memberId) {
-        LocalDate startDate = LocalDate.parse(scheduledDate).with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
-        LocalDate endDate = LocalDate.parse(scheduledDate).with(TemporalAdjusters.previous(DayOfWeek.SUNDAY)).plusWeeks(1);
+        LocalDate startDate = LocalDate.parse(scheduledDate).with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        LocalDate endDate = LocalDate.parse(scheduledDate).with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
         Long count = houseWorkRepository.getHouseWorkSuccessCount(memberId, startDate, endDate);
         return HouseWorkSuccessCountResponseDto.of(count);
     }
