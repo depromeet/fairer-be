@@ -21,6 +21,7 @@ public class HouseworkComplete {
     private Long houseWorkCompleteId;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "housework_id")
     private HouseWork houseWork;
 
     @Column(name = "scheduled_date", columnDefinition = "DATE", nullable = false)
