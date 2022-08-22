@@ -1,6 +1,7 @@
 package com.depromeet.fairer.dto.housework.request;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
+import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
 import com.depromeet.fairer.domain.preset.Space;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -42,12 +43,20 @@ public class HouseWorkUpdateRequestDto {
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     private LocalTime scheduledTime;
 
+    @ApiModelProperty(value = "집안일 반복 주기", example = "O / W / M")
+    private String repeatCycle;
+
+    @ApiModelProperty(value = "집안일 반복 요일", example = "월수")
+    private String repeatDayOfWeek;
+
     public HouseWork toEntity() {
         return HouseWork.builder()
                 .space(space)
                 .houseWorkName(houseWorkName)
                 .scheduledDate(scheduledDate)
                 .scheduledTime(scheduledTime)
+                .repeatDayOfWeek(repeatDayOfWeek)
+                .repeatCycle(RepeatCycle.of(repeatCycle))
                 .success(false)
                 .successDateTime(null)
                 .build();

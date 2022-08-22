@@ -61,14 +61,15 @@ public class HouseWork extends BaseTimeEntity {
     @Column(name = "repeat_cycle", columnDefinition = "VARCHAR(30)")
     private  RepeatCycle repeatCycle;
 
-    @Column(name = "end_date", columnDefinition = "DATE")
-    private LocalDate endDate;
+    @Column(name = "repeat_day_of_week", columnDefinition = "VARCHAR(30)")
+    private String repeatDayOfWeek;
+
+    @Column(name = "repeat_end_date", columnDefinition = "DATE")
+    private LocalDate repeatEndDate;
 
     @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HouseworkComplete> houseworkComplete;
 
     private String rrule;
 
-    @Column(name = "day_of_week", columnDefinition = "VARCHAR(30)")
-    private String dayOfWeek;
 }
