@@ -68,15 +68,15 @@ public class TeamService {
 
         Member member = reqMember.joinTeam(team);
 
-        pushMessageToTeamMember(team.getMembers());
+        pushMessageToTeamMember(member, team.getMembers());
 
         return member.getTeam();
     }
 
-    private void pushMessageToTeamMember(Set<Member> members) {
-        for(Member member : members) {
+    private void pushMessageToTeamMember(Member member, Set<Member> teamMemberList) {
+        for(Member teamMember : teamMemberList) {
             FCMMessageRequest request = new FCMMessageRequest();
-            request.setMemberId(member.getMemberId());
+            request.setMemberId(teamMember.getMemberId());
             request.setTitle(String.format(FCMMessageTemplate.JOIN_MEMBER_IN_TEAM.getTitle(), member.getMemberName(), member.getTeam().getTeamName()));
             request.setBody(FCMMessageTemplate.JOIN_MEMBER_IN_TEAM.getBody());
             fcmService.sendMessage(request);
