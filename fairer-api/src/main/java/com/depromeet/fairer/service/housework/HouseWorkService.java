@@ -59,8 +59,8 @@ public class HouseWorkService {
         houseWork.setTeam(team);
         houseWorkRepository.save(houseWork);
 
-        List<Long> assignees = new ArrayList<>(houseWorkUpdateRequestDto.getAssignees());
-        List<Member> members = memberRepository.findAllById(assignees);
+        List<Long> assigneeIds = new ArrayList<>(houseWorkUpdateRequestDto.getAssignees());
+        List<Member> members = memberRepository.findAllById(assigneeIds);
         for (Member m : members) {
             Assignment assignment = Assignment.builder().houseWork(houseWork).member(m).build();
             assignmentRepository.save(assignment);

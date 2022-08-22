@@ -179,4 +179,5 @@ public class HouseWorkController {
         HouseWorkSuccessCountResponseDto houseWorkSuccessCountResponseDto = houseWorkService.getSuccessCount(scheduledDate, memberId);
         return ResponseEntity.ok(houseWorkSuccessCountResponseDto);
     }
+
 }
