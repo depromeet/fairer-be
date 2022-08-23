@@ -2,7 +2,6 @@ package com.depromeet.fairer.service.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
-import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
 import com.depromeet.fairer.domain.housework.constant.RepeatRUDType;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
@@ -169,7 +168,7 @@ public class HouseWorkService {
     }
 
     public HouseWork findWithTeam(Long houseWorkId) {
-        return houseWorkRepository.findWithTeamByHouseworkId(houseWorkId)
+        return houseWorkRepository.findWithTeamByHouseWorkId(houseWorkId)
                 .orElseThrow(() -> new EntityNotFoundException("houseworkId: " + houseWorkId + "에 해당하는 집안일을 찾을 수 없습니다."));
     }
 
