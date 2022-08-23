@@ -119,7 +119,7 @@ public class HouseWorkService {
                 deleteAllHouseWork(houseWorkId);
                 break;
             case HEREAFTER:
-                houseWork.setRepeatEndDate(deleteStandardDate.minusDays(1));
+                houseWork.setRepeatEndDate(deleteStandardDate.minusWeeks(1));
                 break;
             case ONLY:
                 deleteOnceHouseWork(memberId, houseWorkId, deleteStandardDate, houseWork);
@@ -135,14 +135,14 @@ public class HouseWorkService {
 
     private void deleteOnceHouseWork(Long memberId, Long houseWorkId, LocalDate deleteStandardDate, HouseWork houseWork) {
         // 기존 반복 집안일 endDate update
-        houseWork.setRepeatEndDate(deleteStandardDate.minusDays(1));
+        houseWork.setRepeatEndDate(deleteStandardDate.minusWeeks(1));
 
         // 다음 반복 집안일 생성 후 save
         final List<Long> assigneeIds = houseWork.getAssignments().stream().map(Assignment::getAssignmentId).collect(Collectors.toList());
         final HouseWork nextWeekHouseWork = HouseWork.builder()
                 .space(houseWork.getSpace())
                 .houseWorkName(houseWork.getHouseWorkName())
-                .scheduledDate(houseWork.getRepeatEndDate().plusDays(8)) // 마지막 종료 날짜 + 일주일 + 1일부터 다시 시작
+                .scheduledDate(houseWork.getRepeatEndDate().plusWeeks(2)) // 마지막 종료 날짜 + 2주일부터 다시 시작
                 .scheduledTime(houseWork.getScheduledTime())
                 .repeatDayOfWeek(houseWork.getRepeatDayOfWeek())
                 .repeatCycle(houseWork.getRepeatCycle())
