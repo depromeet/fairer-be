@@ -13,6 +13,7 @@ import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.service.member.MemberService;
 
 import com.depromeet.fairer.service.team.TeamService;
+import com.depromeet.fairer.dto.housework.request.HouseWorkDeleteRequestDto;
 import com.depromeet.fairer.vo.houseWork.HouseWorkUpdateVo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -45,7 +46,7 @@ public class HouseWorkController {
     private final ModelMapper modelMapper;
 
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 생성 API ")
+    @ApiOperation(value = "집안일 생성 API")
     @PostMapping("")
     public ResponseEntity<HouseWorksCreateResponseDto> createHouseWorks(@ApiIgnore @RequestMemberId Long memberId,
                                                                         @RequestBody @Valid HouseWorksCreateRequestDto dto) {
@@ -71,8 +72,8 @@ public class HouseWorkController {
     @DeleteMapping("/{houseWorkId}")
     public ResponseEntity<?> deleteHouseWork(
             @ApiIgnore @RequestMemberId Long memberId,
-            @ApiParam(value = "삭제할 집안일 ID", required = true) @PathVariable Long houseWorkId) {
-        houseWorkService.deleteHouseWork(memberId, houseWorkId);
+            @RequestBody @Valid HouseWorkDeleteRequestDto dto) {
+        houseWorkService.deleteHouseWork(memberId, dto.getHouseWorkId(), dto.getType(), dto.getDeleteStandardDate());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

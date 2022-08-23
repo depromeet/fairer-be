@@ -65,7 +65,7 @@ public class HouseWork extends BaseTimeEntity {
     private String repeatDayOfWeek;
 
     @Column(name = "repeat_end_date", columnDefinition = "DATE")
-    private LocalDate repeatEndDate;
+    private LocalDate repeatEndDate; //endDate 당일까지 반복 포함
 
     @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HouseworkComplete> houseworkComplete;
