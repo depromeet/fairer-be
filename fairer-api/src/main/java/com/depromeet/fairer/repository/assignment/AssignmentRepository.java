@@ -20,6 +20,6 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     List<Assignment> findAllByMember(Member member);
 
     @Modifying(clearAutomatically = true)
-    @Query("delete from Assignment a where a.houseWork.houseWorkId = :houseworkId")
-    void deleteAllByHouseworkId(@Param("houseworkId") Long houseWorkId);
+    @Query("delete from Assignment a where a.houseWork.houseWorkId = :houseWorkId")
+    void deleteAllByHouseworkId(@Param("houseWorkId") Long houseWorkId);
 }
