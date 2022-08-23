@@ -30,8 +30,12 @@ jobs:
         run: chmod +x ./gradlew # gradle wrapper를 실행할 수 있도록 권한 부여
         shell: bash
 
-      - name: Build with Gradle
-        run: ./gradlew clean build # 프로젝트 빌드
+      - name: Build API with Gradle
+        run: ./gradlew :fairer-api:build # 프로젝트 빌드
+        shell: bash
+
+      - name: Build Batch with Gradle
+        run: ./gradlew :fairer-batch:build # 프로젝트 빌드
         shell: bash
 
       - name: Get current time
@@ -49,7 +53,8 @@ jobs:
       - name: Generate deployment package
         run: |
           mkdir -p deploy
-          cp build/libs/*.jar deploy/application.jar
+          cp build/libs/fairer-api/*.jar deploy/fairer-api.jar
+          cp build/libs/fairer-batch/*.jar deploy/fairer-batch.jar
           cp Procfile deploy/Procfile
           cp -r .ebextensions-real deploy/.ebextensions
           cp -r .platform deploy/.platform

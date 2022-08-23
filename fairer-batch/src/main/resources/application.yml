@@ -67,4 +67,4 @@ spring:
     password: '>BRLtas~%j2>(\6#eC2M'
 
 domain:
-  apiUrl: http://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com:8080
+  apiUrl: https://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com
