@@ -63,7 +63,7 @@ public class NotCompleteHouseworkRemindJobConfig {
                 .rowMapper(new BeanPropertyRowMapper<>(NotCompleteHouseworkRemindCommand.class))
                 .sql("SELECT member_id as memberId,count(*) as totalCount, housework_name as houseworkName\n" +
                         "FROM assignment INNER JOIN housework ON assignment.housework_id=housework.housework_id\n" +
-                        "WHERE success=0 GROUP BY member_id")
+                        "WHERE success=0 and scheduled_date=curdate() GROUP BY member_id")
                 .saveState(false)
                 .build();
     }
