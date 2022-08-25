@@ -68,8 +68,18 @@ public class HouseWorkController {
     }
 
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 삭제 API ")
+    @ApiOperation(value = "집안일 삭제 API - 반복 기능 구현 전", notes = "반복 기능 구현 후 deprecate 예정")
     @DeleteMapping("/{houseWorkId}")
+    public ResponseEntity<?> deleteHouseWork(
+            @ApiIgnore @RequestMemberId Long memberId,
+            @ApiParam(value = "삭제할 집안일 ID", required = true) @PathVariable Long houseWorkId) {
+        houseWorkService.deleteHouseWork(memberId, houseWorkId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "집안일 삭제 API - 반복 기능 구현 후")
+    @DeleteMapping("/v2")
     public ResponseEntity<?> deleteHouseWork(
             @ApiIgnore @RequestMemberId Long memberId,
             @RequestBody @Valid HouseWorkDeleteRequestDto dto) {
