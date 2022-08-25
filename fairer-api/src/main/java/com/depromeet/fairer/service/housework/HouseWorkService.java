@@ -2,6 +2,7 @@ package com.depromeet.fairer.service.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
+import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
 import com.depromeet.fairer.domain.housework.constant.UpdateDeletePolicyType;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
@@ -113,16 +114,27 @@ public class HouseWorkService {
             throw new PermissionDeniedException("집안일을 삭제할 권한이 없습니다.");
         }
 
-        switch (UpdateDeletePolicyType.of(type)) {
-            case ALL:
-                deleteAllHouseWork(houseWorkId);
-                break;
-            case HEREAFTER:
-                houseWork.setRepeatEndDate(deleteStandardDate.minusWeeks(1));
-                break;
-            case ONLY:
-                deleteOnceHouseWork(memberId, houseWorkId, deleteStandardDate, houseWork);
-                break;
+        final RepeatCycle repeatCycle = houseWork.getRepeatCycle();
+        if (repeatCycle == RepeatCycle.ONCE) { // 당일 일정일 경우 단순 삭제
+            houseWorkRepository.deleteById(houseWork.getHouseWorkId()); // cascade 옵션으로 houseworkComplete 까지 삭제
+        } else { // 반복 일정일 경우 정책에 따라 삭제
+            switch (UpdateDeletePolicyType.of(type)) {
+                case ALL: // 해당 반복 일정 모두 삭제
+                    deleteAllHouseWork(houseWorkId);
+                    break;
+                case HEREAFTER: // 해당 반복 일정 중 오늘 포함 이후 삭제
+                    if (repeatCycle == RepeatCycle.EVERY) {
+                        houseWork.setRepeatEndDate(deleteStandardDate.minusDays(1));
+                    } else if (repeatCycle == RepeatCycle.WEEKLY) {
+                        houseWork.setRepeatEndDate(deleteStandardDate.minusWeeks(1));
+                    } else if (repeatCycle == RepeatCycle.MONTHLY) {
+                        houseWork.setRepeatEndDate(deleteStandardDate.minusMonths(1));
+                    }
+                    break;
+                case ONLY: // 해당 반복 일정 중 오늘만 삭제
+                    deleteOnceHouseWork(memberId, houseWorkId, deleteStandardDate, houseWork);
+                    break;
+            }
         }
     }
 

@@ -14,6 +14,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum RepeatCycle {
     ONCE("O", "당일"),
+    EVERY("E", "매일"),
     WEEKLY("W", "1주마다 반복"),
     MONTHLY("M", "1달마다 반복")
     ;
