@@ -107,6 +107,17 @@ public class HouseWorkService {
         return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
+    // 반복 기능 구현 전 version -> deprecate 예정
+    public void deleteHouseWork(Long memberId, Long houseWorkId) {
+        HouseWork houseWork = findWithTeam(houseWorkId);
+        Member member = memberService.findWithTeam(memberId);
+        if (member.getTeam() != houseWork.getTeam()) {
+            throw new PermissionDeniedException("집안일을 삭제할 권한이 없습니다.");
+        }
+        houseWorkRepository.deleteById(houseWorkId);
+    }
+
+    // 반복 기능 구현 후 version
     public void deleteHouseWork(Long memberId, Long houseWorkId, @NotNull String type, LocalDate deleteStandardDate) {
         HouseWork houseWork = findWithTeam(houseWorkId);
         Member member = memberService.findWithTeam(memberId);
