@@ -2,7 +2,7 @@ package com.depromeet.fairer.service.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
-import com.depromeet.fairer.domain.housework.constant.RepeatRUDType;
+import com.depromeet.fairer.domain.housework.constant.UpdateDeletePolicyType;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.housework.request.HouseWorkUpdateRequestDto;
@@ -113,7 +113,7 @@ public class HouseWorkService {
             throw new PermissionDeniedException("집안일을 삭제할 권한이 없습니다.");
         }
 
-        switch (RepeatRUDType.of(type)) {
+        switch (UpdateDeletePolicyType.of(type)) {
             case ALL:
                 deleteAllHouseWork(houseWorkId);
                 break;
