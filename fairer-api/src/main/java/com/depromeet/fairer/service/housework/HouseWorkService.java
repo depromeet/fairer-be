@@ -134,18 +134,23 @@ public class HouseWorkService {
                     deleteAllHouseWork(houseWorkId);
                     break;
                 case HEREAFTER: // 해당 반복 일정 중 오늘 포함 이후 삭제
-                    if (repeatCycle == RepeatCycle.EVERY) {
-                        houseWork.setRepeatEndDate(deleteStandardDate.minusDays(1));
-                    } else if (repeatCycle == RepeatCycle.WEEKLY) {
-                        houseWork.setRepeatEndDate(deleteStandardDate.minusWeeks(1));
-                    } else if (repeatCycle == RepeatCycle.MONTHLY) {
-                        houseWork.setRepeatEndDate(deleteStandardDate.minusMonths(1));
-                    }
+                    updateHouseWorkRepeatEndDateByCycle(deleteStandardDate, houseWork);
                     break;
                 case ONLY: // 해당 반복 일정 중 오늘만 삭제
                     deleteOnceHouseWork(memberId, houseWorkId, deleteStandardDate, houseWork);
                     break;
             }
+        }
+    }
+
+    private void updateHouseWorkRepeatEndDateByCycle(LocalDate deleteStandardDate, HouseWork houseWork) {
+        final RepeatCycle repeatCycle = houseWork.getRepeatCycle();
+        if (repeatCycle == RepeatCycle.EVERY) {
+            houseWork.setRepeatEndDate(deleteStandardDate.minusDays(1));
+        } else if (repeatCycle == RepeatCycle.WEEKLY) {
+            houseWork.setRepeatEndDate(deleteStandardDate.minusWeeks(1));
+        } else if (repeatCycle == RepeatCycle.MONTHLY) {
+            houseWork.setRepeatEndDate(deleteStandardDate.minusMonths(1));
         }
     }
 
@@ -157,7 +162,7 @@ public class HouseWorkService {
 
     private void deleteOnceHouseWork(Long memberId, Long houseWorkId, LocalDate deleteStandardDate, HouseWork houseWork) {
         // 기존 반복 집안일 endDate update
-        houseWork.setRepeatEndDate(deleteStandardDate.minusWeeks(1));
+        updateHouseWorkRepeatEndDateByCycle(deleteStandardDate, houseWork);
 
         // 다음 반복 집안일 생성 후 save
         final List<Long> assigneeIds = houseWork.getAssignments().stream().map(Assignment::getAssignmentId).collect(Collectors.toList());
