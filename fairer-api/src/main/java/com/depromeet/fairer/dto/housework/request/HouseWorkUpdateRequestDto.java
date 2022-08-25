@@ -43,7 +43,7 @@ public class HouseWorkUpdateRequestDto {
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     private LocalTime scheduledTime;
 
-    @ApiModelProperty(value = "집안일 반복 주기", example = "O / W / M", notes = "단일: O, 주마다: W, 달마다: M")
+    @ApiModelProperty(value = "집안일 반복 주기", example = "O / E / W / M", notes = "단일: O, 매일: E, 주마다: W, 달마다: M")
     private String repeatCycle;
 
     @ApiModelProperty(value = "집안일 반복 요일", example = "월수")
