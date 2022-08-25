@@ -15,6 +15,8 @@ spring:
 logging:
   level:
     root: info
+  file:
+    name: spring-batch.log
 
 # spring actuator endpoints 기본으로 disable 적용
 management:
