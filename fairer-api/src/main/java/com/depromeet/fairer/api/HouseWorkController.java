@@ -67,8 +67,9 @@ public class HouseWorkController {
         return new ResponseEntity<>(houseWorkService.updateHouseWork(houseWorkUpdateVo), HttpStatus.OK);
     }
 
+    @Deprecated
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 삭제 API - 반복 기능 구현 전", notes = "반복 기능 구현 후 deprecate 예정")
+    @ApiOperation(value = "집안일 삭제 API - 반복 기능 구현 전")
     @DeleteMapping("/{houseWorkId}")
     public ResponseEntity<?> deleteHouseWork(
             @ApiIgnore @RequestMemberId Long memberId,

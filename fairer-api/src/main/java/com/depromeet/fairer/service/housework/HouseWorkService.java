@@ -10,7 +10,9 @@ import com.depromeet.fairer.dto.housework.request.HouseWorkUpdateRequestDto;
 import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
+import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.exception.PermissionDeniedException;
+import com.depromeet.fairer.global.util.DateTimeUtils;
 import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.houseworkcomplete.HouseWorkCompleteRepository;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.NotNull;
+import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -107,7 +110,7 @@ public class HouseWorkService {
         return HouseWorkResponseDto.from(houseWork, memberDtoList);
     }
 
-    // 반복 기능 구현 전 version -> deprecate 예정
+    // 반복 기능 구현 전 version -> deprecated
     public void deleteHouseWork(Long memberId, Long houseWorkId) {
         HouseWork houseWork = findWithTeam(houseWorkId);
         Member member = memberService.findWithTeam(memberId);
@@ -129,6 +132,10 @@ public class HouseWorkService {
         if (repeatCycle == RepeatCycle.ONCE) { // 당일 일정일 경우 단순 삭제
             houseWorkRepository.deleteById(houseWork.getHouseWorkId()); // cascade 옵션으로 houseworkComplete 까지 삭제
         } else { // 반복 일정일 경우 정책에 따라 삭제
+            if (!houseWork.isIncludingDate(deleteStandardDate)) {
+                throw new InvalidParameterException("요청한 삭제 날짜가 반복 주기에 포함되지 않습니다.");
+            }
+
             switch (UpdateDeletePolicyType.of(type)) {
                 case ALL: // 해당 반복 일정 모두 삭제
                     deleteAllHouseWork(houseWorkId);
