@@ -6,6 +6,7 @@ import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.domain.preset.Space;
 import com.depromeet.fairer.domain.team.Team;
+import com.depromeet.fairer.global.util.DateTimeUtils;
 import lombok.*;
 
 import javax.persistence.*;
@@ -72,4 +73,12 @@ public class HouseWork extends BaseTimeEntity {
 
     private String rrule;
 
+    public boolean isIncludingDate(LocalDate date) {
+        if (repeatEndDate != null && date.isAfter(repeatEndDate)) {
+                return false;
+        }
+
+        return repeatDayOfWeek.contains(DateTimeUtils.convertDayOfWeekToKor(date.getDayOfWeek()))
+                && date.isAfter(scheduledDate);
+    }
 }
