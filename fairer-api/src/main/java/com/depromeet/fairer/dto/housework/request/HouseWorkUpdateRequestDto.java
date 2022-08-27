@@ -17,7 +17,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Data
-@ApiModel(value = "집안일 생성 요청 객체", description = "집안일 생성 요청 객체")
+@ApiModel(value = "집안일 업데이트 요청 객체", description = "집안일 업데이트 요청 객체")
 public class HouseWorkUpdateRequestDto {
 
     @ApiModelProperty(value = "집안일 담당자 목록", example = "[1, 13] (동일한 그룹 내 유저 id만 가능)", required = true)
@@ -43,7 +43,7 @@ public class HouseWorkUpdateRequestDto {
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     private LocalTime scheduledTime;
 
-    @ApiModelProperty(value = "집안일 반복 주기", example = "O / W / M")
+    @ApiModelProperty(value = "집안일 반복 주기", example = "O / E / W / M", notes = "단일: O, 매일: E, 주마다: W, 달마다: M")
     private String repeatCycle;
 
     @ApiModelProperty(value = "집안일 반복 요일", example = "월수")

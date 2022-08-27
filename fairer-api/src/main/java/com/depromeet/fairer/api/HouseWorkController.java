@@ -13,6 +13,7 @@ import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.service.member.MemberService;
 
 import com.depromeet.fairer.service.team.TeamService;
+import com.depromeet.fairer.dto.housework.request.HouseWorkDeleteRequestDto;
 import com.depromeet.fairer.vo.houseWork.HouseWorkUpdateVo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -45,12 +46,15 @@ public class HouseWorkController {
     private final ModelMapper modelMapper;
 
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 생성 API ")
+    @ApiOperation(value = "집안일 생성 API")
     @PostMapping("")
-    public ResponseEntity<HouseWorksCreateResponseDto> createHouseWorks(@ApiIgnore @RequestMemberId Long memberId,
-                                                                        @RequestBody @Valid HouseWorksCreateRequestDto dto) {
-        List<HouseWorkResponseDto> houseWorkList = houseWorkService.createHouseWorks(memberId, dto.getHouseWorks());
-        return new ResponseEntity<>(new HouseWorksCreateResponseDto(houseWorkList), HttpStatus.CREATED);
+    public ResponseEntity<List<HouseWorkResponseDto>> createHouseWorks(@ApiIgnore @RequestMemberId Long memberId,
+                                                                        @RequestBody @Valid List<HouseWorksCreateRequestDto> request) {
+        List<HouseWorkResponseDto> responseDtos = new ArrayList<>();
+        for (HouseWorksCreateRequestDto requestDto : request) {
+            responseDtos.add(houseWorkService.createHouseWork(memberId, requestDto));
+        }
+        return new ResponseEntity<>(responseDtos, HttpStatus.CREATED);
     }
 
     @Tag(name = "houseWorks")
@@ -66,13 +70,24 @@ public class HouseWorkController {
         return new ResponseEntity<>(houseWorkService.updateHouseWork(houseWorkUpdateVo), HttpStatus.OK);
     }
 
+    @Deprecated
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 삭제 API ")
+    @ApiOperation(value = "집안일 삭제 API - 반복 기능 구현 전")
     @DeleteMapping("/{houseWorkId}")
     public ResponseEntity<?> deleteHouseWork(
             @ApiIgnore @RequestMemberId Long memberId,
             @ApiParam(value = "삭제할 집안일 ID", required = true) @PathVariable Long houseWorkId) {
         houseWorkService.deleteHouseWork(memberId, houseWorkId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "집안일 삭제 API - 반복 기능 구현 후")
+    @DeleteMapping("/v2")
+    public ResponseEntity<?> deleteHouseWork(
+            @ApiIgnore @RequestMemberId Long memberId,
+            @RequestBody @Valid HouseWorkDeleteRequestDto dto) {
+        houseWorkService.deleteHouseWork(memberId, dto.getHouseWorkId(), dto.getType(), dto.getDeleteStandardDate());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

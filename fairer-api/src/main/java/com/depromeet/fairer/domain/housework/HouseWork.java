@@ -4,8 +4,11 @@ import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
+import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.preset.Space;
 import com.depromeet.fairer.domain.team.Team;
+import com.depromeet.fairer.global.exception.BadRequestException;
+import com.depromeet.fairer.global.util.DateTimeUtils;
 import lombok.*;
 
 import javax.persistence.*;
@@ -65,11 +68,59 @@ public class HouseWork extends BaseTimeEntity {
     private String repeatDayOfWeek;
 
     @Column(name = "repeat_end_date", columnDefinition = "DATE")
-    private LocalDate repeatEndDate;
+    private LocalDate repeatEndDate; //endDate 당일까지 반복 포함
 
     @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HouseworkComplete> houseworkComplete;
 
     private String rrule;
 
+    public boolean isIncludingDate(LocalDate date) {
+        if (repeatEndDate != null && date.isAfter(repeatEndDate)) {
+                return false;
+        }
+
+        return repeatDayOfWeek.contains(DateTimeUtils.convertDayOfWeekToKor(date.getDayOfWeek()))
+                && date.isAfter(scheduledDate);
+    }
+
+    public static HouseWork createNextCycleFromExisting(Team team, HouseWork lastCycleHouseWork) {
+        HouseWork nextCycleHouseWork = HouseWork.builder()
+                .space(lastCycleHouseWork.getSpace())
+                .houseWorkName(lastCycleHouseWork.getHouseWorkName())
+                .scheduledTime(lastCycleHouseWork.getScheduledTime())
+                .repeatDayOfWeek(lastCycleHouseWork.getRepeatDayOfWeek())
+                .repeatCycle(lastCycleHouseWork.getRepeatCycle())
+                .success(false)
+                .successDateTime(null)
+                .build();
+        updateScheduledDateFromLast(lastCycleHouseWork, nextCycleHouseWork);
+        if (team == null) {
+            throw new BadRequestException("그룹에 소속되어있지 않아 집안일을 생성할 수 없습니다.");
+        }
+        nextCycleHouseWork.setTeam(team);
+        return nextCycleHouseWork;
+    }
+
+    private static void updateScheduledDateFromLast(HouseWork lastCycleHouseWork, HouseWork nextCycleHouseWork) {
+        final RepeatCycle repeatCycle = nextCycleHouseWork.getRepeatCycle();
+        final LocalDate oldRepeatEndDate = lastCycleHouseWork.getRepeatEndDate();
+        if (repeatCycle == RepeatCycle.EVERY) {
+            nextCycleHouseWork.setRepeatEndDate(oldRepeatEndDate.plusDays(2));
+        } else if (repeatCycle == RepeatCycle.WEEKLY) {
+            nextCycleHouseWork.setRepeatEndDate(oldRepeatEndDate.plusWeeks(2));
+        } else if (repeatCycle == RepeatCycle.MONTHLY) {
+            nextCycleHouseWork.setRepeatEndDate(oldRepeatEndDate.plusMonths(2));
+        }
+    }
+
+    public void updateRepeatEndDateByCycle(LocalDate deleteStandardDate) {
+        if (repeatCycle == RepeatCycle.EVERY) {
+            repeatEndDate = deleteStandardDate.minusDays(1);
+        } else if (repeatCycle == RepeatCycle.WEEKLY) {
+            repeatEndDate = deleteStandardDate.minusWeeks(1);
+        } else if (repeatCycle == RepeatCycle.MONTHLY) {
+            repeatEndDate = deleteStandardDate.minusMonths(1);
+        }
+    }
 }
