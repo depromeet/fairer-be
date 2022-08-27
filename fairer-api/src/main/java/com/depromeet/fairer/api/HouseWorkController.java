@@ -48,10 +48,13 @@ public class HouseWorkController {
     @Tag(name = "houseWorks")
     @ApiOperation(value = "집안일 생성 API")
     @PostMapping("")
-    public ResponseEntity<HouseWorksCreateResponseDto> createHouseWorks(@ApiIgnore @RequestMemberId Long memberId,
-                                                                        @RequestBody @Valid HouseWorksCreateRequestDto dto) {
-        List<HouseWorkResponseDto> houseWorkList = houseWorkService.createHouseWorks(memberId, dto.getHouseWorks());
-        return new ResponseEntity<>(new HouseWorksCreateResponseDto(houseWorkList), HttpStatus.CREATED);
+    public ResponseEntity<List<HouseWorkResponseDto>> createHouseWorks(@ApiIgnore @RequestMemberId Long memberId,
+                                                                        @RequestBody @Valid List<HouseWorksCreateRequestDto> request) {
+        List<HouseWorkResponseDto> responseDtos = new ArrayList<>();
+        for (HouseWorksCreateRequestDto requestDto : request) {
+            responseDtos.add(houseWorkService.createHouseWork(memberId, requestDto));
+        }
+        return new ResponseEntity<>(responseDtos, HttpStatus.CREATED);
     }
 
     @Tag(name = "houseWorks")
