@@ -7,16 +7,16 @@ import com.depromeet.fairer.domain.housework.constant.UpdateDeletePolicyType;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.dto.housework.request.HouseWorkUpdateRequestDto;
+import com.depromeet.fairer.dto.housework.request.HouseWorksCreateRequestDto;
 import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
-import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.exception.PermissionDeniedException;
-import com.depromeet.fairer.global.util.DateTimeUtils;
 import com.depromeet.fairer.repository.assignment.AssignmentRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.houseworkcomplete.HouseWorkCompleteRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
+import com.depromeet.fairer.service.assignment.AssignmentService;
 import com.depromeet.fairer.service.member.MemberService;
 import com.depromeet.fairer.service.team.TeamService;
 import com.depromeet.fairer.vo.houseWork.HouseWorkUpdateVo;
@@ -44,36 +44,20 @@ public class HouseWorkService {
     private final HouseWorkCompleteRepository houseWorkCompleteRepository;
     private final MemberRepository memberRepository;
     private final AssignmentRepository assignmentRepository;
+    private final AssignmentService assignmentService;
     private final MemberService memberService;
     private final TeamService teamService;
 
-
-    public List<HouseWorkResponseDto> createHouseWorks(Long memberId, List<HouseWorkUpdateRequestDto> houseWorksDto) {
-        List<HouseWorkResponseDto> houseWorks = new ArrayList<>();
-        for (HouseWorkUpdateRequestDto houseWorkDto : houseWorksDto) {
-            houseWorks.add(this.createHouseWork(memberId, houseWorkDto.toEntity(), houseWorkDto.getAssignees()));
-        }
-        return houseWorks;
-    }
-
-    private HouseWorkResponseDto createHouseWork(Long memberId, HouseWork houseWork, List<Long> assigneeIds) {
-        Member member = memberService.findWithTeam(memberId);
-        Team team = member.getTeam();
-        if (team == null) {
-            throw new BadRequestException("그룹에 소속되어있지 않아 집안일을 생성할 수 없습니다.");
-        }
-
+    public HouseWorkResponseDto createHouseWork(Long memberId, HouseWorksCreateRequestDto requestDto) {
+        final Team team = teamService.getTeam(memberId);
+        final HouseWork houseWork = requestDto.toEntity();
         houseWork.setTeam(team);
         houseWorkRepository.save(houseWork);
 
-        List<Member> members = memberRepository.findAllById(assigneeIds);
-        for (Member m : members) {
-            Assignment assignment = Assignment.builder().houseWork(houseWork).member(m).build();
-            assignmentRepository.save(assignment);
-        }
-
-        List<MemberDto> memberDtoList = members.stream().map(MemberDto::from).collect(Collectors.toList());
-        return HouseWorkResponseDto.from(houseWork, memberDtoList);
+        List<Member> members = memberRepository.findAllById(requestDto.getAssignees());
+        assignmentService.saveAssignments(members, houseWork);
+        return HouseWorkResponseDto.from(houseWork,
+                members.stream().map(MemberDto::from).collect(Collectors.toList()));
     }
 
     public HouseWorkResponseDto updateHouseWork(HouseWorkUpdateVo houseWorkUpdateVo) {
@@ -135,13 +119,12 @@ public class HouseWorkService {
             if (!houseWork.isIncludingDate(deleteStandardDate)) {
                 throw new InvalidParameterException("요청한 삭제 날짜가 반복 주기에 포함되지 않습니다.");
             }
-
             switch (UpdateDeletePolicyType.of(type)) {
                 case ALL: // 해당 반복 일정 모두 삭제
                     deleteAllHouseWork(houseWorkId);
                     break;
                 case HEREAFTER: // 해당 반복 일정 중 오늘 포함 이후 삭제
-                    updateHouseWorkRepeatEndDateByCycle(deleteStandardDate, houseWork);
+                    houseWork.updateRepeatEndDateByCycle(deleteStandardDate);
                     break;
                 case ONLY: // 해당 반복 일정 중 오늘만 삭제
                     deleteOnceHouseWork(memberId, houseWorkId, deleteStandardDate, houseWork);
@@ -150,56 +133,26 @@ public class HouseWorkService {
         }
     }
 
-    private void updateHouseWorkRepeatEndDateByCycle(LocalDate deleteStandardDate, HouseWork houseWork) {
-        final RepeatCycle repeatCycle = houseWork.getRepeatCycle();
-        if (repeatCycle == RepeatCycle.EVERY) {
-            houseWork.setRepeatEndDate(deleteStandardDate.minusDays(1));
-        } else if (repeatCycle == RepeatCycle.WEEKLY) {
-            houseWork.setRepeatEndDate(deleteStandardDate.minusWeeks(1));
-        } else if (repeatCycle == RepeatCycle.MONTHLY) {
-            houseWork.setRepeatEndDate(deleteStandardDate.minusMonths(1));
-        }
-    }
-
     private void deleteAllHouseWork(Long houseWorkId) {
         houseWorkRepository.deleteById(houseWorkId);
         assignmentRepository.deleteAllByHouseworkId(houseWorkId);
-        houseWorkCompleteRepository.deleteAllByHouseworkId(houseWorkId);
+        //houseWorkCompleteRepository.deleteAllByHouseworkId(houseWorkId);
     }
 
     private void deleteOnceHouseWork(Long memberId, Long houseWorkId, LocalDate deleteStandardDate, HouseWork houseWork) {
         // 기존 반복 집안일 endDate update
-        updateHouseWorkRepeatEndDateByCycle(deleteStandardDate, houseWork);
+        houseWork.updateRepeatEndDateByCycle(deleteStandardDate);
 
         // 다음 반복 집안일 생성 후 save
-        final List<Long> assigneeIds = houseWork.getAssignments().stream().map(Assignment::getAssignmentId).collect(Collectors.toList());
-        final HouseWork nextWeekHouseWork = HouseWork.builder()
-                .space(houseWork.getSpace())
-                .houseWorkName(houseWork.getHouseWorkName())
-                .scheduledDate(houseWork.getRepeatEndDate().plusWeeks(2)) // 마지막 종료 날짜 + 2주일부터 다시 시작
-                .scheduledTime(houseWork.getScheduledTime())
-                .repeatDayOfWeek(houseWork.getRepeatDayOfWeek())
-                .repeatCycle(houseWork.getRepeatCycle())
-                .success(false)
-                .successDateTime(null)
-                .build();
-        createHouseWork(memberId, nextWeekHouseWork, assigneeIds);
+        final Team team = teamService.getTeam(memberId);
+        final HouseWork nextCycleHouseWork = HouseWork.createNextCycleFromExisting(team, houseWork);
+        houseWorkRepository.save(nextCycleHouseWork);
+
+        final List<Member> assignees = houseWork.getAssignments().stream().map(Assignment::getMember).collect(Collectors.toList());
+        assignmentService.saveAssignments(assignees, nextCycleHouseWork);
 
         // 삭제 기준 날짜에 완료한 집안일 제거
         houseWorkCompleteRepository.deleteAllByHouseworkIdAndScheduledDate(houseWorkId, deleteStandardDate);
-    }
-
-    private HouseWork createNextWeekHouseWork(HouseWork houseWork) {
-        return HouseWork.builder()
-                .space(houseWork.getSpace())
-                .houseWorkName(houseWork.getHouseWorkName())
-                .scheduledDate(houseWork.getRepeatEndDate().plusDays(8)) // 마지막 종료 날짜 + 일주일 + 1일부터 다시 시작
-                .scheduledTime(houseWork.getScheduledTime())
-                .repeatDayOfWeek(houseWork.getRepeatDayOfWeek())
-                .repeatCycle(houseWork.getRepeatCycle())
-                .success(false)
-                .successDateTime(null)
-                .build();
     }
 
     public HouseWork findWithTeam(Long houseWorkId) {
