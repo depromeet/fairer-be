@@ -9,9 +9,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface HouseWorkCompleteRepository extends JpaRepository<HouseworkComplete, Long> {
+    List<HouseworkComplete> findAllByHouseWorkAndScheduledDateGreaterThanEqual(HouseWork houseWork, LocalDate scheduledDate);
+    HouseworkComplete findByHouseWorkAndScheduledDate(HouseWork houseWork, LocalDate scheduledDate);
 
     @Modifying(clearAutomatically = true)
     @Query("delete from HouseworkComplete c where c.houseWork.houseWorkId = :houseWorkId")
