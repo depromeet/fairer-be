@@ -1,11 +1,7 @@
 package com.depromeet.fairer.repository.housework;
 
-import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
-import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
-import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.team.Team;
-import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +13,6 @@ import java.util.List;
 
 import static com.depromeet.fairer.domain.assignment.QAssignment.assignment;
 import static com.depromeet.fairer.domain.housework.QHouseWork.houseWork;
-import static com.depromeet.fairer.domain.houseworkComplete.QHouseworkComplete.houseworkComplete;
 import static com.depromeet.fairer.domain.member.QMember.member;
 
 @Repository
@@ -45,21 +40,21 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
         return new ArrayList<>(jpaQueryFactory.selectFrom(houseWork)
                 .innerJoin(houseWork.assignments, assignment)
                 .innerJoin(assignment.member, member)
-                .where(((houseWork.repeatCycle.eq(RepeatCycle.ONCE)
+                .where(((houseWork.rrule.contains("ONCE")
                         .and(houseWork.scheduledDate.between(fromDate, toDate)))
                         .and(member.memberId.eq(memberId)))
 
-                        .or((houseWork.repeatCycle.eq(RepeatCycle.EVERY)
+                        .or((houseWork.rrule.contains("EVERY")
                                 .and(houseWork.scheduledDate.loe(toDate))
                                 .and(houseWork.repeatEndDate.goe(fromDate)))
                                 .and(member.memberId.eq(memberId)))
 
-                        .or((houseWork.repeatCycle.eq(RepeatCycle.WEEKLY)
+                        .or((houseWork.rrule.contains("WEEKLY")
                                 .and(houseWork.scheduledDate.loe(toDate))
                                 .and(houseWork.repeatEndDate.goe(fromDate)))
                                 .and(member.memberId.eq(memberId)))
 
-                        .or((houseWork.repeatCycle.eq(RepeatCycle.MONTHLY)
+                        .or((houseWork.rrule.contains("MONTHLY")
                                 .and(houseWork.scheduledDate.loe(toDate))
                                 .and(houseWork.repeatEndDate.goe(fromDate)))
                                 .and(member.memberId.eq(memberId)))
@@ -71,23 +66,21 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
     public List<HouseWork> getCycleHouseWorkByTeam(LocalDate fromDate, LocalDate toDate, Team team) {
 
         return new ArrayList<>(jpaQueryFactory.selectFrom(houseWork)
-                .innerJoin(houseWork.assignments, assignment)
-                .innerJoin(assignment.member, member)
-                .where(((houseWork.repeatCycle.eq(RepeatCycle.ONCE)
+                .where(((houseWork.rrule.contains("ONCE")
                         .and(houseWork.scheduledDate.between(fromDate, toDate)))
                         .and(houseWork.team.eq(team)))
 
-                        .or((houseWork.repeatCycle.eq(RepeatCycle.EVERY)
+                        .or((houseWork.rrule.contains("EVERY")
                                 .and(houseWork.scheduledDate.loe(toDate))
                                 .and(houseWork.repeatEndDate.goe(fromDate)))
                                 .and(houseWork.team.eq(team)))
 
-                        .or((houseWork.repeatCycle.eq(RepeatCycle.WEEKLY)
+                        .or((houseWork.rrule.contains("WEEKLY")
                                 .and(houseWork.scheduledDate.loe(toDate))
                                 .and(houseWork.repeatEndDate.goe(fromDate)))
                                 .and(houseWork.team.eq(team)))
 
-                        .or((houseWork.repeatCycle.eq(RepeatCycle.MONTHLY)
+                        .or((houseWork.rrule.contains("MONTHLY")
                                 .and(houseWork.scheduledDate.loe(toDate))
                                 .and(houseWork.repeatEndDate.goe(fromDate)))
                                 .and(houseWork.team.eq(team)))

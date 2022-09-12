@@ -170,7 +170,7 @@ public class HouseWorkService {
     }
 
     // 1명 집안일 조회 - 반복 기능 구현 후
-    public List<HouseWork> getHouseWorkByDateV2(Member member, LocalDate fromDate, LocalDate toDate) {
+    public List<HouseWork> getHouseWorkByDateRepeat(Member member, LocalDate fromDate, LocalDate toDate) {
         return houseWorkRepository.getCycleHouseWork(fromDate, toDate, member.getMemberId());
     }
 
@@ -178,7 +178,7 @@ public class HouseWorkService {
         return houseWorkRepository.findAllByScheduledDateBetweenAndTeam(fromDate, toDate, team);
     }
 
-    public List<HouseWork> getHouseWorkByDateAndTeamV2(Team team, LocalDate from, LocalDate to) {
+    public List<HouseWork> getHouseWorkByDateAndTeamRepeat(Team team, LocalDate from, LocalDate to) {
         return houseWorkRepository.getCycleHouseWorkByTeam(from, to, team);
     }
 
