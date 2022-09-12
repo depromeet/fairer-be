@@ -2,9 +2,14 @@ package com.depromeet.fairer.repository.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
+import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
+import com.depromeet.fairer.domain.repeatexception.RepeatException;
 import com.depromeet.fairer.domain.team.Team;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -20,4 +25,10 @@ public interface HouseWorkRepository extends JpaRepository<HouseWork, Long>, Hou
 
     @EntityGraph(attributePaths = {"team"})
     Optional<HouseWork> findWithTeamByHouseWorkId(Long houseWorkId);
+
+    @Query("select hc from HouseworkComplete hc where hc.houseWork.houseWorkId =:houseWorkId and hc.scheduledDate =:date")
+    Optional<HouseworkComplete> getHouseWorkCompleted(@Param("houseWorkId")Long houseWorkId, @Param("date") LocalDate scheduledDate);
+
+    @Query("select re from RepeatException re where re.houseWork.houseWorkId =:houseWorkId and re.exceptionDate =:date")
+    Optional<RepeatException> exceptionCheck(@Param("houseWorkId") Long houseWorkId, @Param("date") LocalDate date);
 }

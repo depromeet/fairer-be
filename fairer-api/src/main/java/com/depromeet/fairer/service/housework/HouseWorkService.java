@@ -4,10 +4,10 @@ import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
 import com.depromeet.fairer.domain.housework.constant.UpdateDeletePolicyType;
+import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.repeatexception.RepeatException;
 import com.depromeet.fairer.domain.team.Team;
-import com.depromeet.fairer.dto.housework.request.HouseWorkUpdateRequestDto;
 import com.depromeet.fairer.dto.housework.request.HouseWorksCreateRequestDto;
 import com.depromeet.fairer.dto.housework.response.*;
 import com.depromeet.fairer.dto.member.MemberDto;
@@ -169,8 +169,17 @@ public class HouseWorkService {
         return houseWorkRepository.findAllByScheduledDateBetweenAndAssignmentsIn(fromDate, toDate, assignmentList);
     }
 
+    // 1명 집안일 조회 - 반복 기능 구현 후
+    public List<HouseWork> getHouseWorkByDateV2(Member member, LocalDate fromDate, LocalDate toDate) {
+        return houseWorkRepository.getCycleHouseWork(fromDate, toDate, member.getMemberId());
+    }
+
     public List<HouseWork> getHouseWorkByDateAndTeam(Team team, LocalDate fromDate, LocalDate toDate) {
         return houseWorkRepository.findAllByScheduledDateBetweenAndTeam(fromDate, toDate, team);
+    }
+
+    public List<HouseWork> getHouseWorkByDateAndTeamV2(Team team, LocalDate from, LocalDate to) {
+        return houseWorkRepository.getCycleHouseWorkByTeam(from, to, team);
     }
 
     public HouseWorkResponseDto getHouseWorkDetail(Long houseWorkId) {
@@ -192,5 +201,23 @@ public class HouseWorkService {
     public HouseWork getHouseWorkById(Long houseWorkId) {
         return houseWorkRepository.findById(houseWorkId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일 입니다."));
+    }
+
+    public HouseworkComplete createHouseWorkComplete(Long houseWorkId, LocalDate scheduledDate) {
+        HouseWork houseWork = houseWorkRepository.findById(houseWorkId)
+                .orElseThrow(() -> new EntityNotFoundException("houseworkId: " + houseWorkId + "에 해당하는 집안일을 찾을 수 없습니다."));
+
+        HouseworkComplete complete = new HouseworkComplete(scheduledDate, houseWork, LocalDateTime.now());
+        houseWorkCompleteRepository.save(complete);
+
+        return complete;
+    }
+
+    public boolean getHouseWorkCompleted(Long houseWorkId, LocalDate scheduledDate) {
+        return houseWorkRepository.getHouseWorkCompleted(houseWorkId, scheduledDate).isPresent();
+    }
+
+    public boolean exceptionCheck(HouseWork houseWork, LocalDate date) {
+        return houseWorkRepository.exceptionCheck(houseWork.getHouseWorkId(), date).isPresent();
     }
 }
