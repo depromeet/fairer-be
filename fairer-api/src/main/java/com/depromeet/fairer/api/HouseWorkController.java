@@ -1,6 +1,8 @@
 package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
+import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
+import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
@@ -28,11 +30,10 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @RestController
@@ -121,8 +122,10 @@ public class HouseWorkController {
         return ResponseEntity.ok(houseWorkDateResponseDtos);
     }
 
+    // 1명 조회
+    @Deprecated
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "팀원의 특정 기간 집안일 목록 조회", notes = "본인이 속한 팀의 팀원의 특정 기간 집안일 목록 조회")
+    @ApiOperation(value = "팀원의 특정 기간 집안일 목록 조회 - 반복 기능 구현 전", notes = "본인이 속한 팀의 팀원의 특정 기간 집안일 목록 조회")
     @GetMapping("/list/member/{teamMemberId}")
     public ResponseEntity<Map<String, HouseWorkDateResponseDto>> getHouseWorkListByTeamMemberAndDate(@RequestParam("fromDate") String fromDate,
                                                                                  @RequestParam("toDate") String toDate,
@@ -139,8 +142,39 @@ public class HouseWorkController {
         return ResponseEntity.ok(makeHouseWorkListResponse(teamMemberId, houseWorkListGroupByScheduledDate));
     }
 
+    // 1명 조회
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "특정 날짜별 집안일 조회", notes = "특정 날짜별 집안일 조회")
+    @ApiOperation(value = "팀원의 특정 기간 집안일 목록 조회 - 반복 기능 구현 후", notes = "본인이 속한 팀의 팀원의 특정 기간 집안일 목록 조회")
+    @GetMapping("/list/member/{teamMemberId}/v2")
+    public ResponseEntity<Map<String, HouseWorkDateResponseDto>> getHouseWorkListByTeamMemberAndDateV2(@RequestParam("fromDate") String fromDate,
+                                                                                                       @RequestParam("toDate") String toDate,@PathVariable("teamMemberId") Long teamMemberId,
+                                                                                                       @ApiIgnore @RequestMemberId Long memberId) {
+        final LocalDate from = DateTimeUtils.stringToLocalDate(fromDate);
+        final LocalDate to = DateTimeUtils.stringToLocalDate(toDate);
+
+        teamService.checkJoinSameTeam(teamMemberId, memberId);
+        Member teamMember = memberService.find(teamMemberId);
+
+
+        List<HouseWork> houseWorkList = houseWorkService.getHouseWorkByDateV2(teamMember, from, to);
+
+        // 날짜별 집안일dto 생성
+        Map<LocalDate, List<HouseWorkResponseDto>> houseWorkListGroupByScheduledDate = getHouseWorkListGroupByScheduledDateV2(houseWorkList, from, to);
+
+        // 완료 여부 세팅
+        for(List<HouseWorkResponseDto> dtos : houseWorkListGroupByScheduledDate.values()){
+            for(HouseWorkResponseDto houseWorkResponseDto : dtos){
+                houseWorkResponseDto.setSuccess(houseWorkService.getHouseWorkCompleted(houseWorkResponseDto.getHouseWorkId(), houseWorkResponseDto.getScheduledDate()));
+            }
+        }
+
+        return ResponseEntity.ok(makeHouseWorkListResponse(teamMemberId, houseWorkListGroupByScheduledDate));
+    }
+
+    // 팀 전체 조회
+    @Deprecated
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "특정 날짜별 집안일 조회 - 반복 기능 구현 전", notes = "특정 날짜별 집안일 조회")
     @GetMapping("/list")
     public ResponseEntity<Map<String, HouseWorkDateResponseDto>> getHouseWorkListByDate(@RequestParam("fromDate") String fromDate,
                                                                               @RequestParam("toDate") String toDate,
@@ -154,12 +188,88 @@ public class HouseWorkController {
         return ResponseEntity.ok(makeHouseWorkListResponse(memberId, houseWorkListGroupByScheduledDate));
     }
 
+    // 팀 전체 조회
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "특정 날짜별 집안일 조회 - 반복 기능 구현 후", notes = "특정 날짜별 집안일 조회")
+    @GetMapping("/list/v2")
+    public ResponseEntity<Map<String, HouseWorkDateResponseDto>> getHouseWorkListByDateV2(@RequestParam("fromDate") String fromDate,
+                                                                                        @RequestParam("toDate") String toDate,
+                                                                                        @ApiIgnore @RequestMemberId Long memberId) {
+        final LocalDate from = DateTimeUtils.stringToLocalDate(fromDate);
+        final LocalDate to = DateTimeUtils.stringToLocalDate(toDate);
+
+        Member member = memberService.find(memberId);
+
+        // 날짜별 집안일dto 생성
+        List<HouseWork> houseWorkList = houseWorkService.getHouseWorkByDateAndTeamV2(member.getTeam(), from, to);
+        Map<LocalDate, List<HouseWorkResponseDto>> houseWorkListGroupByScheduledDate = getHouseWorkListGroupByScheduledDateV2(houseWorkList, from, to);
+
+        // 완료 여부 세팅
+        for(List<HouseWorkResponseDto> dtos : houseWorkListGroupByScheduledDate.values()){
+            for(HouseWorkResponseDto houseWorkResponseDto : dtos){
+                houseWorkResponseDto.setSuccess(houseWorkService.getHouseWorkCompleted(houseWorkResponseDto.getHouseWorkId(), houseWorkResponseDto.getScheduledDate()));
+            }
+        }
+
+        return ResponseEntity.ok(makeHouseWorkListResponse(memberId, houseWorkListGroupByScheduledDate));
+    }
+
     private Map<LocalDate, List<HouseWorkResponseDto>> getHouseWorkListGroupByScheduledDate(List<HouseWork> houseWorkList) {
         return houseWorkList.stream().map(houseWork -> {
             List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(houseWork.getHouseWorkId())
                     .stream().map(MemberDto::from).collect(Collectors.toList());
             return HouseWorkResponseDto.from(houseWork, memberDtoList);
         }).collect(Collectors.groupingBy(HouseWorkResponseDto::getScheduledDate, HashMap::new, Collectors.toCollection(ArrayList::new)));
+    }
+
+    private Map<LocalDate, List<HouseWorkResponseDto>> getHouseWorkListGroupByScheduledDateV2(List<HouseWork> houseWorkList, LocalDate fromDate, LocalDate toDate) {
+
+        Map<LocalDate, List<HouseWorkResponseDto>> result = new HashMap<>();
+        Stream.iterate(fromDate, date -> date.plusDays(1))
+                .limit(ChronoUnit.DAYS.between(fromDate, toDate) + 1).forEach(date -> {
+                    List<HouseWorkResponseDto> houseWorkResponseDtos = new ArrayList<>();
+                        for(HouseWork houseWork : houseWorkList) {
+                            if (periodCheck(date, houseWork)) {
+
+                                if (houseWork.getRepeatCycle() == RepeatCycle.ONCE) {
+                                    if (houseWork.getScheduledDate().equals(date)) {
+                                        houseWorkResponseDtos.add(getRepeatHouseWorkResponseDto(houseWork, date));
+                                    }
+                                } else if ((houseWork.getRepeatCycle() == RepeatCycle.EVERY) && !exceptionCheck(houseWork, date)) {
+                                        houseWorkResponseDtos.add(getRepeatHouseWorkResponseDto(houseWork, date));
+                                } else if ((houseWork.getRepeatCycle() == RepeatCycle.WEEKLY) && !exceptionCheck(houseWork, date)) {
+                                    if (Objects.equals(houseWork.getRepeatDayOfWeek(), date.getDayOfWeek().toString())){
+                                        houseWorkResponseDtos.add(getRepeatHouseWorkResponseDto(houseWork, date));
+                                    }
+                                } else if ((houseWork.getRepeatCycle() == RepeatCycle.MONTHLY) && !exceptionCheck(houseWork, date)) {
+                                    if (houseWork.getScheduledDate().getDayOfMonth() == date.getDayOfMonth()) {
+                                        houseWorkResponseDtos.add(getRepeatHouseWorkResponseDto(houseWork, date));
+                                    }
+                                }
+                            }
+                        }
+                        if(!houseWorkResponseDtos.isEmpty()) {
+                            result.put(date, houseWorkResponseDtos);
+                        }
+                });
+        return result;
+    }
+
+    // 조회 기간 내 해당하는지
+    public boolean periodCheck(LocalDate date, HouseWork houseWork){
+        return (date.isAfter(houseWork.getScheduledDate()) || date.equals(houseWork.getScheduledDate()))
+                && (date.isBefore(houseWork.getRepeatEndDate()) || date.equals(houseWork.getRepeatEndDate()));
+    }
+
+    // true -> 삭제된 집안일
+    public boolean exceptionCheck(HouseWork houseWork, LocalDate date){
+        return houseWorkService.exceptionCheck(houseWork, date);
+    }
+
+    public HouseWorkResponseDto getRepeatHouseWorkResponseDto(HouseWork houseWork, LocalDate date){
+        List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(houseWork.getHouseWorkId())
+                .stream().map(MemberDto::from).collect(Collectors.toList());
+        return HouseWorkResponseDto.from(houseWork, memberDtoList, date);
     }
 
     private Map<String, HouseWorkDateResponseDto> makeHouseWorkListResponse(Long memberId, Map<LocalDate, List<HouseWorkResponseDto>> houseWorkListGroupByScheduledDate) {
@@ -180,12 +290,24 @@ public class HouseWorkController {
     }
 
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 완료여부 수정", notes = "toBeStatus=0이면 완료->미완료, toBeStatus=1이면 미완료->완료")
+    @ApiOperation(value = "집안일 완료여부 수정 - 반복 기능 구현 전", notes = "toBeStatus=0이면 완료->미완료, toBeStatus=1이면 미완료->완료")
     @PatchMapping(value = "{houseWorkId}")
+    @Deprecated
     public ResponseEntity<HouseWorkStatusResponseDto> updateHouseWorkStatus(@PathVariable("houseWorkId") Long houseWorkId,
                                                                             @RequestBody @Valid HouseWorkStatusRequestDto req) {
         return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, req.getToBeStatus()));
     }
+
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "집안일 완료 등록 - 반복 기능 구현 후")
+    @PostMapping(value = "/complete/{houseWorkId}")
+    public ResponseEntity<HouseWorkCompleteResponseDto> updateHouseWorkStatusV2(@PathVariable("houseWorkId") Long houseWorkId,
+                                                                     @RequestParam("scheduledDate") String scheduledDate) {
+        final LocalDate date = DateTimeUtils.stringToLocalDate(scheduledDate);
+        return new ResponseEntity<>(HouseWorkCompleteResponseDto.from(houseWorkService.createHouseWorkComplete(houseWorkId, date)), HttpStatus.CREATED);
+    }
+
+    // TODO : HouseWorkComplete 삭제 api
 
     @Tag(name = "houseWorks")
     @GetMapping("/success/count")
