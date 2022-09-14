@@ -80,7 +80,7 @@ public class HouseWork extends BaseTimeEntity {
         if (repeatEndDate != null && date.isAfter(repeatEndDate)) {
                 return false;
         }
-        return repeatPattern.contains(DateTimeUtils.convertDayOfWeekToKor(date.getDayOfWeek()))
+        return repeatPattern.contains(DateTimeUtils.convertDayOfWeekToEng(date.getDayOfWeek()))
                 && date.isAfter(scheduledDate);
     }
 
