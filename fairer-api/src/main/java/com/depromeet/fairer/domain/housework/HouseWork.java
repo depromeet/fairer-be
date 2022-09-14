@@ -4,11 +4,9 @@ import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.base.BaseTimeEntity;
 import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
-import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.preset.Space;
 import com.depromeet.fairer.domain.repeatexception.RepeatException;
 import com.depromeet.fairer.domain.team.Team;
-import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.util.DateTimeUtils;
 import lombok.*;
 
@@ -65,8 +63,8 @@ public class HouseWork extends BaseTimeEntity {
     @Column(name = "repeat_cycle", columnDefinition = "VARCHAR(30)")
     private  RepeatCycle repeatCycle;
 
-    @Column(name = "repeat_day_of_week", columnDefinition = "VARCHAR(30)")
-    private String repeatDayOfWeek;
+    @Column(name = "repeat_pattern", columnDefinition = "VARCHAR(100)")
+    private String repeatPattern;
 
     @Column(name = "repeat_end_date", columnDefinition = "DATE")
     private LocalDate repeatEndDate; //endDate 당일까지 반복 포함
@@ -77,13 +75,11 @@ public class HouseWork extends BaseTimeEntity {
     @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RepeatException> repeatExceptionList;
 
-    private String rrule;
-
     public boolean isIncludingDate(LocalDate date) {
         if (repeatEndDate != null && date.isAfter(repeatEndDate)) {
                 return false;
         }
-        return repeatDayOfWeek.contains(DateTimeUtils.convertDayOfWeekToKor(date.getDayOfWeek()))
+        return repeatPattern.contains(DateTimeUtils.convertDayOfWeekToEng(date.getDayOfWeek()))
                 && date.isAfter(scheduledDate);
     }
 
