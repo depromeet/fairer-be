@@ -1,11 +1,13 @@
 package com.depromeet.fairer.service.member.oauth;
 
+import com.depromeet.fairer.domain.alarm.Alarm;
 import com.depromeet.fairer.domain.memberToken.MemberToken;
 import com.depromeet.fairer.dto.member.oauth.OAuthAttributes;
 import com.depromeet.fairer.dto.member.oauth.OauthLoginDto;
 import com.depromeet.fairer.dto.member.jwt.ResponseJwtTokenDto;
 import com.depromeet.fairer.dto.member.jwt.TokenDto;
 import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
+import com.depromeet.fairer.repository.alarm.AlarmRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.memberToken.MemberTokenRepository;
 import com.depromeet.fairer.service.member.jwt.TokenProvider;
@@ -35,6 +37,7 @@ public class OauthLoginService {
     private final ModelMapper modelMapper;
     private final MemberRepository memberRepository;
     private final MemberTokenRepository memberTokenRepository;
+    private final AlarmRepository alarmRepository;
 
     public ResponseJwtTokenDto createMemberAndJwt(OauthLoginDto oauthLoginDto) {
         // 소셜 회원 정보 조회
@@ -48,6 +51,7 @@ public class OauthLoginService {
         if (foundMember.isEmpty()) { // 기존 회원 아닐 때
             Member newMember = Member.create(socialUserInfo);
             requestMember = memberRepository.save(newMember);
+            alarmRepository.save(Alarm.create(requestMember));
         } else {
             requestMember = foundMember.get(); // 기존 회원일 때
             if (requestMember.getTeam() != null) {
