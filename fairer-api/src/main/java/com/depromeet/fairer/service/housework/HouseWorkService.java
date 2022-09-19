@@ -117,7 +117,7 @@ public class HouseWorkService {
 
         final RepeatCycle repeatCycle = houseWork.getRepeatCycle();
         if (repeatCycle == RepeatCycle.ONCE) { // 당일 일정일 경우 단순 삭제
-            houseWorkRepository.deleteById(houseWork.getHouseWorkId()); // cascade 옵션으로 houseworkComplete 까지 삭제
+            houseWorkRepository.deleteById(houseWork.getHouseWorkId()); // cascade 옵션으로 houseworkComplete, repeatException 까지 삭제
         } else { // 반복 일정일 경우 정책에 따라 삭제
             if (!houseWork.isIncludingDate(deleteStandardDate)) {
                 throw new InvalidParameterException("요청한 삭제 날짜가 반복 주기에 포함되지 않습니다.");
