@@ -46,7 +46,7 @@ public class HouseWorksCreateRequestDto {
     @ApiModelProperty(value = "집안일 반복 주기", example = "O / D / W / M", notes = "단일: O, 매일: D, 주마다: W, 달마다: M")
     private String repeatCycle;
 
-    @ApiModelProperty(value = "집안일 반복 패턴", example = "once / daily / weekly : monday, sunday / monthly : 31")
+    @ApiModelProperty(value = "집안일 반복 패턴", example = "repeatCycle이 weekly일 경우: monday, sunday / monthly일 경우: 31")
     private String repeatPattern;
 
     public HouseWork toEntity() {

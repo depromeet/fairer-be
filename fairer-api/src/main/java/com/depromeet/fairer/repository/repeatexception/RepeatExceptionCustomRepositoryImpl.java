@@ -7,6 +7,7 @@ import com.querydsl.jpa.JPQLQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.depromeet.fairer.domain.housework.QHouseWork.houseWork;
@@ -21,7 +22,7 @@ public class RepeatExceptionCustomRepositoryImpl implements RepeatExceptionCusto
     public void deleteAfterEndDate(Long houseWorkId) {
         /*final QRepeatException e1 = new QRepeatException("e1");
         factory.delete(e1)
-                .where(e1.eq(
+                .where(e1.in(
                         JPAExpressions
                                 .select(repeatException)
                                 .from(repeatException)
@@ -29,19 +30,21 @@ public class RepeatExceptionCustomRepositoryImpl implements RepeatExceptionCusto
                                 .on(repeatException.houseWork.houseWorkId.eq(houseWorkId)
                                         .and(repeatException.exceptionDate.after(repeatException.houseWork.repeatEndDate))))
                 ).execute();*/
-        final Optional<RepeatException> foundRepeatException = factory.selectFrom(QRepeatException.repeatException)
-                .where(QRepeatException.repeatException.eq(
+        final List<RepeatException> repeatExceptions = factory.selectFrom(repeatException)
+                .where(repeatException.in(
                         JPAExpressions
-                                .selectFrom(QRepeatException.repeatException)
-                                .innerJoin(QRepeatException.repeatException.houseWork, houseWork)
-                                .on(QRepeatException.repeatException.houseWork.houseWorkId.eq(houseWorkId)
-                                        .and(QRepeatException.repeatException.exceptionDate.after(QRepeatException.repeatException.houseWork.repeatEndDate))))).fetch().stream().findFirst();
+                                .selectFrom(repeatException)
+                                .innerJoin(repeatException.houseWork, houseWork)
+                                .on(repeatException.houseWork.houseWorkId.eq(houseWorkId)
+                                        .and(repeatException.exceptionDate.after(repeatException.houseWork.repeatEndDate))))).fetch();
 
         final QRepeatException target = new QRepeatException("target");
-        if (foundRepeatException.isPresent()) {
-            factory.delete(target)
-                    .where(target.eq(foundRepeatException.get()))
-                    .execute();
+        if (repeatExceptions != null) {
+            for (RepeatException repeatException : repeatExceptions) {
+                factory.delete(target)
+                        .where(target.eq(repeatException))
+                        .execute();
+            }
         }
     }
 }
