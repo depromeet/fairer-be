@@ -117,7 +117,7 @@ public class HouseWorkService {
 
         final RepeatCycle repeatCycle = houseWork.getRepeatCycle();
         if (repeatCycle == RepeatCycle.ONCE) { // 당일 일정일 경우 단순 삭제
-            houseWorkRepository.deleteById(houseWork.getHouseWorkId()); // cascade 옵션으로 houseworkComplete, repeatException 까지 삭제
+            deleteAllHouseWork(houseWorkId);
         } else { // 반복 일정일 경우 정책에 따라 삭제
             if (!houseWork.isIncludingDate(deleteStandardDate)) {
                 throw new InvalidParameterException("요청한 삭제 날짜가 반복 주기에 포함되지 않습니다.");
@@ -127,7 +127,7 @@ public class HouseWorkService {
                     deleteAllHouseWork(houseWorkId);
                     break;
                 case HEREAFTER: // 해당 반복 일정 중 오늘 포함 이후 삭제
-                    houseWork.updateRepeatEndDateByCycle(deleteStandardDate);
+                    houseWork.deleteRepeatEndDateByCycle(deleteStandardDate);
                     repeatExceptionRepository.deleteAfterEndDate(houseWorkId);
                     break;
                 case ONLY: // 해당 반복 일정 중 오늘만 삭제
@@ -141,7 +141,6 @@ public class HouseWorkService {
     private void deleteAllHouseWork(Long houseWorkId) {
         houseWorkRepository.deleteById(houseWorkId);
         assignmentRepository.deleteAllByHouseworkId(houseWorkId);
-        //houseWorkCompleteRepository.deleteAllByHouseworkId(houseWorkId);
     }
 
     public HouseWork findWithTeam(Long houseWorkId) {
