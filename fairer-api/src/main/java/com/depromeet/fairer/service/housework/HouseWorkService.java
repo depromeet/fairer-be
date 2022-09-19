@@ -127,7 +127,7 @@ public class HouseWorkService {
                     break;
                 case HEREAFTER: // 해당 반복 일정 중 오늘 포함 이후 삭제
                     houseWork.deleteRepeatEndDateByCycle(deleteStandardDate);
-                    repeatExceptionRepository.deleteAfterEndDate(houseWorkId);
+                    repeatExceptionRepository.deleteAfterStandardDate(houseWorkId, deleteStandardDate);
                     break;
                 case ONLY: // 해당 반복 일정 중 오늘만 삭제
                     repeatExceptionRepository.save(RepeatException.create(houseWork, deleteStandardDate));
