@@ -40,23 +40,23 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
         return new ArrayList<>(jpaQueryFactory.selectFrom(houseWork)
                 .innerJoin(houseWork.assignments, assignment)
                 .innerJoin(assignment.member, member)
-                .where(((houseWork.rrule.contains("ONCE")
+                .where(((houseWork.repeatPattern.contains("ONCE")
                         .and(houseWork.scheduledDate.between(fromDate, toDate)))
                         .and(member.memberId.eq(memberId)))
 
-                        .or((houseWork.rrule.contains("EVERY")
+                        .or((houseWork.repeatPattern.contains("EVERY")
                                 .and(houseWork.scheduledDate.loe(toDate))
-                                .and(houseWork.repeatEndDate.goe(fromDate)))
+                                .and(houseWork.repeatEndDate.goe(fromDate)).or(houseWork.repeatEndDate.isNull()))
                                 .and(member.memberId.eq(memberId)))
 
-                        .or((houseWork.rrule.contains("WEEKLY")
+                        .or((houseWork.repeatPattern.contains("WEEKLY")
                                 .and(houseWork.scheduledDate.loe(toDate))
-                                .and(houseWork.repeatEndDate.goe(fromDate)))
+                                .and(houseWork.repeatEndDate.goe(fromDate)).or(houseWork.repeatEndDate.isNull()))
                                 .and(member.memberId.eq(memberId)))
 
-                        .or((houseWork.rrule.contains("MONTHLY")
+                        .or((houseWork.repeatPattern.contains("MONTHLY")
                                 .and(houseWork.scheduledDate.loe(toDate))
-                                .and(houseWork.repeatEndDate.goe(fromDate)))
+                                .and(houseWork.repeatEndDate.goe(fromDate)).or(houseWork.repeatEndDate.isNull()))
                                 .and(member.memberId.eq(memberId)))
                 )
                 .fetch());
@@ -66,25 +66,25 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
     public List<HouseWork> getCycleHouseWorkByTeam(LocalDate fromDate, LocalDate toDate, Team team) {
 
         return new ArrayList<>(jpaQueryFactory.selectFrom(houseWork)
-                .where(((houseWork.rrule.contains("ONCE")
+                .where(((houseWork.repeatPattern.contains("ONCE")
                         .and(houseWork.scheduledDate.between(fromDate, toDate)))
                         .and(houseWork.team.eq(team)))
 
-                        .or((houseWork.rrule.contains("EVERY")
+                        .or((houseWork.repeatPattern.contains("EVERY")
                                 .and(houseWork.scheduledDate.loe(toDate))
-                                .and(houseWork.repeatEndDate.goe(fromDate)))
+                                .and((houseWork.repeatEndDate.goe(fromDate)).or(houseWork.repeatEndDate.isNull()))
                                 .and(houseWork.team.eq(team)))
 
-                        .or((houseWork.rrule.contains("WEEKLY")
+                        .or((houseWork.repeatPattern.contains("WEEKLY")
                                 .and(houseWork.scheduledDate.loe(toDate))
-                                .and(houseWork.repeatEndDate.goe(fromDate)))
+                                .and(houseWork.repeatEndDate.goe(fromDate).or(houseWork.repeatEndDate.isNull())))
                                 .and(houseWork.team.eq(team)))
 
-                        .or((houseWork.rrule.contains("MONTHLY")
+                        .or((houseWork.repeatPattern.contains("MONTHLY")
                                 .and(houseWork.scheduledDate.loe(toDate))
-                                .and(houseWork.repeatEndDate.goe(fromDate)))
+                                .and(houseWork.repeatEndDate.goe(fromDate).or(houseWork.repeatEndDate.isNull())))
                                 .and(houseWork.team.eq(team)))
-                )
+                ))
                 .fetch());
     }
 

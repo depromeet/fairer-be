@@ -221,7 +221,7 @@ public class HouseWorkController {
         }).collect(Collectors.groupingBy(HouseWorkResponseDto::getScheduledDate, HashMap::new, Collectors.toCollection(ArrayList::new)));
     }
 
-    // rrule 추가
+    // repeat pattern 추가
     private Map<LocalDate, List<HouseWorkResponseDto>> getHouseWorkListGroupByScheduledDateRrule(List<HouseWork> houseWorkList, LocalDate fromDate, LocalDate toDate) {
 
         Map<LocalDate, List<HouseWorkResponseDto>> result = new HashMap<>();
@@ -230,20 +230,20 @@ public class HouseWorkController {
                     List<HouseWorkResponseDto> houseWorkResponseDtos = new ArrayList<>();
                     for(HouseWork houseWork : houseWorkList) {
                         if (periodCheck(date, houseWork)) {
-                            List<String> repeatRule = parsing(houseWork.getRrule());
+                            List<String> repeatPattern = parsing(houseWork.getRepeatPattern());
 
-                            if (repeatRule.get(0).equals("ONCE")) {
-                                if (DateTimeUtils.stringToLocalDate(repeatRule.get(1)).equals(date)) {
+                            if (repeatPattern.get(0).equals("ONCE")) {
+                                if (houseWork.getScheduledDate().equals(date)) {
                                     houseWorkResponseDtos.add(getRepeatHouseWorkResponseDto(houseWork, date));
                                 }
-                            } else if (repeatRule.get(0).equals("EVERY") && !exceptionCheck(houseWork, date)) {
+                            } else if (repeatPattern.get(0).equals("EVERY") && !exceptionCheck(houseWork, date)) {
                                 houseWorkResponseDtos.add(getRepeatHouseWorkResponseDto(houseWork, date));
-                            } else if (repeatRule.get(0).equals("WEEKLY") && !exceptionCheck(houseWork, date)) {
-                                if (repeatRule.get(1).contains(date.getDayOfWeek().toString())){
+                            } else if (repeatPattern.get(0).equals("WEEKLY") && !exceptionCheck(houseWork, date)) {
+                                if (repeatPattern.get(1).contains(date.getDayOfWeek().toString())){
                                     houseWorkResponseDtos.add(getRepeatHouseWorkResponseDto(houseWork, date));
                                 }
-                            } else if (repeatRule.get(0).equals("MONTHLY") && !exceptionCheck(houseWork, date)) {
-                                if (Integer.parseInt(repeatRule.get(1)) == (date.getDayOfMonth())) {
+                            } else if (repeatPattern.get(0).equals("MONTHLY") && !exceptionCheck(houseWork, date)) {
+                                if (Integer.parseInt(repeatPattern.get(1)) == (date.getDayOfMonth())) {
                                     houseWorkResponseDtos.add(getRepeatHouseWorkResponseDto(houseWork, date));
                                 }
                             }
@@ -256,8 +256,8 @@ public class HouseWorkController {
         return result;
     }
 
-    public List<String> parsing(String rrule){
-        StringTokenizer st = new StringTokenizer(rrule, ":");
+    public List<String> parsing(String repeatPattern){
+        StringTokenizer st = new StringTokenizer(repeatPattern, ":");
 
         List<String> res = new ArrayList<>();
         while(st.hasMoreTokens()) {res.add(st.nextToken());}
@@ -266,8 +266,12 @@ public class HouseWorkController {
 
     // 조회 기간 내 해당하는지
     public boolean periodCheck(LocalDate date, HouseWork houseWork){
-        return (date.isAfter(houseWork.getScheduledDate()) || date.equals(houseWork.getScheduledDate()))
-                && (date.isBefore(houseWork.getRepeatEndDate()) || date.equals(houseWork.getRepeatEndDate()));
+        if(houseWork.getRepeatEndDate() == null){
+            return date.isAfter(houseWork.getScheduledDate());
+        }else{
+            return (date.isAfter(houseWork.getScheduledDate()) || date.equals(houseWork.getScheduledDate()))
+                    && (date.isBefore(houseWork.getRepeatEndDate()) || date.equals(houseWork.getRepeatEndDate()));
+        }
     }
 
     // true -> 삭제된 집안일

@@ -55,7 +55,7 @@ public class HouseWorkUpdateRequestDto {
                 .houseWorkName(houseWorkName)
                 .scheduledDate(scheduledDate)
                 .scheduledTime(scheduledTime)
-                .repeatDayOfWeek(repeatDayOfWeek)
+                //.repeatDayOfWeek(repeatDayOfWeek)
                 .repeatCycle(RepeatCycle.of(repeatCycle))
                 .success(false)
                 .successDateTime(null)
