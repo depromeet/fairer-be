@@ -64,8 +64,8 @@ public class HouseWork extends BaseTimeEntity {
     @Column(name = "repeat_cycle", columnDefinition = "VARCHAR(30)")
     private  RepeatCycle repeatCycle;
 
-    @Column(name = "repeat_day_of_week", columnDefinition = "VARCHAR(30)")
-    private String repeatDayOfWeek;
+    @Column(name = "repeat_pattern", columnDefinition = "VARCHAR(100)")
+    private String repeatPattern;
 
     @Column(name = "repeat_end_date", columnDefinition = "DATE")
     private LocalDate repeatEndDate; //endDate 당일까지 반복 포함
@@ -76,13 +76,11 @@ public class HouseWork extends BaseTimeEntity {
     @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RepeatException> repeatExceptionList;
 
-    private String rrule;
-
     public boolean isIncludingDate(LocalDate date) {
         if (repeatEndDate != null && date.isAfter(repeatEndDate)) {
                 return false;
         }
-        return repeatDayOfWeek.contains(DateTimeUtils.convertDayOfWeekToKor(date.getDayOfWeek()))
+        return repeatPattern.contains(DateTimeUtils.convertDayOfWeekToKor(date.getDayOfWeek()))
                 && date.isAfter(scheduledDate);
     }
 
