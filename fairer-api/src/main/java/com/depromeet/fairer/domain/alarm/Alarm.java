@@ -20,7 +20,7 @@ public class Alarm extends BaseTimeEntity {
     @Column(name = "alarm_id", columnDefinition = "BIGINT", nullable = false, unique = true)
     private Long alarmId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 

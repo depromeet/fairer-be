@@ -5,17 +5,17 @@ import com.depromeet.fairer.domain.alarm.Alarm;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.dto.alarm.request.AlarmRequestDto;
 import com.depromeet.fairer.dto.alarm.response.AlarmResponseDto;
-import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.repository.alarm.AlarmRepository;
-import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final MemberService memberService;
