@@ -79,12 +79,21 @@ public class HouseWork extends BaseTimeEntity {
         if (repeatEndDate != null && date.isAfter(repeatEndDate)) {
                 return false;
         }
-        return repeatPattern.contains(DateTimeUtils.convertDayOfWeekToEng(date.getDayOfWeek()))
-                && date.isAfter(scheduledDate);
+        boolean result = true;
+        if (repeatCycle == RepeatCycle.WEEKLY) {
+            result = repeatPattern.contains(DateTimeUtils.convertDayOfWeekToEng(date.getDayOfWeek()));
+        } else if (repeatCycle == RepeatCycle.MONTHLY) {
+            result = Integer.parseInt(repeatPattern.replaceAll("[^0-9]", "")) == date.getDayOfMonth();
+        } /*else if (repeatCycle == RepeatCycle.DAILY) {
+            return date.isEqual(scheduledDate) || date.isAfter(scheduledDate);
+        } else if (repeatCycle == RepeatCycle.ONCE) {
+            return date.isEqual(scheduledDate) || date.isAfter(scheduledDate);
+        }*/
+        return result && (date.isEqual(scheduledDate) || date.isAfter(scheduledDate));
     }
 
     public void updateRepeatEndDateByCycle(LocalDate deleteStandardDate) {
-        if (repeatCycle == RepeatCycle.EVERY) {
+        if (repeatCycle == RepeatCycle.DAILY) {
             repeatEndDate = deleteStandardDate.minusDays(1);
         } else if (repeatCycle == RepeatCycle.WEEKLY) {
             repeatEndDate = deleteStandardDate.minusWeeks(1);
