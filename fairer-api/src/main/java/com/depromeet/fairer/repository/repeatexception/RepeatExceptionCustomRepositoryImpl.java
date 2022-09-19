@@ -7,6 +7,7 @@ import com.querydsl.jpa.JPQLQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,32 +20,11 @@ public class RepeatExceptionCustomRepositoryImpl implements RepeatExceptionCusto
     private final JPQLQueryFactory factory;
 
     @Override
-    public void deleteAfterEndDate(Long houseWorkId) {
-        /*final QRepeatException e1 = new QRepeatException("e1");
-        factory.delete(e1)
-                .where(e1.in(
-                        JPAExpressions
-                                .select(repeatException)
-                                .from(repeatException)
-                                .innerJoin(repeatException.houseWork, houseWork)
-                                .on(repeatException.houseWork.houseWorkId.eq(houseWorkId)
-                                        .and(repeatException.exceptionDate.after(repeatException.houseWork.repeatEndDate))))
-                ).execute();*/
-        final List<RepeatException> repeatExceptions = factory.selectFrom(repeatException)
-                .where(repeatException.in(
-                        JPAExpressions
-                                .selectFrom(repeatException)
-                                .innerJoin(repeatException.houseWork, houseWork)
-                                .on(repeatException.houseWork.houseWorkId.eq(houseWorkId)
-                                        .and(repeatException.exceptionDate.after(repeatException.houseWork.repeatEndDate))))).fetch();
-
-        final QRepeatException target = new QRepeatException("target");
-        if (repeatExceptions != null) {
-            for (RepeatException repeatException : repeatExceptions) {
-                factory.delete(target)
-                        .where(target.eq(repeatException))
-                        .execute();
-            }
-        }
+    public void deleteAfterStandardDate(Long houseWorkId, LocalDate deleteStandardDate) {
+        final QRepeatException qRepeatException = new QRepeatException("e1");
+        factory.delete(qRepeatException)
+                .where(qRepeatException.houseWork.houseWorkId.eq(houseWorkId)
+                        .and(qRepeatException.exceptionDate.goe(deleteStandardDate)))
+                .execute();
     }
 }
