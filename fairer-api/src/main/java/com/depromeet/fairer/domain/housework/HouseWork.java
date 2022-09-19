@@ -84,7 +84,7 @@ public class HouseWork extends BaseTimeEntity {
         if (repeatCycle == RepeatCycle.WEEKLY) {
             result = repeatPattern.contains(DateTimeUtils.convertDayOfWeekToEng(date.getDayOfWeek()));
         } else if (repeatCycle == RepeatCycle.MONTHLY) {
-            result = Integer.parseInt(repeatPattern.replaceAll("[^0-9]", "")) == date.getDayOfMonth();
+            result = Integer.parseInt(repeatPattern) == date.getDayOfMonth();
         } /*else if (repeatCycle == RepeatCycle.DAILY) {
             return date.isEqual(scheduledDate) || date.isAfter(scheduledDate);
         } else if (repeatCycle == RepeatCycle.ONCE) {
@@ -93,13 +93,7 @@ public class HouseWork extends BaseTimeEntity {
         return result && (date.isEqual(scheduledDate) || date.isAfter(scheduledDate));
     }
 
-    public void updateRepeatEndDateByCycle(LocalDate deleteStandardDate) {
-        if (repeatCycle == RepeatCycle.DAILY) {
-            repeatEndDate = deleteStandardDate.minusDays(1);
-        } else if (repeatCycle == RepeatCycle.WEEKLY) {
-            repeatEndDate = deleteStandardDate.minusWeeks(1);
-        } else if (repeatCycle == RepeatCycle.MONTHLY) {
-            repeatEndDate = deleteStandardDate.minusMonths(1);
-        }
+    public void deleteRepeatEndDateByCycle(LocalDate deleteStandardDate) {
+        repeatEndDate = deleteStandardDate.minusDays(1);
     }
 }
