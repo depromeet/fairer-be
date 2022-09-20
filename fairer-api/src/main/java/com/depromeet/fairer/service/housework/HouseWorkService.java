@@ -169,17 +169,18 @@ public class HouseWorkService {
         return houseWorkRepository.findAllByScheduledDateBetweenAndAssignmentsIn(fromDate, toDate, assignmentList);
     }
 
-    // 1명 집안일 조회 - 반복 기능 구현 후
-    public List<HouseWork> getHouseWorkByDateRepeat(Member member, LocalDate fromDate, LocalDate toDate) {
-        return houseWorkRepository.getCycleHouseWork(fromDate, toDate, member.getMemberId());
-    }
-
     public List<HouseWork> getHouseWorkByDateAndTeam(Team team, LocalDate fromDate, LocalDate toDate) {
         return houseWorkRepository.findAllByScheduledDateBetweenAndTeam(fromDate, toDate, team);
     }
 
-    public List<HouseWork> getHouseWorkByDateAndTeamRepeat(Team team, LocalDate from, LocalDate to) {
-        return houseWorkRepository.getCycleHouseWorkByTeam(from, to, team);
+    // 1명 집안일 조회 - 쿼리
+    public List<Object[]> getHouseWorkByDateRepeatQuery(Member member, LocalDate date) {
+        return houseWorkRepository.getCycleHouseWorkQuery(date, member.getMemberId());
+    }
+
+    // 팀 집안일 조회 - 쿼리
+    public List<Object[]> getHouseWorkByDateRepeatTeamQuery(Team team, LocalDate date) {
+        return houseWorkRepository.getCycleHouseWorkByTeamQuery(date, team);
     }
 
     public HouseWorkResponseDto getHouseWorkDetail(Long houseWorkId) {
@@ -213,11 +214,4 @@ public class HouseWorkService {
         return complete;
     }
 
-    public boolean getHouseWorkCompleted(Long houseWorkId, LocalDate scheduledDate) {
-        return houseWorkRepository.getHouseWorkCompleted(houseWorkId, scheduledDate).isPresent();
-    }
-
-    public boolean exceptionCheck(HouseWork houseWork, LocalDate date) {
-        return houseWorkRepository.exceptionCheck(houseWork.getHouseWorkId(), date).isPresent();
-    }
 }

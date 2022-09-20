@@ -26,9 +26,4 @@ public interface HouseWorkRepository extends JpaRepository<HouseWork, Long>, Hou
     @EntityGraph(attributePaths = {"team"})
     Optional<HouseWork> findWithTeamByHouseWorkId(Long houseWorkId);
 
-    @Query("select hc from HouseworkComplete hc where hc.houseWork.houseWorkId =:houseWorkId and hc.scheduledDate =:date")
-    Optional<HouseworkComplete> getHouseWorkCompleted(@Param("houseWorkId")Long houseWorkId, @Param("date") LocalDate scheduledDate);
-
-    @Query("select re from RepeatException re where re.houseWork.houseWorkId =:houseWorkId and re.exceptionDate =:date")
-    Optional<RepeatException> exceptionCheck(@Param("houseWorkId") Long houseWorkId, @Param("date") LocalDate date);
 }
