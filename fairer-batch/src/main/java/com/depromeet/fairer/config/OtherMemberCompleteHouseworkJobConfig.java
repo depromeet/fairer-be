@@ -1,9 +1,6 @@
 package com.depromeet.fairer.config;
 
-import com.depromeet.fairer.domain.command.FCMMessageRequest;
-import com.depromeet.fairer.domain.command.FCMMessageResponse;
-import com.depromeet.fairer.domain.command.FCMMessageTemplate;
-import com.depromeet.fairer.domain.command.NotCompleteHouseworkRemindCommand;
+import com.depromeet.fairer.domain.command.*;
 import com.depromeet.fairer.domain.config.DomainConfigurationProperties;
 import com.depromeet.fairer.domain.config.RestTemplateFactory;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +28,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class NotCompleteHouseworkRemindJobConfig {
+public class OtherMemberCompleteHouseworkJobConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
@@ -39,47 +36,47 @@ public class NotCompleteHouseworkRemindJobConfig {
     private static final RestTemplate restTemplate = RestTemplateFactory.getRestTemplate();
 
     @Bean
-    public Job notCompleteHouseworkRemindJob() {
-        return jobBuilderFactory.get("NotCompleteHouseworkRemindJob")
-                .start(notCompleteHouseworkRemindStep())
+    public Job otherMemberCompleteHouseworkJob() {
+        return jobBuilderFactory.get("OtherMemberCompleteHouseworkJob")
+                .start(otherMemberCompleteHouseworkStep())
                 .preventRestart()
                 .build();
     }
 
     @Bean
     @JobScope
-    public Step notCompleteHouseworkRemindStep() {
-        return stepBuilderFactory.get("NotCompleteHouseworkRemindStep")
-                .<NotCompleteHouseworkRemindCommand, NotCompleteHouseworkRemindCommand>chunk(1)
-                .reader(notCompleteHouseworkRemindReader())
-                .writer(notCompleteHouseworkRemindWriter())
+    public Step otherMemberCompleteHouseworkStep() {
+        return stepBuilderFactory.get("OtherMemberCompleteHouseworkStep")
+                .<OtherMemberCompleteHouseworkCommand, OtherMemberCompleteHouseworkCommand>chunk(1)
+                .reader(otherMemberCompleteHouseworkReader())
+                .writer(otherMemberCompleteHouseworkWriter())
                 .build();
     }
 
     @Bean
     @StepScope
-    public JdbcCursorItemReader<NotCompleteHouseworkRemindCommand> notCompleteHouseworkRemindReader() {
+    public JdbcCursorItemReader<OtherMemberCompleteHouseworkCommand> otherMemberCompleteHouseworkReader() {
         LocalDate now = LocalDate.now();
-        return new JdbcCursorItemReaderBuilder<NotCompleteHouseworkRemindCommand>()
-                .name("NotCompleteHouseworkRemindReader")
+        return new JdbcCursorItemReaderBuilder<OtherMemberCompleteHouseworkCommand>()
+                .name("OtherMemberCompleteHouseworkReader")
                 .fetchSize(1)
                 .dataSource(dataSource)
-                .rowMapper(new BeanPropertyRowMapper<>(NotCompleteHouseworkRemindCommand.class))
-                .sql("SELECT assignment.member_id as memberId, COUNT(*) AS totalCount, housework.housework_name as houseworkName\n" +
-                        "FROM assignment INNER JOIN housework INNER JOIN alarm\n" +
-                        "ON assignment.housework_id=housework.housework_id AND alarm.member_id=assignment.member_id\n" +
-                        "WHERE housework.success=0 AND housework.scheduled_date=? AND alarm.not_complete_status=1\n" +
-                        "GROUP BY assignment.member_id")
-                .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}))
+                .rowMapper(new BeanPropertyRowMapper<>(OtherMemberCompleteHouseworkCommand.class))
+                .sql("SELECT m1.member_id as member_id, m2.member_name as teamMemberName, COUNT(*) as count\n" +
+                        "FROM member m1, member m2, assignment a, housework h WHERE h.housework_id=a.housework_id AND a.member_id=m2.member_id\n" +
+                        "AND h.team_id=m1.team_id AND scheduled_date=? AND success=1 AND m1.member_id!=m2.member_id\n" +
+                        "GROUP BY m1.member_id, m2.member_id, m2.member_name\n" +
+                        "HAVING COUNT(*)>=1")
+                .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{now.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}))
                 .saveState(false)
                 .build();
     }
 
     @Bean
     @StepScope
-    public ItemWriter<NotCompleteHouseworkRemindCommand> notCompleteHouseworkRemindWriter() {
+    public ItemWriter<OtherMemberCompleteHouseworkCommand> otherMemberCompleteHouseworkWriter() {
         return items -> {
-            for(NotCompleteHouseworkRemindCommand item : items) {
+            for(OtherMemberCompleteHouseworkCommand item : items) {
                 String uri = UriComponentsBuilder.fromHttpUrl(properties.getApiUrl())
                         .path("/api/fcm/message")
                         .encode().build().toString();
@@ -89,10 +86,10 @@ public class NotCompleteHouseworkRemindJobConfig {
         };
     }
 
-    private FCMMessageRequest getFCMMessageRequest(NotCompleteHouseworkRemindCommand command) {
+    private FCMMessageRequest getFCMMessageRequest(OtherMemberCompleteHouseworkCommand command) {
         Long memberId = command.getMemberId();
-        String title = String.format(FCMMessageTemplate.NOT_COMPLETE_HOUSEWORK.getTitle(), command.getTotalCount());
-        String body = String.format(FCMMessageTemplate.NOT_COMPLETE_HOUSEWORK.getBody(), command.getHouseworkName());
+        String title = String.format(FCMMessageTemplate.OTHER_MEMBER_COMPLETE_HOUSEWORK.getTitle(), command.getTeamMemberName());
+        String body = String.format(FCMMessageTemplate.OTHER_MEMBER_COMPLETE_HOUSEWORK.getBody(), command.getTeamMemberName());
         return FCMMessageRequest.of(memberId, title, body);
     }
 }

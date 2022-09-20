@@ -1,9 +1,6 @@
 package com.depromeet.fairer.config;
 
-import com.depromeet.fairer.domain.command.FCMMessageRequest;
-import com.depromeet.fairer.domain.command.FCMMessageResponse;
-import com.depromeet.fairer.domain.command.FCMMessageTemplate;
-import com.depromeet.fairer.domain.command.NotCompleteHouseworkRemindCommand;
+import com.depromeet.fairer.domain.command.*;
 import com.depromeet.fairer.domain.config.DomainConfigurationProperties;
 import com.depromeet.fairer.domain.config.RestTemplateFactory;
 import lombok.RequiredArgsConstructor;
@@ -19,19 +16,21 @@ import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class NotCompleteHouseworkRemindJobConfig {
+public class DoHouseworkJobConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
@@ -39,47 +38,47 @@ public class NotCompleteHouseworkRemindJobConfig {
     private static final RestTemplate restTemplate = RestTemplateFactory.getRestTemplate();
 
     @Bean
-    public Job notCompleteHouseworkRemindJob() {
-        return jobBuilderFactory.get("NotCompleteHouseworkRemindJob")
-                .start(notCompleteHouseworkRemindStep())
+    public Job doHouseworkJob() {
+        return jobBuilderFactory.get("DoHouseworkJob")
+                .start(doHouseworkStep())
                 .preventRestart()
                 .build();
     }
 
     @Bean
     @JobScope
-    public Step notCompleteHouseworkRemindStep() {
-        return stepBuilderFactory.get("NotCompleteHouseworkRemindStep")
-                .<NotCompleteHouseworkRemindCommand, NotCompleteHouseworkRemindCommand>chunk(1)
-                .reader(notCompleteHouseworkRemindReader())
-                .writer(notCompleteHouseworkRemindWriter())
+    public Step doHouseworkStep() {
+        return stepBuilderFactory.get("DoHouseworkStep")
+                .<DoHouseworkCommand, DoHouseworkCommand>chunk(1)
+                .reader(doHouseworkReader())
+                .writer(doHouseworkWriter())
                 .build();
     }
 
     @Bean
     @StepScope
-    public JdbcCursorItemReader<NotCompleteHouseworkRemindCommand> notCompleteHouseworkRemindReader() {
-        LocalDate now = LocalDate.now();
-        return new JdbcCursorItemReaderBuilder<NotCompleteHouseworkRemindCommand>()
-                .name("NotCompleteHouseworkRemindReader")
+    public JdbcCursorItemReader<DoHouseworkCommand> doHouseworkReader() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime base = now.minusMinutes(now.getMinute()%10);
+        return new JdbcCursorItemReaderBuilder<DoHouseworkCommand>()
+                .name("DoHouseworkReader")
                 .fetchSize(1)
                 .dataSource(dataSource)
-                .rowMapper(new BeanPropertyRowMapper<>(NotCompleteHouseworkRemindCommand.class))
-                .sql("SELECT assignment.member_id as memberId, COUNT(*) AS totalCount, housework.housework_name as houseworkName\n" +
+                .rowMapper(new BeanPropertyRowMapper<>(DoHouseworkCommand.class))
+                .sql("SELECT assignment.member_id, housework.housework_id, housework.scheduled_time\n" +
                         "FROM assignment INNER JOIN housework INNER JOIN alarm\n" +
                         "ON assignment.housework_id=housework.housework_id AND alarm.member_id=assignment.member_id\n" +
-                        "WHERE housework.success=0 AND housework.scheduled_date=? AND alarm.not_complete_status=1\n" +
-                        "GROUP BY assignment.member_id")
-                .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}))
+                        "WHERE housework.scheduled_date=? AND housework.scheduled_time=? AND alarm.scheduled_time_status=1")
+                .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{base.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), base.format(DateTimeFormatter.ofPattern("HH:mm:00"))}))
                 .saveState(false)
                 .build();
     }
 
     @Bean
     @StepScope
-    public ItemWriter<NotCompleteHouseworkRemindCommand> notCompleteHouseworkRemindWriter() {
+    public ItemWriter<DoHouseworkCommand> doHouseworkWriter() {
         return items -> {
-            for(NotCompleteHouseworkRemindCommand item : items) {
+            for(DoHouseworkCommand item : items) {
                 String uri = UriComponentsBuilder.fromHttpUrl(properties.getApiUrl())
                         .path("/api/fcm/message")
                         .encode().build().toString();
@@ -89,10 +88,10 @@ public class NotCompleteHouseworkRemindJobConfig {
         };
     }
 
-    private FCMMessageRequest getFCMMessageRequest(NotCompleteHouseworkRemindCommand command) {
+    private FCMMessageRequest getFCMMessageRequest(DoHouseworkCommand command) {
         Long memberId = command.getMemberId();
-        String title = String.format(FCMMessageTemplate.NOT_COMPLETE_HOUSEWORK.getTitle(), command.getTotalCount());
-        String body = String.format(FCMMessageTemplate.NOT_COMPLETE_HOUSEWORK.getBody(), command.getHouseworkName());
+        String title = String.format(FCMMessageTemplate.DO_HOUSEWORK.getTitle(), command.getHouseworkName());
+        String body = String.format(FCMMessageTemplate.DO_HOUSEWORK.getBody(), command.getScheduledTime().format(DateTimeFormatter.ofPattern("a hh시 mm분")), command.getScheduledTime().get(ChronoField.CLOCK_HOUR_OF_AMPM), command.getScheduledTime().get(ChronoField.MINUTE_OF_HOUR));
         return FCMMessageRequest.of(memberId, title, body);
     }
 }

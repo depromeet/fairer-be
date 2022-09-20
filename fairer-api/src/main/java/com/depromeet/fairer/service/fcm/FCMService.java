@@ -26,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -50,6 +51,10 @@ public class FCMService {
     public FCMMessageResponse sendMessage(FCMMessageRequest fcmMessageRequest) {
         Member member = memberRepository.findById(fcmMessageRequest.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("memberId에 해당하는 회원을 찾지 못했습니다."));
+
+        if(Objects.isNull(member.getFcmToken())) {
+            throw new FairerException("FCM Token이 null 입니다. member id : " + member.getMemberId());
+        }
 
         FCMSendRequest fcmSendRequest = createMessage(member.getFcmToken(), fcmMessageRequest.getTitle(), fcmMessageRequest.getBody());
         String body = convertFCMSendRequestToString(fcmSendRequest);
