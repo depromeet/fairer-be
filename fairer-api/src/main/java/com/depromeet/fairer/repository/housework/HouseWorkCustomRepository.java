@@ -8,7 +8,7 @@ import java.util.List;
 public interface HouseWorkCustomRepository {
     Long getHouseWorkSuccessCount(Long memberId, LocalDate startDate, LocalDate endDate);
 
-    List<HouseWork> getCycleHouseWork(LocalDate fromDate, LocalDate toDate, Long memberId);
+    List<Object[]> getCycleHouseWorkQuery(LocalDate date, Long memberId);
 
-    List<HouseWork> getCycleHouseWorkByTeam(LocalDate from, LocalDate to, Team team);
+    List<Object[]> getCycleHouseWorkByTeamQuery(LocalDate date, Team team);
 }
