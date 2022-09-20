@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class InduceAddHouseworkCommand {
     private Long memberId;
-    private String teamName;
+    private String lastDate;
 }
