@@ -43,11 +43,11 @@ public class HouseWorksCreateRequestDto {
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     private LocalTime scheduledTime;
 
-    @ApiModelProperty(value = "집안일 반복 주기", example = "O / E / W / M", notes = "단일: O, 매일: E, 주마다: W, 달마다: M")
+    @ApiModelProperty(value = "집안일 반복 주기", example = "O / D / W / M", notes = "단일: O, 매일: D, 주마다: W, 달마다: M")
     private String repeatCycle;
 
-    @ApiModelProperty(value = "집안일 반복 요일", example = "월수")
-    private String repeatDayOfWeek;
+    @ApiModelProperty(value = "집안일 반복 패턴", example = "repeatCycle이 weekly일 경우: monday, sunday / monthly일 경우: 31")
+    private String repeatPattern;
 
     public HouseWork toEntity() {
         return HouseWork.builder()
@@ -55,7 +55,7 @@ public class HouseWorksCreateRequestDto {
                 .houseWorkName(houseWorkName)
                 .scheduledDate(scheduledDate)
                 .scheduledTime(scheduledTime)
-                .repeatDayOfWeek(repeatDayOfWeek)
+                .repeatPattern(repeatPattern)
                 .repeatCycle(RepeatCycle.of(repeatCycle))
                 .success(false)
                 .successDateTime(null)

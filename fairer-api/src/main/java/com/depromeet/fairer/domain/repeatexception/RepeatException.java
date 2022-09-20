@@ -3,6 +3,7 @@ package com.depromeet.fairer.domain.repeatexception;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "repeat_exception")
 @Builder
+@Getter
 @NoArgsConstructor @AllArgsConstructor
 public class RepeatException {
 
