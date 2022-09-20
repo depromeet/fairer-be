@@ -76,4 +76,17 @@ public class HouseWorkResponseDto {
                 .success(houseWork.getSuccess())
                 .build();
     }
+
+    public static HouseWorkResponseDto from(HouseWork houseWork, List<MemberDto> memberDtoList, LocalDate date, boolean success) {
+        return new HouseWorkResponseDtoBuilder()
+                .houseWorkId(houseWork.getHouseWorkId())
+                .space(houseWork.getSpace())
+                .houseWorkName(houseWork.getHouseWorkName())
+                .assignees(memberDtoList)
+                .scheduledDate(date)
+                .scheduledTime(houseWork.getScheduledTime())
+                .successDateTime(houseWork.getSuccessDateTime())
+                .success(success)
+                .build();
+    }
 }

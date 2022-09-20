@@ -85,7 +85,7 @@ public class HouseWork extends BaseTimeEntity {
     }
 
     public void updateRepeatEndDateByCycle(LocalDate deleteStandardDate) {
-        if (repeatCycle == RepeatCycle.EVERY) {
+        if (repeatCycle == RepeatCycle.DAILY) {
             repeatEndDate = deleteStandardDate.minusDays(1);
         } else if (repeatCycle == RepeatCycle.WEEKLY) {
             repeatEndDate = deleteStandardDate.minusWeeks(1);
