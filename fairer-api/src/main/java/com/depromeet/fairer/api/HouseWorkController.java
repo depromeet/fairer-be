@@ -167,9 +167,7 @@ public class HouseWorkController {
 
                     }).collect(Collectors.toList());
 
-                    if(!houseWorkResponseDtoList.isEmpty()) {
-                        results.put(date, houseWorkResponseDtoList);
-                    }
+                    results.put(date, houseWorkResponseDtoList);
                 });
 
         return ResponseEntity.ok(makeHouseWorkListResponse(teamMemberId, results));
@@ -215,9 +213,7 @@ public class HouseWorkController {
                         return HouseWorkResponseDto.from(((HouseWork) arr[0]), memberDtoList, date, ((boolean) arr[1]));
                     }).collect(Collectors.toList());
 
-                    if(!houseWorkResponseDtoList.isEmpty()) {
-                        results.put(date, houseWorkResponseDtoList);
-                    }
+                    results.put(date, houseWorkResponseDtoList);
                 });
 
         return ResponseEntity.ok(makeHouseWorkListResponse(memberId, results));
