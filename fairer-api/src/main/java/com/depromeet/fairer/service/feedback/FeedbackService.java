@@ -66,13 +66,15 @@ public class FeedbackService {
     }
 
     public Feedback modify(Long feedbackId, String comment, Integer emoji) {
-        Feedback feedback = feedbackRepository.findById(feedbackId).orElseThrow(() -> {
-            throw new BadRequestException("요청한 피드백은 존재하지 않습니다.");
-        });
+        Feedback feedback = findFeedbackOrThrow(feedbackId);
 
         feedback.updateComment(comment);
         feedback.updateEmoji(emoji);
 
         return feedback;
+    }
+
+    public Feedback find(Long feedbackId) {
+        return findFeedbackOrThrow(feedbackId);
     }
 }
