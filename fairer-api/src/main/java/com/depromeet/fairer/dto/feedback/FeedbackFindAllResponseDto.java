@@ -26,18 +26,9 @@ public class FeedbackFindAllResponseDto {
     private List<FeedbackFindOneResponseDto> feedbackFindOneResponseDtoList;
 
     public static FeedbackFindAllResponseDto from(List<FeedbackFindOneResponseDto> dtoList) {
-        FeedbackFindAllResponseDto responseDto;
-        if (dtoList == null || dtoList.size() == 0) {
-            responseDto = FeedbackFindAllResponseDto.builder()
-                    .feedbackCount(0)
-                    .feedbackFindOneResponseDtoList(new ArrayList<>())
-                    .build();
-        } else {
-            responseDto = FeedbackFindAllResponseDto.builder()
+        return FeedbackFindAllResponseDto.builder()
                     .feedbackCount(dtoList.size())
                     .feedbackFindOneResponseDtoList(dtoList)
                     .build();
-        }
-        return responseDto;
     }
 }
