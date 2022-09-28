@@ -1,23 +1,27 @@
 package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.feedback.Feedback;
+import com.depromeet.fairer.dto.feedback.FeedbackFindAllResponseDto;
 import com.depromeet.fairer.dto.feedback.request.FeedbackCreateRequestDto;
 import com.depromeet.fairer.dto.feedback.request.FeedbackUpdateRequestDto;
 import com.depromeet.fairer.dto.feedback.response.FeedbackCreateResponseDto;
+import com.depromeet.fairer.dto.feedback.response.FeedbackFindOneResponseDto;
 import com.depromeet.fairer.dto.feedback.response.FeedbackFindResponseDto;
 import com.depromeet.fairer.dto.feedback.response.FeedbackUpdateResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.feedback.FeedbackService;
+import com.depromeet.fairer.vo.houseWork.HouseWorkCompFeedbackVO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Tag(name = "Feedback", description = "피드백 API")
@@ -45,7 +49,6 @@ public class FeedbackController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //TODO Read는 FeedbackController와 HouseWorkController 모두 구현 필요
 
     @Tag(name = "Feedback")
     @ApiOperation(value = "피드백 수정 api")
@@ -66,5 +69,16 @@ public class FeedbackController {
         return ResponseEntity.ok(FeedbackFindResponseDto.from(feedback));
     }
 
+    @Tag(name = "Feedback")
+    @ApiOperation(value = "완료한 집안일의 모든 피드백 조회 api")
+    @GetMapping("/houseworks/{houseWorkCompleteId}")
+    public ResponseEntity<FeedbackFindAllResponseDto> getAllFeedbacks(@PathVariable("houseWorkCompleteId") Long houseWorkCompleteId) {
+        final List<HouseWorkCompFeedbackVO> feedbackVOList = feedbackService.findAll(houseWorkCompleteId);
+
+        final List<FeedbackFindOneResponseDto> responseDtoList = feedbackVOList.stream().map(FeedbackFindOneResponseDto::fromVO).collect(Collectors.toList());
+        return ResponseEntity.ok(FeedbackFindAllResponseDto.from(responseDtoList));
+    }
+
+    //TODO Read는 FeedbackController와 HouseWorkController 모두 구현 필요
 
 }

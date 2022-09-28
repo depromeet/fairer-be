@@ -28,4 +28,8 @@ public interface HouseWorkCompleteRepository extends JpaRepository<HouseworkComp
 
     @EntityGraph(attributePaths = {"feedbackList"})
     Optional<HouseworkComplete> findWithFeedbackByHouseWorkCompleteId(Long houseWorkCompleteId);
+
+    @EntityGraph(attributePaths = {"feedbackList", "member"})
+    Optional<HouseworkComplete> findWithFeedbackAndMemberByHouseWorkCompleteId(Long houseWorkCompleteId);
+
 }

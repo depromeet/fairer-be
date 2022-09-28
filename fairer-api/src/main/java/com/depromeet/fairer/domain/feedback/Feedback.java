@@ -27,7 +27,7 @@ public class Feedback extends BaseTimeEntity {
     @JoinColumn(name = "house_work_complete_id")
     private HouseworkComplete houseworkComplete;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
