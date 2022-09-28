@@ -64,4 +64,15 @@ public class FeedbackService {
             throw new NoSuchMemberException("존재하지 않는 멤버입니다.");
         });
     }
+
+    public Feedback modify(Long feedbackId, String comment, Integer emoji) {
+        Feedback feedback = feedbackRepository.findById(feedbackId).orElseThrow(() -> {
+            throw new BadRequestException("요청한 피드백은 존재하지 않습니다.");
+        });
+
+        feedback.updateComment(comment);
+        feedback.updateEmoji(emoji);
+
+        return feedback;
+    }
 }

@@ -52,4 +52,11 @@ public class Feedback extends BaseTimeEntity {
         return feedback;
     }
 
+    public void updateComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void updateEmoji(int emoji){
+        this.emoji = emoji;
+    }
 }

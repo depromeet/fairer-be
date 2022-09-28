@@ -1,7 +1,10 @@
 package com.depromeet.fairer.api;
 
+import com.depromeet.fairer.domain.feedback.Feedback;
 import com.depromeet.fairer.dto.feedback.request.FeedbackCreateRequestDto;
+import com.depromeet.fairer.dto.feedback.request.FeedbackUpdateRequestDto;
 import com.depromeet.fairer.dto.feedback.response.FeedbackCreateResponseDto;
+import com.depromeet.fairer.dto.feedback.response.FeedbackUpdateResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.feedback.FeedbackService;
 import lombok.RequiredArgsConstructor;
@@ -35,4 +38,15 @@ public class FeedbackController {
     }
 
     //TODO Read는 FeedbackController와 HouseWorkController 모두 구현 필요
+
+    @PatchMapping("/{feedbackId}")
+    public ResponseEntity<FeedbackUpdateResponseDto> modifyFeedback(@ApiIgnore @RequestMemberId Long memberId,
+                                            @PathVariable("feedbackId") Long feedbackId,
+                                            @RequestBody @Valid FeedbackUpdateRequestDto req){
+
+        Feedback feedback = feedbackService.modify(feedbackId, req.getComment(), req.getEmoji());
+        return ResponseEntity.ok(FeedbackUpdateResponseDto.from(feedback));
+    }
+
+
 }
