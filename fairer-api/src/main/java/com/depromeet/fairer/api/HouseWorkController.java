@@ -161,9 +161,9 @@ public class HouseWorkController {
                 .limit(ChronoUnit.DAYS.between(from, to) + 1).forEach(date -> {
 
                     List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorkService.getHouseWorkByDateRepeatQuery(teamMember, date).stream().map(arr -> {
-                        List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(((HouseWork) arr[0]).getHouseWorkId())
+                        List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(arr.getHouseWork().getHouseWorkId())
                                 .stream().map(MemberDto::from).collect(Collectors.toList());
-                        return HouseWorkResponseDto.from(((HouseWork) arr[0]), memberDtoList, date, ((boolean) arr[1]));
+                        return HouseWorkResponseDto.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId());
 
                     }).collect(Collectors.toList());
 
@@ -208,9 +208,9 @@ public class HouseWorkController {
         Stream.iterate(from, date -> date.plusDays(1))
                 .limit(ChronoUnit.DAYS.between(from, to) + 1).forEach(date -> {
                     List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorkService.getHouseWorkByDateRepeatTeamQuery(member.getTeam(), date).stream().map(arr -> {
-                        List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(((HouseWork) arr[0]).getHouseWorkId())
+                        List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(arr.getHouseWork().getHouseWorkId())
                                 .stream().map(MemberDto::from).collect(Collectors.toList());
-                        return HouseWorkResponseDto.from(((HouseWork) arr[0]), memberDtoList, date, ((boolean) arr[1]));
+                        return HouseWorkResponseDto.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId());
                     }).collect(Collectors.toList());
 
                     results.put(date, houseWorkResponseDtoList);

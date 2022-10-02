@@ -174,12 +174,12 @@ public class HouseWorkService {
     }
 
     // 1명 집안일 조회 - 쿼리
-    public List<Object[]> getHouseWorkByDateRepeatQuery(Member member, LocalDate date) {
+    public List<HouseWorkQueryResponseDto> getHouseWorkByDateRepeatQuery(Member member, LocalDate date) {
         return houseWorkRepository.getCycleHouseWorkQuery(date, member.getMemberId());
     }
 
     // 팀 집안일 조회 - 쿼리
-    public List<Object[]> getHouseWorkByDateRepeatTeamQuery(Team team, LocalDate date) {
+    public List<HouseWorkQueryResponseDto> getHouseWorkByDateRepeatTeamQuery(Team team, LocalDate date) {
         return houseWorkRepository.getCycleHouseWorkByTeamQuery(date, team);
     }
 
