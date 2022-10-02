@@ -1,10 +1,11 @@
 package com.depromeet.fairer.repository.housework;
 
-import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.housework.QHouseWork;
 import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
 import com.depromeet.fairer.domain.team.Team;
+import com.depromeet.fairer.dto.housework.response.HouseWorkQueryResponseDto;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanOperation;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -13,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,15 +43,17 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
     }
 
     @Override
-    public List<Object[]> getCycleHouseWorkQuery(LocalDate date, Long memberId) {
+    public List<HouseWorkQueryResponseDto> getCycleHouseWorkQuery(LocalDate date, Long memberId) {
 
-        List<Tuple> results =  jpaQueryFactory.select(houseWork,
-                        JPAExpressions.selectFrom(houseworkComplete)
-                                .where(houseworkComplete.houseWork.houseWorkId.eq(houseWork.houseWorkId)
-                                        .and(houseworkComplete.scheduledDate.eq(date))).isNotNull())
+        return jpaQueryFactory
+                .select(Projections.fields(HouseWorkQueryResponseDto.class,
+                        houseWork,
+                        houseworkComplete.houseWorkCompleteId))
                 .from(houseWork)
                 .innerJoin(houseWork.assignments, assignment)
                 .innerJoin(assignment.member, member)
+                .leftJoin(houseworkComplete).on(houseworkComplete.houseWork.eq(houseWork)
+                        .and(houseworkComplete.scheduledDate.eq(date)))
                 .where((houseWork.repeatCycle.eq(RepeatCycle.ONCE)
                         .and(houseWork.scheduledDate.eq(date)))
 
@@ -99,19 +101,20 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
                                 .and(getException(houseWork, date)))
                 ).fetch();
 
-        return results.stream().map(Tuple::toArray).collect(Collectors.toList());
+
     }
 
     @Override
-    public List<Object[]> getCycleHouseWorkByTeamQuery(LocalDate date, Team team) {
-
-        List<Tuple> results =  jpaQueryFactory.select(houseWork,
-                        JPAExpressions.selectFrom(houseworkComplete)
-                                .where(houseworkComplete.houseWork.houseWorkId.eq(houseWork.houseWorkId)
-                                        .and(houseworkComplete.scheduledDate.eq(date))).isNotNull())
+    public List<HouseWorkQueryResponseDto> getCycleHouseWorkByTeamQuery(LocalDate date, Team team) {
+        return jpaQueryFactory
+                .select(Projections.fields(HouseWorkQueryResponseDto.class,
+                        houseWork,
+                        houseworkComplete.houseWorkCompleteId))
                 .from(houseWork)
                 .innerJoin(houseWork.assignments, assignment)
                 .innerJoin(assignment.member, member)
+                .leftJoin(houseworkComplete).on(houseworkComplete.houseWork.eq(houseWork)
+                        .and(houseworkComplete.scheduledDate.eq(date)))
                 .where((houseWork.repeatCycle.eq(RepeatCycle.ONCE)
                         .and(houseWork.scheduledDate.eq(date)))
 
@@ -158,8 +161,6 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
                                 .and(houseWork.repeatPattern.castToNum(Integer.class).eq(date.getDayOfMonth()))
                                 .and(getException(houseWork, date)))
                 ).fetch();
-
-        return results.stream().map(Tuple::toArray).collect(Collectors.toList());
     }
 
     public BooleanOperation getException(QHouseWork houseWork, LocalDate date){
