@@ -4,13 +4,16 @@ import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.preset.Space;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -52,6 +55,18 @@ public class HouseWorkResponseDto {
     @ApiModelProperty(value = "집안일 완료 여부")
     private Boolean success;
 
+    @ApiModelProperty(value = "집안일 반복 주기", example = "O / D / W / M", notes = "단일: O, 매일: D, 주마다: W, 달마다: M")
+    private String repeatCycle;
+
+    @ApiModelProperty(value = "집안일 반복 요일", example = "repeatCycle이 weekly일 경우: monday, sunday / monthly일 경우: 31")
+    private String repeatPattern;
+
+    @ApiModelProperty(value = "집안일 종료일", example = "2022-07-02", required = true)
+    @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    private LocalDate repeatEndDate;
+
     @ApiModelProperty(value = "집안일 완료 ID")
     private Long houseWorkCompleteId;
 
@@ -65,6 +80,9 @@ public class HouseWorkResponseDto {
                 .scheduledTime(houseWork.getScheduledTime())
                 .successDateTime(houseWork.getSuccessDateTime())
                 .success(houseWork.getSuccess())
+                .repeatCycle(houseWork.getRepeatCycle().getAlias())
+                .repeatPattern(houseWork.getRepeatPattern())
+                .repeatEndDate(houseWork.getRepeatEndDate())
                 .build();
     }
 
