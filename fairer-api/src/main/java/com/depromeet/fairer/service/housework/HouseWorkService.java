@@ -4,6 +4,7 @@ import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
 import com.depromeet.fairer.domain.housework.constant.UpdateDeletePolicyType;
+import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.repeatexception.RepeatException;
 import com.depromeet.fairer.domain.team.Team;
@@ -171,6 +172,16 @@ public class HouseWorkService {
         return houseWorkRepository.findAllByScheduledDateBetweenAndTeam(fromDate, toDate, team);
     }
 
+    // 1명 집안일 조회 - 쿼리
+    public List<HouseWorkQueryResponseDto> getHouseWorkByDateRepeatQuery(Member member, LocalDate date) {
+        return houseWorkRepository.getCycleHouseWorkQuery(date, member.getMemberId());
+    }
+
+    // 팀 집안일 조회 - 쿼리
+    public List<HouseWorkQueryResponseDto> getHouseWorkByDateRepeatTeamQuery(Team team, LocalDate date) {
+        return houseWorkRepository.getCycleHouseWorkByTeamQuery(date, team);
+    }
+
     public HouseWorkResponseDto getHouseWorkDetail(Long houseWorkId) {
         HouseWork houseWork = getHouseWorkById(houseWorkId);
         List<MemberDto> memberDtoList = memberRepository.getMemberDtoListByHouseWorkId(houseWorkId).stream().map(MemberDto::from).collect(Collectors.toList());
@@ -191,4 +202,5 @@ public class HouseWorkService {
         return houseWorkRepository.findById(houseWorkId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일 입니다."));
     }
+
 }

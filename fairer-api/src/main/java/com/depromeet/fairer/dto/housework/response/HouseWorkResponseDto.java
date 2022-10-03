@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -51,6 +52,9 @@ public class HouseWorkResponseDto {
     @ApiModelProperty(value = "집안일 완료 여부")
     private Boolean success;
 
+    @ApiModelProperty(value = "집안일 완료 ID")
+    private Long houseWorkCompleteId;
+
     public static HouseWorkResponseDto from(HouseWork houseWork, List<MemberDto> memberDtoList) {
         return new HouseWorkResponseDtoBuilder()
                 .houseWorkId(houseWork.getHouseWorkId())
@@ -62,5 +66,49 @@ public class HouseWorkResponseDto {
                 .successDateTime(houseWork.getSuccessDateTime())
                 .success(houseWork.getSuccess())
                 .build();
+    }
+
+    public static HouseWorkResponseDto from(HouseWork houseWork, List<MemberDto> memberDtoList, LocalDate date) {
+        return new HouseWorkResponseDtoBuilder()
+                .houseWorkId(houseWork.getHouseWorkId())
+                .space(houseWork.getSpace())
+                .houseWorkName(houseWork.getHouseWorkName())
+                .assignees(memberDtoList)
+                .scheduledDate(date)
+                .scheduledTime(houseWork.getScheduledTime())
+                .successDateTime(houseWork.getSuccessDateTime())
+                .success(houseWork.getSuccess())
+                .build();
+    }
+
+    public static HouseWorkResponseDto from(HouseWork houseWork, List<MemberDto> memberDtoList, LocalDate date, Long houseWorkCompleteId) {
+
+        if (houseWorkCompleteId != null){
+            return new HouseWorkResponseDtoBuilder()
+                    .houseWorkId(houseWork.getHouseWorkId())
+                    .space(houseWork.getSpace())
+                    .houseWorkName(houseWork.getHouseWorkName())
+                    .assignees(memberDtoList)
+                    .scheduledDate(date)
+                    .scheduledTime(houseWork.getScheduledTime())
+                    .successDateTime(houseWork.getSuccessDateTime())
+                    .success(true)
+                    .houseWorkCompleteId(houseWorkCompleteId)
+                    .build();
+        }
+        else {
+            return new HouseWorkResponseDtoBuilder()
+                    .houseWorkId(houseWork.getHouseWorkId())
+                    .space(houseWork.getSpace())
+                    .houseWorkName(houseWork.getHouseWorkName())
+                    .assignees(memberDtoList)
+                    .scheduledDate(date)
+                    .scheduledTime(houseWork.getScheduledTime())
+                    .successDateTime(houseWork.getSuccessDateTime())
+                    .success(false)
+                    .houseWorkCompleteId(0L)
+                    .build();
+        }
+
     }
 }
