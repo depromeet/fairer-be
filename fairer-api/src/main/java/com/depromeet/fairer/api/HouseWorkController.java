@@ -56,8 +56,9 @@ public class HouseWorkController {
         return new ResponseEntity<>(responseDtos, HttpStatus.CREATED);
     }
 
+    @Deprecated
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 수정 API")
+    @ApiOperation(value = "집안일 수정 API - 반복 기능 구현 전")
     @PutMapping("/{houseWorkId}")
     public ResponseEntity<HouseWorkResponseDto> editHouseWork(@ApiIgnore @RequestMemberId Long memberId,
                                                               @RequestBody @Valid HouseWorkUpdateRequestDto dto,
@@ -67,6 +68,14 @@ public class HouseWorkController {
         houseWorkUpdateVo.setMemberId(memberId);
         houseWorkUpdateVo.setHouseWorkId(houseWorkId);
         return new ResponseEntity<>(houseWorkService.updateHouseWork(houseWorkUpdateVo), HttpStatus.OK);
+    }
+
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "집안일 수정 API - 반복 기능 구현 후")
+    @PutMapping("/v2")
+    public ResponseEntity<?> editHouseWork(@ApiIgnore @RequestMemberId Long memberId,
+                                           @RequestBody @Valid HouseWorkUpdateRequestDto dto) {
+        return ResponseEntity.ok(houseWorkService.updateHouseWork(memberId, dto));
     }
 
     @Deprecated
