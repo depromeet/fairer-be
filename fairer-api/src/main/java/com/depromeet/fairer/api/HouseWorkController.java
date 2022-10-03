@@ -1,8 +1,6 @@
 package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
-import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
-import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
@@ -252,17 +250,6 @@ public class HouseWorkController {
                                                                             @RequestBody @Valid HouseWorkStatusRequestDto req) {
         return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, req.getToBeStatus()));
     }
-
-    @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 완료 등록 - 반복 기능 구현 후")
-    @PostMapping(value = "/complete/{houseWorkId}")
-    public ResponseEntity<HouseWorkCompleteResponseDto> updateHouseWorkStatusV2(@PathVariable("houseWorkId") Long houseWorkId,
-                                                                     @RequestParam("scheduledDate") String scheduledDate) {
-        final LocalDate date = DateTimeUtils.stringToLocalDate(scheduledDate);
-        return new ResponseEntity<>(HouseWorkCompleteResponseDto.from(houseWorkService.createHouseWorkComplete(houseWorkId, date)), HttpStatus.CREATED);
-    }
-
-    // TODO : HouseWorkComplete 삭제 api
 
     @Tag(name = "houseWorks")
     @GetMapping("/success/count")

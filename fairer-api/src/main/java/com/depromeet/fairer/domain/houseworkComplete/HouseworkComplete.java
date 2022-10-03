@@ -30,7 +30,7 @@ public class HouseworkComplete {
     @Column(name = "success_datetime", columnDefinition = "DATETIME")
     private LocalDateTime successDateTime;
 
-    public HouseworkComplete(LocalDate scheduledDate, HouseWork houseWork, LocalDateTime successDateTime){
+    public HouseworkComplete(LocalDate scheduledDate, HouseWork houseWork, LocalDateTime successDateTime) {
         this.setScheduledDate(scheduledDate);
         this.setHouseWork(houseWork);
         this.setSuccessDateTime(successDateTime);
