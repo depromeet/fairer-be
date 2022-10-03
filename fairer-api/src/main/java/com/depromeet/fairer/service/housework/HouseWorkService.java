@@ -204,14 +204,4 @@ public class HouseWorkService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일 입니다."));
     }
 
-    public HouseworkComplete createHouseWorkComplete(Long houseWorkId, LocalDate scheduledDate) {
-        HouseWork houseWork = houseWorkRepository.findById(houseWorkId)
-                .orElseThrow(() -> new EntityNotFoundException("houseworkId: " + houseWorkId + "에 해당하는 집안일을 찾을 수 없습니다."));
-
-        HouseworkComplete complete = new HouseworkComplete(scheduledDate, houseWork, LocalDateTime.now());
-        houseWorkCompleteRepository.save(complete);
-
-        return complete;
-    }
-
 }
