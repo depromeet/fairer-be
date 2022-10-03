@@ -31,7 +31,7 @@ spring:
       on-profile: ["local"]
 
   datasource:
-    url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer_dev
+    url: jdbc:mysql://fairer-database.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer_dev
     driverClassName: com.mysql.cj.jdbc.Driver
     username: 'fairer'
     password: '>BRLtas~%j2>(\6#eC2M'
@@ -47,7 +47,7 @@ spring:
       on-profile: ["dev"]
 
   datasource:
-    url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer_dev
+    url: jdbc:mysql://fairer-database.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer_dev
     driverClassName: com.mysql.cj.jdbc.Driver
     username: 'fairer'
     password: '>BRLtas~%j2>(\6#eC2M'
@@ -63,7 +63,7 @@ spring:
       on-profile: "real"
 
   datasource:
-    url: jdbc:mysql://fairer-db.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer
+    url: jdbc:mysql://fairer-database.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer
     driverClassName: com.mysql.cj.jdbc.Driver
     username: 'fairer'
     password: '>BRLtas~%j2>(\6#eC2M'
