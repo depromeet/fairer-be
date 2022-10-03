@@ -56,37 +56,12 @@ public class HouseWorkController {
         return new ResponseEntity<>(responseDtos, HttpStatus.CREATED);
     }
 
-    @Deprecated
-    @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 수정 API - 반복 기능 구현 전")
-    @PutMapping("/{houseWorkId}")
-    public ResponseEntity<HouseWorkResponseDto> editHouseWork(@ApiIgnore @RequestMemberId Long memberId,
-                                                              @RequestBody @Valid HouseWorkUpdateRequestDto dto,
-                                                              @ApiParam(value = "수정할 집안일 ID", required = true) @PathVariable Long houseWorkId) {
-        final HouseWorkUpdateVo houseWorkUpdateVo = new HouseWorkUpdateVo();
-        modelMapper.map(dto, houseWorkUpdateVo);
-        houseWorkUpdateVo.setMemberId(memberId);
-        houseWorkUpdateVo.setHouseWorkId(houseWorkId);
-        return new ResponseEntity<>(houseWorkService.updateHouseWork(houseWorkUpdateVo), HttpStatus.OK);
-    }
-
     @Tag(name = "houseWorks")
     @ApiOperation(value = "집안일 수정 API - 반복 기능 구현 후")
     @PutMapping("/v2")
     public ResponseEntity<?> editHouseWork(@ApiIgnore @RequestMemberId Long memberId,
                                            @RequestBody @Valid HouseWorkUpdateRequestDto dto) {
         return ResponseEntity.ok(houseWorkService.updateHouseWork(memberId, dto));
-    }
-
-    @Deprecated
-    @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 삭제 API - 반복 기능 구현 전")
-    @DeleteMapping("/{houseWorkId}")
-    public ResponseEntity<?> deleteHouseWork(
-            @ApiIgnore @RequestMemberId Long memberId,
-            @ApiParam(value = "삭제할 집안일 ID", required = true) @PathVariable Long houseWorkId) {
-        houseWorkService.deleteHouseWork(memberId, houseWorkId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Tag(name = "houseWorks")
@@ -98,57 +73,6 @@ public class HouseWorkController {
         houseWorkService.deleteHouseWork(memberId, dto.getHouseWorkId(), dto.getType(), dto.getDeleteStandardDate());
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    @Tag(name = "houseWorks")
-    @ApiOperation(value = "날짜별 집안일 조회", notes = "본인 포함 팀원들의 집안일까지 모두 조회")
-    @GetMapping(value = "")
-    @Deprecated
-    public ResponseEntity<List<HouseWorkDateResponseDto>> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
-                                                                       @ApiIgnore @RequestMemberId Long memberId) {
-        LocalDate scheduledDateParse = DateTimeUtils.stringToLocalDate(scheduledDate);
-
-        List<Member> members = memberService.getMemberList(memberId);
-
-        List<HouseWorkDateResponseDto> houseWorkDateResponseDtos = new ArrayList<>();
-        for (Member member : members) {
-            List<HouseWork> houseWorks = houseWorkService.getHouseWorks(scheduledDateParse, member);
-
-            List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorks.stream().map(houseWork -> {
-                List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(houseWork.getHouseWorkId())
-                        .stream().map(MemberDto::from).collect(Collectors.toList());
-
-                return HouseWorkResponseDto.from(houseWork, memberDtoList);
-            }).collect(Collectors.toList());
-
-            long countDone = houseWorkResponseDtoList.stream().filter(HouseWorkResponseDto::getSuccess).count();
-            long countLeft = houseWorkResponseDtoList.stream().filter(houseWorkResponseDto -> !houseWorkResponseDto.getSuccess()).count();
-
-            houseWorkDateResponseDtos.add(HouseWorkDateResponseDto.from(member.getMemberId(), scheduledDateParse, countDone, countLeft, houseWorkResponseDtoList));
-        }
-
-        return ResponseEntity.ok(houseWorkDateResponseDtos);
-    }
-
-    // 1명 조회
-    @Deprecated
-    @Tag(name = "houseWorks")
-    @ApiOperation(value = "팀원의 특정 기간 집안일 목록 조회 - 반복 기능 구현 전", notes = "본인이 속한 팀의 팀원의 특정 기간 집안일 목록 조회")
-    @GetMapping("/list/member/{teamMemberId}")
-    public ResponseEntity<Map<String, HouseWorkDateResponseDto>> getHouseWorkListByTeamMemberAndDate(@RequestParam("fromDate") String fromDate,
-                                                                                 @RequestParam("toDate") String toDate,
-                                                                                 @PathVariable("teamMemberId") Long teamMemberId,
-                                                                                 @ApiIgnore @RequestMemberId Long memberId) {
-        final LocalDate from = DateTimeUtils.stringToLocalDate(fromDate);
-        final LocalDate to = DateTimeUtils.stringToLocalDate(toDate);
-
-        teamService.checkJoinSameTeam(teamMemberId, memberId);
-
-        Member teamMember = memberService.find(teamMemberId);
-        List<HouseWork> houseWorkList = houseWorkService.getHouseWorkByDate(teamMember, from, to);
-        Map<LocalDate, List<HouseWorkResponseDto>> houseWorkListGroupByScheduledDate = getHouseWorkListGroupByScheduledDate(houseWorkList);
-        return ResponseEntity.ok(makeHouseWorkListResponse(teamMemberId, houseWorkListGroupByScheduledDate));
-    }
-
 
     // 쿼리 1개로 처리
     @Tag(name = "houseWorks")
@@ -178,25 +102,6 @@ public class HouseWorkController {
                 });
 
         return ResponseEntity.ok(makeHouseWorkListResponse(teamMemberId, results));
-    }
-
-
-
-    // 팀 전체 조회
-    @Deprecated
-    @Tag(name = "houseWorks")
-    @ApiOperation(value = "특정 날짜별 집안일 조회 - 반복 기능 구현 전", notes = "특정 날짜별 집안일 조회")
-    @GetMapping("/list")
-    public ResponseEntity<Map<String, HouseWorkDateResponseDto>> getHouseWorkListByDate(@RequestParam("fromDate") String fromDate,
-                                                                              @RequestParam("toDate") String toDate,
-                                                                              @ApiIgnore @RequestMemberId Long memberId) {
-        final LocalDate from = DateTimeUtils.stringToLocalDate(fromDate);
-        final LocalDate to = DateTimeUtils.stringToLocalDate(toDate);
-
-        Member member = memberService.find(memberId);
-        List<HouseWork> houseWorkList = houseWorkService.getHouseWorkByDateAndTeam(member.getTeam(), from, to);
-        Map<LocalDate, List<HouseWorkResponseDto>> houseWorkListGroupByScheduledDate = getHouseWorkListGroupByScheduledDate(houseWorkList);
-        return ResponseEntity.ok(makeHouseWorkListResponse(memberId, houseWorkListGroupByScheduledDate));
     }
 
     // 팀 전체 쿼리 1개
@@ -252,15 +157,6 @@ public class HouseWorkController {
     }
 
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 완료여부 수정 - 반복 기능 구현 전", notes = "toBeStatus=0이면 완료->미완료, toBeStatus=1이면 미완료->완료")
-    @PatchMapping(value = "{houseWorkId}")
-    @Deprecated
-    public ResponseEntity<HouseWorkStatusResponseDto> updateHouseWorkStatus(@PathVariable("houseWorkId") Long houseWorkId,
-                                                                            @RequestBody @Valid HouseWorkStatusRequestDto req) {
-        return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, req.getToBeStatus()));
-    }
-
-    @Tag(name = "houseWorks")
     @GetMapping("/success/count")
     public ResponseEntity<HouseWorkSuccessCountResponseDto> getSuccessCount(@RequestParam String scheduledDate,
                                                                             @ApiIgnore @RequestMemberId Long memberId) {
@@ -268,4 +164,104 @@ public class HouseWorkController {
         return ResponseEntity.ok(houseWorkSuccessCountResponseDto);
     }
 
+    @Deprecated
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "집안일 수정 API - 반복 기능 구현 전")
+    @PutMapping("/{houseWorkId}")
+    public ResponseEntity<HouseWorkResponseDto> editHouseWork(@ApiIgnore @RequestMemberId Long memberId,
+                                                              @RequestBody @Valid HouseWorkUpdateRequestDto dto,
+                                                              @ApiParam(value = "수정할 집안일 ID", required = true) @PathVariable Long houseWorkId) {
+        final HouseWorkUpdateVo houseWorkUpdateVo = new HouseWorkUpdateVo();
+        modelMapper.map(dto, houseWorkUpdateVo);
+        houseWorkUpdateVo.setMemberId(memberId);
+        houseWorkUpdateVo.setHouseWorkId(houseWorkId);
+        return new ResponseEntity<>(houseWorkService.updateHouseWork(houseWorkUpdateVo), HttpStatus.OK);
+    }
+
+    @Deprecated
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "집안일 삭제 API - 반복 기능 구현 전")
+    @DeleteMapping("/{houseWorkId}")
+    public ResponseEntity<?> deleteHouseWork(
+            @ApiIgnore @RequestMemberId Long memberId,
+            @ApiParam(value = "삭제할 집안일 ID", required = true) @PathVariable Long houseWorkId) {
+        houseWorkService.deleteHouseWork(memberId, houseWorkId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "날짜별 집안일 조회", notes = "본인 포함 팀원들의 집안일까지 모두 조회")
+    @GetMapping(value = "")
+    @Deprecated
+    public ResponseEntity<List<HouseWorkDateResponseDto>> getHouseWork(@RequestParam("scheduledDate") String scheduledDate,
+                                                                       @ApiIgnore @RequestMemberId Long memberId) {
+        LocalDate scheduledDateParse = DateTimeUtils.stringToLocalDate(scheduledDate);
+
+        List<Member> members = memberService.getMemberList(memberId);
+
+        List<HouseWorkDateResponseDto> houseWorkDateResponseDtos = new ArrayList<>();
+        for (Member member : members) {
+            List<HouseWork> houseWorks = houseWorkService.getHouseWorks(scheduledDateParse, member);
+
+            List<HouseWorkResponseDto> houseWorkResponseDtoList = houseWorks.stream().map(houseWork -> {
+                List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(houseWork.getHouseWorkId())
+                        .stream().map(MemberDto::from).collect(Collectors.toList());
+
+                return HouseWorkResponseDto.from(houseWork, memberDtoList);
+            }).collect(Collectors.toList());
+
+            long countDone = houseWorkResponseDtoList.stream().filter(HouseWorkResponseDto::getSuccess).count();
+            long countLeft = houseWorkResponseDtoList.stream().filter(houseWorkResponseDto -> !houseWorkResponseDto.getSuccess()).count();
+
+            houseWorkDateResponseDtos.add(HouseWorkDateResponseDto.from(member.getMemberId(), scheduledDateParse, countDone, countLeft, houseWorkResponseDtoList));
+        }
+
+        return ResponseEntity.ok(houseWorkDateResponseDtos);
+    }
+
+    // 1명 조회
+    @Deprecated
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "팀원의 특정 기간 집안일 목록 조회 - 반복 기능 구현 전", notes = "본인이 속한 팀의 팀원의 특정 기간 집안일 목록 조회")
+    @GetMapping("/list/member/{teamMemberId}")
+    public ResponseEntity<Map<String, HouseWorkDateResponseDto>> getHouseWorkListByTeamMemberAndDate(@RequestParam("fromDate") String fromDate,
+                                                                                 @RequestParam("toDate") String toDate,
+                                                                                 @PathVariable("teamMemberId") Long teamMemberId,
+                                                                                 @ApiIgnore @RequestMemberId Long memberId) {
+        final LocalDate from = DateTimeUtils.stringToLocalDate(fromDate);
+        final LocalDate to = DateTimeUtils.stringToLocalDate(toDate);
+
+        teamService.checkJoinSameTeam(teamMemberId, memberId);
+
+        Member teamMember = memberService.find(teamMemberId);
+        List<HouseWork> houseWorkList = houseWorkService.getHouseWorkByDate(teamMember, from, to);
+        Map<LocalDate, List<HouseWorkResponseDto>> houseWorkListGroupByScheduledDate = getHouseWorkListGroupByScheduledDate(houseWorkList);
+        return ResponseEntity.ok(makeHouseWorkListResponse(teamMemberId, houseWorkListGroupByScheduledDate));
+    }
+
+    // 팀 전체 조회
+    @Deprecated
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "특정 날짜별 집안일 조회 - 반복 기능 구현 전", notes = "특정 날짜별 집안일 조회")
+    @GetMapping("/list")
+    public ResponseEntity<Map<String, HouseWorkDateResponseDto>> getHouseWorkListByDate(@RequestParam("fromDate") String fromDate,
+                                                                              @RequestParam("toDate") String toDate,
+                                                                              @ApiIgnore @RequestMemberId Long memberId) {
+        final LocalDate from = DateTimeUtils.stringToLocalDate(fromDate);
+        final LocalDate to = DateTimeUtils.stringToLocalDate(toDate);
+
+        Member member = memberService.find(memberId);
+        List<HouseWork> houseWorkList = houseWorkService.getHouseWorkByDateAndTeam(member.getTeam(), from, to);
+        Map<LocalDate, List<HouseWorkResponseDto>> houseWorkListGroupByScheduledDate = getHouseWorkListGroupByScheduledDate(houseWorkList);
+        return ResponseEntity.ok(makeHouseWorkListResponse(memberId, houseWorkListGroupByScheduledDate));
+    }
+
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "집안일 완료여부 수정 - 반복 기능 구현 전", notes = "toBeStatus=0이면 완료->미완료, toBeStatus=1이면 미완료->완료")
+    @PatchMapping(value = "{houseWorkId}")
+    @Deprecated
+    public ResponseEntity<HouseWorkStatusResponseDto> updateHouseWorkStatus(@PathVariable("houseWorkId") Long houseWorkId,
+                                                                            @RequestBody @Valid HouseWorkStatusRequestDto req) {
+        return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, req.getToBeStatus()));
+    }
 }
