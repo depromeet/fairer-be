@@ -57,17 +57,29 @@ public class OtherMemberCompleteHouseworkJobConfig {
     @StepScope
     public JdbcCursorItemReader<OtherMemberCompleteHouseworkCommand> otherMemberCompleteHouseworkReader() {
         LocalDate now = LocalDate.now();
+        String date = now.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String weekly = now.getDayOfWeek().toString();
+        String month = Integer.toString(now.getDayOfMonth());
         return new JdbcCursorItemReaderBuilder<OtherMemberCompleteHouseworkCommand>()
                 .name("OtherMemberCompleteHouseworkReader")
                 .fetchSize(1)
                 .dataSource(dataSource)
                 .rowMapper(new BeanPropertyRowMapper<>(OtherMemberCompleteHouseworkCommand.class))
-                .sql("SELECT m1.member_id as member_id, m2.member_name as teamMemberName, COUNT(*) as count\n" +
-                        "FROM member m1, member m2, assignment a, housework h WHERE h.housework_id=a.housework_id AND a.member_id=m2.member_id\n" +
-                        "AND h.team_id=m1.team_id AND scheduled_date=? AND success=1 AND m1.member_id!=m2.member_id\n" +
-                        "GROUP BY m1.member_id, m2.member_id, m2.member_name\n" +
-                        "HAVING COUNT(*)>=1")
-                .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{now.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}))
+                .sql("SELECT member1.member_id as member_id, member2.member_name as teamMemberName, COUNT(*) as count\n" +
+                        "FROM housework\n" +
+                        "INNER JOIN assignment ON assignment.housework_id=housework.housework_id\n" +
+                        "INNER JOIN member as member2 ON assignment.member_id=member2.member_id\n" +
+                        "LEFT OUTER JOIN housework_complete ON housework_complete.housework_id=housework.housework_id\n" +
+                        "RIGHT OUTER JOIN member as member1 ON member1.member_id!=member2.member_id\n" +
+                        "WHERE member1.fcm_token IS NOT NULL\n" +
+                        "AND housework.team_id=member1.team_id\n" +
+                        "AND housework.scheduled_date <= ? AND (housework.repeat_end_date IS NULL OR ?<=housework.repeat_end_date)\n" +
+                        "AND ((housework.repeat_cycle='ONCE' AND housework.repeat_pattern=?)\n" +
+                        "OR (housework.repeat_cycle='WEEKLY' AND housework.repeat_pattern=?)\n" +
+                        "OR (housework.repeat_cycle='MONTHLY' AND housework.repeat_pattern=?))\n" +
+                        "GROUP BY member1.member_id, member2.member_id, member2.member_name\n" +
+                        "HAVING COUNT(housework.housework_id)>=1 AND COUNT(housework.housework_id)=SUM(!ISNULL(housework_complete.housework_complete_id))")
+                .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{date, date, date, weekly, month}))
                 .saveState(false)
                 .build();
     }

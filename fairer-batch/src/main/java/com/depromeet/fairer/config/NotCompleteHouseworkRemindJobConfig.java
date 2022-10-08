@@ -60,17 +60,29 @@ public class NotCompleteHouseworkRemindJobConfig {
     @StepScope
     public JdbcCursorItemReader<NotCompleteHouseworkRemindCommand> notCompleteHouseworkRemindReader() {
         LocalDate now = LocalDate.now();
+        String date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String weekly = now.getDayOfWeek().toString();
+        String month = Integer.toString(now.getDayOfMonth());
+
         return new JdbcCursorItemReaderBuilder<NotCompleteHouseworkRemindCommand>()
                 .name("NotCompleteHouseworkRemindReader")
                 .fetchSize(1)
                 .dataSource(dataSource)
                 .rowMapper(new BeanPropertyRowMapper<>(NotCompleteHouseworkRemindCommand.class))
                 .sql("SELECT assignment.member_id as memberId, COUNT(*) AS totalCount, housework.housework_name as houseworkName\n" +
-                        "FROM assignment INNER JOIN housework INNER JOIN alarm\n" +
-                        "ON assignment.housework_id=housework.housework_id AND alarm.member_id=assignment.member_id\n" +
-                        "WHERE housework.success=0 AND housework.scheduled_date=? AND alarm.not_complete_status=1\n" +
+                        "FROM housework\n" +
+                        "INNER JOIN assignment ON assignment.housework_id=housework.housework_id\n" +
+                        "INNER JOIN member ON assignment.member_id=member.member_id\n" +
+                        "INNER JOIN alarm ON alarm.member_id=member.member_id\n" +
+                        "LEFT OUTER JOIN housework_complete ON housework_complete.housework_id=housework.housework_id\n" +
+                        "WHERE member.fcm_token IS NOT NULL AND alarm.not_complete_status=1\n" +
+                        "AND housework.scheduled_date <= ? AND (housework.repeat_end_date IS NULL OR ?<=housework.repeat_end_date)\n" +
+                        "AND housework_complete.housework_complete_id IS NULL\n" +
+                        "AND ((housework.repeat_cycle='ONCE' AND housework.repeat_pattern=?)\n" +
+                        "OR (housework.repeat_cycle='WEEKLY' AND housework.repeat_pattern=? )\n" +
+                        "OR (housework.repeat_cycle='MONTHLY' AND housework.repeat_pattern=?))\n" +
                         "GROUP BY assignment.member_id")
-                .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}))
+                .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{date, date, date, weekly, month}))
                 .saveState(false)
                 .build();
     }
