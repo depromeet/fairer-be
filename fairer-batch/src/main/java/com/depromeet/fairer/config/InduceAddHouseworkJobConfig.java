@@ -65,10 +65,12 @@ public class InduceAddHouseworkJobConfig {
                 .fetchSize(1)
                 .dataSource(dataSource)
                 .rowMapper(new BeanPropertyRowMapper<>(InduceAddHouseworkCommand.class))
-                .sql("SELECT a.member_id as memberId, MAX(h.scheduled_date) as lastDate\n" +
-                        "FROM assignment a, housework h\n" +
-                        "WHERE a.housework_id=h.housework_id\n" +
-                        "GROUP BY member_id")
+                .sql("SELECT member.member_id as memberId, MAX(assignment.created_date) as lastDate\n" +
+                        "FROM housework\n" +
+                        "INNER JOIN assignment ON assignment.housework_id=housework.housework_id\n" +
+                        "INNER JOIN member ON assignment.member_id=member.member_id\n" +
+                        "WHERE member.fcm_token IS NOT NULL\n" +
+                        "GROUP BY member.member_id")
                 .saveState(false)
                 .build();
     }
