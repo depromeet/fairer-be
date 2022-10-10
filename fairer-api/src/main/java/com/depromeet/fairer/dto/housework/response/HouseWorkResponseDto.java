@@ -61,8 +61,7 @@ public class HouseWorkResponseDto {
     @ApiModelProperty(value = "집안일 반복 요일", example = "repeatCycle이 weekly일 경우: monday, sunday / monthly일 경우: 31")
     private String repeatPattern;
 
-    @ApiModelProperty(value = "집안일 종료일", example = "2022-07-02", required = true)
-    @NotNull
+    @ApiModelProperty(value = "집안일 종료일", example = "2022-07-02")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate repeatEndDate;

@@ -9,14 +9,13 @@ import com.depromeet.fairer.domain.repeatexception.RepeatException;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.global.util.DateTimeUtils;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-
-import static com.fasterxml.jackson.databind.type.LogicalType.valueOf;
 
 @Entity
 @Table(name = "housework")
@@ -82,7 +81,7 @@ public class HouseWork extends BaseTimeEntity {
         }
         boolean result = true;
         if (repeatCycle == RepeatCycle.WEEKLY) {
-            result = repeatPattern.contains(DateTimeUtils.convertDayOfWeekToEng(date.getDayOfWeek()));
+            result = StringUtils.containsIgnoreCase(repeatPattern, DateTimeUtils.convertDayOfWeekToEng(date.getDayOfWeek()));
         } else if (repeatCycle == RepeatCycle.MONTHLY) {
             result = Integer.parseInt(repeatPattern) == date.getDayOfMonth();
         } /*else if (repeatCycle == RepeatCycle.DAILY) {
