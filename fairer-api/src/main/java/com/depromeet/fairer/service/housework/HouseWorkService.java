@@ -35,6 +35,7 @@ import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,6 +55,10 @@ public class HouseWorkService {
     private final RepeatExceptionRepository repeatExceptionRepository;
 
     public HouseWorkResponseDto createHouseWork(Long memberId, HouseWorksCreateRequestDto requestDto) {
+        if(!isValidRepeatPattern(RepeatCycle.valueOf(requestDto.getRepeatCycle()), requestDto.getRepeatPattern())) {
+            throw new FairerException("유효하지 않은 파라미터 입니다.");
+        }
+
         final Team team = teamService.getTeam(memberId);
         final HouseWork houseWork = requestDto.toEntity();
         houseWork.setTeam(team);
@@ -63,6 +68,27 @@ public class HouseWorkService {
         assignmentService.saveAssignments(members, houseWork);
         return HouseWorkResponseDto.from(houseWork,
                 members.stream().map(MemberDto::from).collect(Collectors.toList()));
+    }
+
+    private boolean isValidRepeatPattern(RepeatCycle repeatCycle, String repeatPattern) {
+        if (repeatCycle == RepeatCycle.ONCE) {
+            try {
+                LocalDate.parse(repeatPattern);
+                return true;
+            } catch (DateTimeParseException e) {
+                return false;
+            }
+        } else if (repeatCycle == RepeatCycle.WEEKLY) {
+            String[] params = repeatPattern.split(",");
+            for(String param : params) {
+                if(Arrays.stream(DayOfWeek.values()).noneMatch(dayOfWeek -> dayOfWeek == DayOfWeek.valueOf(param))) {
+                    return false;
+                }
+            }
+        } else if (repeatCycle == RepeatCycle.MONTHLY) {
+            return 1 <= Integer.parseInt(repeatPattern) && Integer.parseInt(repeatPattern) <= 31;
+        }
+        return false;
     }
 
     @Deprecated
@@ -116,6 +142,9 @@ public class HouseWorkService {
         if (repeatCycle == RepeatCycle.ONCE) {
             return updateHouseWorkDetail(houseWork, houseWorkUpdateRequestDto);
         } else {
+            if (!houseWork.isIncludingDate(houseWorkUpdateRequestDto.getUpdateStandardDate())) {
+                throw new InvalidParameterException("요청한 수정 날짜가 반복 주기에 포함되지 않습니다.");
+            }
             return updateHouseWorkByPolicy(UpdateDeletePolicyType.of(houseWorkUpdateRequestDto.getType()), houseWork, houseWorkUpdateRequestDto);
         }
     }
@@ -126,11 +155,11 @@ public class HouseWorkService {
             return updateHouseWorkDetail(houseWork, houseWorkUpdateRequestDto);
         } else if(updateDeletePolicyType == UpdateDeletePolicyType.HEREAFTER) {
             // 해당 반복 일정 중 오늘 포함 이후 업데이트
-            houseWork.setRepeatEndDate(houseWorkUpdateRequestDto.getDeleteStandardDate());
+            houseWork.setRepeatEndDate(houseWorkUpdateRequestDto.getUpdateStandardDate().minusDays(1));
             houseWorkRepository.save(houseWork);
 
             // 유효하지 않은 완료된 집안일 제거
-            List<HouseworkComplete> houseworkCompleteList = houseWorkCompleteRepository.findAllByHouseWorkAndScheduledDateGreaterThanEqual(houseWork, houseWorkUpdateRequestDto.getDeleteStandardDate());
+            List<HouseworkComplete> houseworkCompleteList = houseWorkCompleteRepository.findAllByHouseWorkAndScheduledDateGreaterThanEqual(houseWork, houseWorkUpdateRequestDto.getUpdateStandardDate());
             for(HouseworkComplete houseworkComplete : houseworkCompleteList) {
                 houseWorkCompleteRepository.delete(houseworkComplete);
             }
@@ -140,15 +169,17 @@ public class HouseWorkService {
         } else if(updateDeletePolicyType == UpdateDeletePolicyType.ONLY) {
             // 해당 반복 일정 중 오늘만 업데이트
             // 기존 집안일에서 수정 일정 제외
-            repeatExceptionRepository.save(RepeatException.create(houseWork, houseWorkUpdateRequestDto.getDeleteStandardDate()));
+            repeatExceptionRepository.save(RepeatException.create(houseWork, houseWorkUpdateRequestDto.getUpdateStandardDate()));
 
             // 유효하지 않은 완료된 집안일 제거
-            HouseworkComplete houseworkComplete = houseWorkCompleteRepository.findByHouseWorkAndScheduledDate(houseWork, houseWorkUpdateRequestDto.getDeleteStandardDate());
+            HouseworkComplete houseworkComplete = houseWorkCompleteRepository.findByHouseWorkAndScheduledDate(houseWork, houseWorkUpdateRequestDto.getUpdateStandardDate());
             if(Objects.nonNull(houseworkComplete)) {
                 houseWorkCompleteRepository.delete(houseworkComplete);
             }
 
             // 새로운 집안일 생성
+            houseWorkUpdateRequestDto.setScheduledDate(houseWorkUpdateRequestDto.getUpdateStandardDate());
+            houseWorkUpdateRequestDto.setRepeatEndDate(houseWorkUpdateRequestDto.getUpdateStandardDate());
             return createNewHouseWork(houseWork.getTeam(), houseWorkUpdateRequestDto);
         } else {
             throw new FairerException("코드 에러");
