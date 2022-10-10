@@ -57,13 +57,13 @@ public class HouseWorkUpdateRequestDto {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate repeatEndDate;
 
-    @ApiModelProperty(value = "삭제할 집안일 기간", required = true, example = "단일 삭제: 'O' / 앞으로 삭제: 'H' / 모두 삭제: 'A'")
+    @ApiModelProperty(value = "수정할 집안일 기간", required = true, example = "단일 수정: 'O' / 앞으로 일정 수정: 'H' / 모두 수정: 'A'")
     @NotNull
     private String type;
 
-    @ApiModelProperty(value = "삭제 기준 날짜", example = "2022-07-02",
-            notes = "주기에 해당하는 날짜여야 함, 수요일 주기일 경우 삭제의 기준이 되는 원하는 마지막 수요일 날짜")
+    @ApiModelProperty(value = "수정 기준 날짜", example = "2022-07-02",
+            notes = "주기에 해당하는 날짜여야 함, 수요일 주기일 경우 수정의 기준이 되는 원하는 마지막 수요일 날짜")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonDeserialize(using = LocalDateDeserializer.class)
-    private LocalDate deleteStandardDate;
+    private LocalDate updateStandardDate;
 }

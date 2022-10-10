@@ -3,14 +3,13 @@ package com.depromeet.fairer.service.member;
 import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.domain.member.Member;
 
-import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.NoSuchMemberException;
 
 import com.depromeet.fairer.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

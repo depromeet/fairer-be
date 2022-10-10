@@ -57,6 +57,7 @@ public class HouseWorksCreateRequestDto {
                 .scheduledTime(scheduledTime)
                 .repeatPattern(repeatPattern)
                 .repeatCycle(RepeatCycle.of(repeatCycle))
+                .repeatEndDate(null)
                 .success(false)
                 .successDateTime(null)
                 .build();
