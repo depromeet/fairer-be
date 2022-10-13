@@ -76,7 +76,7 @@ springfox:
 token:
   secret: fairer-backend
   access-token-expiration-time: 99999999999
-  refresh-token-expiration-time: 99999999999
+  refresh-token-expiration-time: 1200000 # 임시 수정(99999999999)
 
 profile:
   domain: https://firebasestorage.googleapis.com/v0/b/fairer-def59.appspot.com/o/
