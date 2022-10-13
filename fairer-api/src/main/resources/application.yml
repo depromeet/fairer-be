@@ -123,7 +123,7 @@ swagger:
 token:
   secret: fairer-backend
   access-token-expiration-time: 900000  # 15분
-  refresh-token-expiration-time: 1210500000 # 2주
+  refresh-token-expiration-time: 31536000000 # 임시로 1년으로 변경, 안드로이드 갱신 기능 적용 후 2주로 다시 변경
 
 oauth2:
   redirectUri: https://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com/login/oauth2/code/google
