@@ -85,6 +85,7 @@ public class HouseWorkService {
                     return false;
                 }
             }
+            return true;
         } else if (repeatCycle == RepeatCycle.MONTHLY) {
             return 1 <= Integer.parseInt(repeatPattern) && Integer.parseInt(repeatPattern) <= 31;
         }
