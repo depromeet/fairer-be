@@ -55,7 +55,7 @@ public class HouseWorkService {
     private final RepeatExceptionRepository repeatExceptionRepository;
 
     public HouseWorkResponseDto createHouseWork(Long memberId, HouseWorksCreateRequestDto requestDto) {
-        if(!isValidRepeatPattern(RepeatCycle.valueOf(requestDto.getRepeatCycle()), requestDto.getRepeatPattern())) {
+        if(!isValidRepeatPattern(RepeatCycle.of(requestDto.getRepeatCycle()), requestDto.getRepeatPattern())) {
             throw new FairerException("유효하지 않은 파라미터 입니다.");
         }
 
