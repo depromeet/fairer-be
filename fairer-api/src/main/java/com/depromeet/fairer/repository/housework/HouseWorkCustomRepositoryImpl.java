@@ -44,7 +44,7 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
     public List<HouseWorkQueryResponseDto> getCycleHouseWorkQuery(LocalDate date, Long memberId) {
 
         return jpaQueryFactory
-                .select(Projections.fields(HouseWorkQueryResponseDto.class,
+                .selectDistinct(Projections.fields(HouseWorkQueryResponseDto.class,
                         houseWork,
                         houseworkComplete.houseWorkCompleteId))
                 .from(houseWork)
@@ -66,7 +66,7 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
     @Override
     public List<HouseWorkQueryResponseDto> getCycleHouseWorkByTeamQuery(LocalDate date, Team team) {
         return jpaQueryFactory
-                .select(Projections.fields(HouseWorkQueryResponseDto.class,
+                .selectDistinct(Projections.fields(HouseWorkQueryResponseDto.class,
                         houseWork,
                         houseworkComplete.houseWorkCompleteId))
                 .from(houseWork)
