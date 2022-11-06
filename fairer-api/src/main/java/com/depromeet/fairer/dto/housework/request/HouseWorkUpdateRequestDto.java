@@ -52,7 +52,6 @@ public class HouseWorkUpdateRequestDto {
     private String repeatPattern;
 
     @ApiModelProperty(value = "집안일 종료일", example = "2022-07-02", required = true)
-    @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate repeatEndDate;
