@@ -156,7 +156,6 @@ public class HouseWorkController {
         return ResponseEntity.ok(houseWorkService.getHouseWorkDetail(houseWorkId));
     }
 
-    @Deprecated
     @Tag(name = "houseWorks")
     @GetMapping("/success/count")
     public ResponseEntity<HouseWorkSuccessCountResponseDto> getSuccessCount(@RequestParam String scheduledDate,
