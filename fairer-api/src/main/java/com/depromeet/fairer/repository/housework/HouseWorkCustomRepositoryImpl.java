@@ -29,13 +29,14 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
 
     @Override
     public Long getHouseWorkSuccessCount(Long memberId, LocalDate startDate, LocalDate endDate) {
-        return jpaQueryFactory.selectFrom(houseWork)
+        return jpaQueryFactory.select(houseWork)
+                .from(houseWork, houseworkComplete)
                 .innerJoin(houseWork.assignments, assignment)
                 .innerJoin(assignment.member, member)
-                .where(houseWork.scheduledDate.goe(startDate)
-                        .and(houseWork.scheduledDate.loe(endDate))
+                .where(houseworkComplete.successDateTime.goe(startDate.atStartOfDay())
+                        .and(houseworkComplete.successDateTime.lt(endDate.plusDays(1).atStartOfDay()))
                         .and(member.memberId.eq(memberId))
-                        .and(houseWork.success.eq(true)))
+                        .and(houseworkComplete.houseWork.houseWorkId.eq(houseWork.houseWorkId)))
                 .stream()
                 .count();
     }
