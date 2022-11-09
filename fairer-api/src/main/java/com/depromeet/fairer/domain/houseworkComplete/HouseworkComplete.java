@@ -20,7 +20,7 @@ public class HouseworkComplete {
     @Column(name = "housework_complete_id", columnDefinition = "BIGINT", nullable = false)
     private Long houseWorkCompleteId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "housework_id")
     private HouseWork houseWork;
 
