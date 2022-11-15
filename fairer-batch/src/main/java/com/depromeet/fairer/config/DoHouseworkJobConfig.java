@@ -16,7 +16,6 @@ import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.web.client.RestTemplate;
@@ -60,16 +59,27 @@ public class DoHouseworkJobConfig {
     public JdbcCursorItemReader<DoHouseworkCommand> doHouseworkReader() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime base = now.minusMinutes(now.getMinute()%10);
+        String date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String weekly = now.getDayOfWeek().toString();
+        String month = Integer.toString(now.getDayOfMonth());
+        String time = base.format(DateTimeFormatter.ofPattern("HH:mm:00"));
         return new JdbcCursorItemReaderBuilder<DoHouseworkCommand>()
                 .name("DoHouseworkReader")
                 .fetchSize(1)
                 .dataSource(dataSource)
                 .rowMapper(new BeanPropertyRowMapper<>(DoHouseworkCommand.class))
                 .sql("SELECT assignment.member_id, housework.housework_id, housework.scheduled_time\n" +
-                        "FROM assignment INNER JOIN housework INNER JOIN alarm\n" +
-                        "ON assignment.housework_id=housework.housework_id AND alarm.member_id=assignment.member_id\n" +
-                        "WHERE housework.scheduled_date=? AND housework.scheduled_time=? AND alarm.scheduled_time_status=1")
-                .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{base.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), base.format(DateTimeFormatter.ofPattern("HH:mm:00"))}))
+                        "FROM housework\n" +
+                        "INNER JOIN assignment ON assignment.housework_id=housework.housework_id\n" +
+                        "INNER JOIN member ON assignment.member_id=member.member_id\n" +
+                        "INNER JOIN alarm ON alarm.member_id=member.member_id\n" +
+                        "WHERE member.fcm_token IS NOT NULL AND alarm.scheduled_time_status=1\n" +
+                        "AND housework.scheduled_date <= ? AND (housework.repeat_end_date IS NULL OR ?<=housework.repeat_end_date)\n" +
+                        "AND ((housework.repeat_cycle='ONCE' AND housework.repeat_pattern=?)\n" +
+                        "OR (housework.repeat_cycle='WEEKLY' AND housework.repeat_pattern=?)\n" +
+                        "OR (housework.repeat_cycle='MONTHLY' AND housework.repeat_pattern=?))\n" +
+                        "AND housework.scheduled_time=?")
+                .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{date, date, date, weekly, month, time}))
                 .saveState(false)
                 .build();
     }

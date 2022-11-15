@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -144,10 +144,13 @@ public class TeamService {
     }
 
     public Team getTeam(Long memberId) {
-        return memberRepository.findById(memberId)
+        final Team team = memberRepository.findWithTeamByMemberId(memberId)
                 .orElseThrow(() -> new MemberTokenNotFoundException("해당 맴버가 존재하지 않습니다"))
                 .getTeam();
-
+        if (team == null) {
+            throw new BadRequestException("가입된 팀이 없습니다.");
+        }
+        return team;
     }
 
     public void checkJoinSameTeam(Long teamMemberId, Long memberId) {
