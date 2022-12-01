@@ -68,7 +68,7 @@ public class DoHouseworkJobConfig {
                 .fetchSize(1)
                 .dataSource(dataSource)
                 .rowMapper(new BeanPropertyRowMapper<>(DoHouseworkCommand.class))
-                .sql("SELECT assignment.member_id, housework.housework_id, housework.scheduled_time\n" +
+                .sql("SELECT assignment.member_id as memberId, housework.housework_name as houseworkName, housework.scheduled_time as scheduledTime\n" +
                         "FROM housework\n" +
                         "INNER JOIN assignment ON assignment.housework_id=housework.housework_id\n" +
                         "INNER JOIN member ON assignment.member_id=member.member_id\n" +
@@ -76,7 +76,7 @@ public class DoHouseworkJobConfig {
                         "WHERE member.fcm_token IS NOT NULL AND alarm.scheduled_time_status=1\n" +
                         "AND housework.scheduled_date <= ? AND (housework.repeat_end_date IS NULL OR ?<=housework.repeat_end_date)\n" +
                         "AND ((housework.repeat_cycle='ONCE' AND housework.repeat_pattern=?)\n" +
-                        "OR (housework.repeat_cycle='WEEKLY' AND housework.repeat_pattern=?)\n" +
+                        "OR (housework.repeat_cycle='WEEKLY' AND INSTR(housework.repeat_pattern, ?)>0)\n" +
                         "OR (housework.repeat_cycle='MONTHLY' AND housework.repeat_pattern=?))\n" +
                         "AND housework.scheduled_time=?")
                 .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{date, date, date, weekly, month, time}))

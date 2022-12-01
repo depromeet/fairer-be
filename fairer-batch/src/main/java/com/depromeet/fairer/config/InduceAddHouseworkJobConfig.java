@@ -26,6 +26,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 @Slf4j
@@ -80,7 +82,7 @@ public class InduceAddHouseworkJobConfig {
     public ItemProcessor<InduceAddHouseworkCommand, InduceAddHouseworkCommand> induceAddHouseworkProcessor() {
         return item -> {
             LocalDate now = LocalDate.now();
-            LocalDate date = LocalDate.parse(item.getLastDate());
+            LocalDate date = LocalDateTime.parse(item.getLastDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.nnnnnn")).toLocalDate();
             long diffDays = ChronoUnit.DAYS.between(date, now);
             return diffDays > 0 && (diffDays - 3) % 7 == 0 ? item : null;
         };
