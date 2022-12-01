@@ -70,15 +70,15 @@ public class OtherMemberCompleteHouseworkJobConfig {
                         "INNER JOIN assignment ON assignment.housework_id=housework.housework_id\n" +
                         "INNER JOIN member as member2 ON assignment.member_id=member2.member_id\n" +
                         "LEFT OUTER JOIN housework_complete ON housework_complete.housework_id=housework.housework_id\n" +
-                        "RIGHT OUTER JOIN member as member1 ON member1.member_id!=member2.member_id\n" +
+                        "RIGHT OUTER JOIN member as member1 ON member1.member_id<>member2.member_id\n" +
                         "WHERE member1.fcm_token IS NOT NULL\n" +
                         "AND housework.team_id=member1.team_id\n" +
                         "AND housework.scheduled_date <= ? AND (housework.repeat_end_date IS NULL OR ?<=housework.repeat_end_date)\n" +
                         "AND ((housework.repeat_cycle='ONCE' AND housework.repeat_pattern=?)\n" +
-                        "OR (housework.repeat_cycle='WEEKLY' AND housework.repeat_pattern=?)\n" +
+                        "OR (housework.repeat_cycle='WEEKLY' AND INSTR(housework.repeat_pattern, ?)>0)\n" +
                         "OR (housework.repeat_cycle='MONTHLY' AND housework.repeat_pattern=?))\n" +
                         "GROUP BY member1.member_id, member2.member_id, member2.member_name\n" +
-                        "HAVING COUNT(housework.housework_id)>=1 AND COUNT(housework.housework_id)=SUM(!ISNULL(housework_complete.housework_complete_id))")
+                        "HAVING COUNT(housework.housework_id)>=1 AND COUNT(housework.housework_id)=SUM(NOT ISNULL(housework_complete.housework_complete_id))")
                 .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{date, date, date, weekly, month}))
                 .saveState(false)
                 .build();

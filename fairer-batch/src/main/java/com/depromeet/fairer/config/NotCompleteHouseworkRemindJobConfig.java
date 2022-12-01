@@ -79,7 +79,7 @@ public class NotCompleteHouseworkRemindJobConfig {
                         "AND housework.scheduled_date <= ? AND (housework.repeat_end_date IS NULL OR ?<=housework.repeat_end_date)\n" +
                         "AND housework_complete.housework_complete_id IS NULL\n" +
                         "AND ((housework.repeat_cycle='ONCE' AND housework.repeat_pattern=?)\n" +
-                        "OR (housework.repeat_cycle='WEEKLY' AND housework.repeat_pattern=? )\n" +
+                        "OR (housework.repeat_cycle='WEEKLY' AND INSTR(housework.repeat_pattern, ?)>0)\n" +
                         "OR (housework.repeat_cycle='MONTHLY' AND housework.repeat_pattern=?))\n" +
                         "GROUP BY assignment.member_id")
                 .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{date, date, date, weekly, month}))
