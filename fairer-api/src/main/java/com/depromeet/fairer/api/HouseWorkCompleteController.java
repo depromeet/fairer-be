@@ -1,6 +1,8 @@
 package com.depromeet.fairer.api;
 
+import com.depromeet.fairer.dto.houseworkComplete.request.TeamHouseWorkStatisticThisMonthRequestDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.HouseWorkCompleteResponseDto;
+import com.depromeet.fairer.dto.houseworkComplete.response.TeamHouseWorkStatisticPerMonthResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.global.util.DateTimeUtils;
 import com.depromeet.fairer.service.houseworkComplete.HouseWorkCompleteService;
@@ -11,8 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.Date;
 
 @Slf4j
 @RestController
@@ -40,5 +47,16 @@ public class HouseWorkCompleteController {
     public ResponseEntity<?> deleteHouseWorkComp(@PathVariable("houseWorkCompleteId") Long houseWorkCompleteId) {
         houseWorkCompleteService.delete(houseWorkCompleteId);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Tag(name = "houseWorkComplete")
+    @ApiOperation(value = "멤버 별 이번달 집안일 완료 통계")
+    @GetMapping("/statistic/teams/my")
+    public ResponseEntity<TeamHouseWorkStatisticPerMonthResponseDto> getTeamHouseWorkStatisticThisMonth(
+            @Valid TeamHouseWorkStatisticThisMonthRequestDto teamHouseWorkStatisticThisMonthRequestDto,
+            @ApiIgnore @RequestMemberId Long memberId
+    ) {
+        TeamHouseWorkStatisticPerMonthResponseDto teamHouseWorkStatisticPerMonthResponseDto = houseWorkCompleteService.getTeamHouseWorkStatisticThisMonthByMemberId(memberId, teamHouseWorkStatisticThisMonthRequestDto);
+        return ResponseEntity.ok(teamHouseWorkStatisticPerMonthResponseDto);
     }
 }

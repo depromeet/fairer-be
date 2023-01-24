@@ -2,6 +2,7 @@ package com.depromeet.fairer.repository.houseworkcomplete;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
+import com.querydsl.core.Tuple;
 import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface HouseWorkCompleteRepository extends JpaRepository<HouseworkComplete, Long> {
+public interface HouseWorkCompleteRepository extends JpaRepository<HouseworkComplete, Long>, HouseWorkCompleteCustomRepository {
     List<HouseworkComplete> findAllByHouseWorkAndScheduledDateGreaterThanEqual(HouseWork houseWork, LocalDate scheduledDate);
     HouseworkComplete findByHouseWorkAndScheduledDate(HouseWork houseWork, LocalDate scheduledDate);
 
@@ -30,4 +31,6 @@ public interface HouseWorkCompleteRepository extends JpaRepository<HouseworkComp
     @Modifying(clearAutomatically = true)
     @Query("select c from HouseworkComplete c where c.houseWork.houseWorkId =:houseWorkId")
     List<HouseworkComplete> getCompleteList(@Param(value = "houseWorkId") Long houseWorkId);
+
+    List<Tuple> getTeamHouseWorkStatisticThisMonthByTeamId(Long teamId, int year, int month);
 }
