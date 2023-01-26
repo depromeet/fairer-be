@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -41,6 +42,11 @@ public class HouseWorkCompleteService {
         });
 
         houseWorkCompleteRepository.deleteById(houseWorkCompleteId);
+    }
+
+    public Integer getCompleteNum(Long houseWorkId){
+
+        return houseWorkCompleteRepository.getCompleteList(houseWorkId).size();
     }
 
 }
