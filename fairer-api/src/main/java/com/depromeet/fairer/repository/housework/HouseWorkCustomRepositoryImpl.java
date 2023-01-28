@@ -95,19 +95,7 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
                 .where((houseWork.repeatCycle.eq(RepeatCycle.ONCE)
                         .and(houseWork.scheduledDate.between(fromDate, toDate)))
                         .and(houseWork.team.eq(team))
-
-                        .or((houseWork.repeatCycle.eq(RepeatCycle.DAILY)
-                                .and(houseWork.scheduledDate.loe(toDate))
-                                .and(houseWork.repeatEndDate.goe(fromDate)))
-                                .and(houseWork.team.eq(team)))
-
-                        .or((houseWork.repeatCycle.eq(RepeatCycle.WEEKLY)
-                                .and(houseWork.scheduledDate.loe(toDate))
-                                .and(houseWork.repeatEndDate.goe(fromDate)))
-                                .and(houseWork.team.eq(team)))
-
-                        .or(houseWork.repeatCycle.eq(RepeatCycle.MONTHLY)
-                                .and(houseWork.scheduledDate.loe(toDate))
+                        .or(houseWork.scheduledDate.loe(toDate)
                                 .and(houseWork.repeatEndDate.goe(fromDate))
                                 .and(houseWork.team.eq(team))))
                 .fetch();
