@@ -1,6 +1,7 @@
 package com.depromeet.fairer.repository.houseworkcomplete;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -22,7 +23,7 @@ public class HouseWorkCompleteCustomRepositoryImpl implements HouseWorkCompleteC
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<Tuple> getTeamHouseWorkStatisticThisMonthByTeamId(Long teamId, int year, int month) {
+    public List<Tuple> getTeamHouseWorkStatisticPerMonthByTeamIdAndHouseWorkName(Long teamId, int year, int month, String houseWorkName) {
         int firstDateOfMonth = 1;
         int startHour = 0;
         int startMinute = 0;
@@ -50,9 +51,14 @@ public class HouseWorkCompleteCustomRepositoryImpl implements HouseWorkCompleteC
                 .leftJoin(member).on(assignment.member.memberId.eq(member.memberId))
                 .leftJoin(team).on(member.team.teamId.eq(team.teamId))
                 .where(team.teamId.eq(teamId),
-                        houseworkComplete.successDateTime.between(startDateTimeOfMonth, endDateTimeOfMonth))
+                        houseworkComplete.successDateTime.between(startDateTimeOfMonth, endDateTimeOfMonth),
+                        houseworkNameEq(houseWorkName))
                 .groupBy(member)
                 .orderBy(member.count().desc())
                 .fetch();
+    }
+
+    private BooleanExpression houseworkNameEq(String houseworkName) {
+        return houseworkName != null? houseWork.houseWorkName.eq(houseworkName) : null;
     }
 }

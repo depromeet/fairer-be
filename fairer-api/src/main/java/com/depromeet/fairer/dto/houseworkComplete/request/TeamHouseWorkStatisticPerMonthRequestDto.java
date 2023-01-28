@@ -15,8 +15,8 @@ import javax.validation.constraints.NotNull;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(value = "팀 업데이트 요청 객체", description = "팀 업데이트 요청 객체")
-public class TeamHouseWorkStatisticThisMonthRequestDto {
+@ApiModel(value = "멤버별 이번달 완료 집안일 통계 요청 객체", description = "멤버별 이번달 완료 집안일 통계 요청 객체")
+public class TeamHouseWorkStatisticPerMonthRequestDto {
 
     @NotNull
     @Min(1)

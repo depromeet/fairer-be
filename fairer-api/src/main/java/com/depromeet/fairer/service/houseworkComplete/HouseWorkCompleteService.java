@@ -1,11 +1,15 @@
 package com.depromeet.fairer.service.houseworkComplete;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
+import com.depromeet.fairer.domain.housework.QHouseWork;
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.member.QMember;
-import com.depromeet.fairer.dto.houseworkComplete.request.TeamHouseWorkStatisticThisMonthRequestDto;
+import com.depromeet.fairer.dto.houseworkComplete.request.TeamHouseWorkStaticsPerMonthByHouseWorkRequestDto;
+import com.depromeet.fairer.dto.houseworkComplete.request.TeamHouseWorkStatisticPerMonthRequestDto;
+import com.depromeet.fairer.dto.houseworkComplete.response.MemberHouseWorkStatisticByHouseWorkDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.MemberHouseWorkStatisticDto;
+import com.depromeet.fairer.dto.houseworkComplete.response.TeamHouseWorkStatisticPerMonthByHouseWorkResponseDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.TeamHouseWorkStatisticPerMonthResponseDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.NoSuchMemberException;
@@ -62,11 +66,15 @@ public class HouseWorkCompleteService {
 
     public TeamHouseWorkStatisticPerMonthResponseDto getTeamHouseWorkStatisticThisMonthByMemberId(
             Long memberId,
-            TeamHouseWorkStatisticThisMonthRequestDto teamHouseWorkStatisticThisMonthRequestDto
+            TeamHouseWorkStatisticPerMonthRequestDto requestDto
     ) {
         Member currentMember = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다."));
 
-        List<Tuple> teamHouseWorkStatistics = houseWorkCompleteRepository.getTeamHouseWorkStatisticThisMonthByTeamId(currentMember.getTeam().getTeamId(), teamHouseWorkStatisticThisMonthRequestDto.getYear(), teamHouseWorkStatisticThisMonthRequestDto.getMonth());
+        List<Tuple> teamHouseWorkStatistics = houseWorkCompleteRepository.getTeamHouseWorkStatisticPerMonthByTeamIdAndHouseWorkName(
+                currentMember.getTeam().getTeamId(),
+                requestDto.getYear(),
+                requestDto.getMonth(),
+                null);
 
         List<MemberHouseWorkStatisticDto> houseWorkStatics = teamHouseWorkStatistics.stream().map(
                 statistic -> {
@@ -77,6 +85,31 @@ public class HouseWorkCompleteService {
         ).toList();
 
         return TeamHouseWorkStatisticPerMonthResponseDto.of(houseWorkStatics);
+    }
+
+    public TeamHouseWorkStatisticPerMonthByHouseWorkResponseDto getTeamHouseWorkStatisticPerMonthByHouseWorkName(
+            Long memberId,
+            TeamHouseWorkStaticsPerMonthByHouseWorkRequestDto requestDto
+    ) {
+        Member currentMember = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다."));
+
+        List<Tuple> teamHouseWorkStatistics = houseWorkCompleteRepository.getTeamHouseWorkStatisticPerMonthByTeamIdAndHouseWorkName(
+                currentMember.getTeam().getTeamId(),
+                requestDto.getYear(),
+                requestDto.getMonth(),
+                requestDto.getHouseWorkName());
+
+        List<MemberHouseWorkStatisticByHouseWorkDto> houseWorkStatics = teamHouseWorkStatistics.stream().map(
+                statistic -> {
+                    Member member = statistic.get(QMember.member);
+                    Long count = statistic.get(QMember.member.count());
+                    String houseWorkName = statistic.get(QHouseWork.houseWork.houseWorkName);
+                    return MemberHouseWorkStatisticByHouseWorkDto.of(member, count, houseWorkName);
+                }
+        ).toList();
+
+        return TeamHouseWorkStatisticPerMonthByHouseWorkResponseDto.of(houseWorkStatics);
+
     }
 
 }

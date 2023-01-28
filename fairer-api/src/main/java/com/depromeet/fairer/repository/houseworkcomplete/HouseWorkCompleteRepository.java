@@ -32,5 +32,5 @@ public interface HouseWorkCompleteRepository extends JpaRepository<HouseworkComp
     @Query("select c from HouseworkComplete c where c.houseWork.houseWorkId =:houseWorkId")
     List<HouseworkComplete> getCompleteList(@Param(value = "houseWorkId") Long houseWorkId);
 
-    List<Tuple> getTeamHouseWorkStatisticThisMonthByTeamId(Long teamId, int year, int month);
+    List<Tuple> getTeamHouseWorkStatisticPerMonthByTeamIdAndHouseWorkName(Long teamId, int year, int month, String houseWorkName);
 }
