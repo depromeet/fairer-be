@@ -2,15 +2,13 @@ package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
-import com.depromeet.fairer.dto.statistic.response.StatisticListResponseDto;
+import com.depromeet.fairer.dto.statistic.response.StatisticResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.global.util.DateTimeUtils;
 import com.depromeet.fairer.service.housework.HouseWorkService;
 import com.depromeet.fairer.service.houseworkComplete.HouseWorkCompleteService;
 import com.depromeet.fairer.service.member.MemberService;
-import com.depromeet.fairer.service.statistic.StatisticService;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +35,8 @@ public class StatisticController {
     @Tag(name = "statistics")
     @ApiOperation(value = "통계 리스트 조회")
     @GetMapping("")
-    public ResponseEntity<List<StatisticListResponseDto>> getStatisticList(@RequestParam("date") String date,
-                                                                                             @ApiIgnore @RequestMemberId Long memberId) {
+    public ResponseEntity<StatisticResponseDto.StatisticResponseDtoList> getStatisticList(@RequestParam("date") String date,
+                                                                                          @ApiIgnore @RequestMemberId Long memberId) {
 
         final LocalDate today = DateTimeUtils.stringToLocalDate(date);
         Member member = memberService.find(memberId);
@@ -62,12 +60,12 @@ public class StatisticController {
 
         }
 
-        List<StatisticListResponseDto> response = new ArrayList<>();
+        List<StatisticResponseDto> response = new ArrayList<>();
         statistic.forEach((name, count) -> {
-            response.add(StatisticListResponseDto.from(name, count));
+            response.add(StatisticResponseDto.from(name, count));
         });
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new StatisticResponseDto.StatisticResponseDtoList(response));
     }
 
 }
