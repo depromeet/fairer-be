@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,5 +33,5 @@ public interface HouseWorkCompleteRepository extends JpaRepository<HouseworkComp
     @Query("select c from HouseworkComplete c where c.houseWork.houseWorkId =:houseWorkId")
     List<HouseworkComplete> getCompleteList(@Param(value = "houseWorkId") Long houseWorkId);
 
-    List<Tuple> getTeamHouseWorkStatisticPerMonthByTeamIdAndHouseWorkName(Long teamId, int year, int month, String houseWorkName);
+    List<Tuple> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(Long teamId, YearMonth month, String houseWorkName);
 }

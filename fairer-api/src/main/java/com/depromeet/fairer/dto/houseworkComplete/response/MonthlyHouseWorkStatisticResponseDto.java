@@ -13,12 +13,12 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @ApiModel(value = "팀 멤버별 집안일 완료 통계 반환 객체")
-public class TeamHouseWorkStatisticPerMonthResponseDto {
+public class MonthlyHouseWorkStatisticResponseDto {
 
     @ApiModelProperty(value = "멤버 별 집안일 완료 통계 객체 리스트")
     private List<MemberHouseWorkStatisticDto> houseWorkStatics;
 
-    public static TeamHouseWorkStatisticPerMonthResponseDto of(List<MemberHouseWorkStatisticDto> houseWorkStatics) {
-        return new TeamHouseWorkStatisticPerMonthResponseDto(houseWorkStatics);
+    public static MonthlyHouseWorkStatisticResponseDto of(List<MemberHouseWorkStatisticDto> houseWorkStatics) {
+        return new MonthlyHouseWorkStatisticResponseDto(houseWorkStatics);
     }
 }

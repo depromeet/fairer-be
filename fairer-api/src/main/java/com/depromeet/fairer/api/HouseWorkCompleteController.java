@@ -1,10 +1,10 @@
 package com.depromeet.fairer.api;
 
-import com.depromeet.fairer.dto.houseworkComplete.request.TeamHouseWorkStaticsPerMonthByHouseWorkRequestDto;
-import com.depromeet.fairer.dto.houseworkComplete.request.TeamHouseWorkStatisticPerMonthRequestDto;
+import com.depromeet.fairer.dto.houseworkComplete.request.MonthlyHouseWorkStaticsByHouseWorkRequestDto;
+import com.depromeet.fairer.dto.houseworkComplete.request.MonthlyHouseWorkStatisticRequestDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.HouseWorkCompleteResponseDto;
-import com.depromeet.fairer.dto.houseworkComplete.response.TeamHouseWorkStatisticPerMonthByHouseWorkResponseDto;
-import com.depromeet.fairer.dto.houseworkComplete.response.TeamHouseWorkStatisticPerMonthResponseDto;
+import com.depromeet.fairer.dto.houseworkComplete.response.MonthlyHouseWorkStatisticByHouseWorkResponseDto;
+import com.depromeet.fairer.dto.houseworkComplete.response.MonthlyHouseWorkStatisticResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.global.util.DateTimeUtils;
 import com.depromeet.fairer.service.houseworkComplete.HouseWorkCompleteService;
@@ -49,25 +49,25 @@ public class HouseWorkCompleteController {
     }
 
     @Tag(name = "houseWorkComplete")
-    @ApiOperation(value = "팀 멤버 별 이번달 집안일 완료 통계")
+    @ApiOperation(value = "월별 집안일 완료 통계")
     @GetMapping("/statistic/team")
-    public ResponseEntity<TeamHouseWorkStatisticPerMonthResponseDto> getTeamHouseWorkStatisticPerMonth(
-            @Valid TeamHouseWorkStatisticPerMonthRequestDto requestDto,
+    public ResponseEntity<MonthlyHouseWorkStatisticResponseDto> getMonthlyHouseWorkStatistic(
+            @Valid MonthlyHouseWorkStatisticRequestDto requestDto,
             @ApiIgnore @RequestMemberId Long memberId
     ) {
-        TeamHouseWorkStatisticPerMonthResponseDto teamHouseWorkStatisticPerMonthResponseDto = houseWorkCompleteService.getTeamHouseWorkStatisticThisMonthByMemberId(memberId, requestDto);
-        return ResponseEntity.ok(teamHouseWorkStatisticPerMonthResponseDto);
+        MonthlyHouseWorkStatisticResponseDto monthlyHouseWorkStatisticResponseDto = houseWorkCompleteService.getMonthlyHouseWorkStatisticByMemberId(memberId, requestDto);
+        return ResponseEntity.ok(monthlyHouseWorkStatisticResponseDto);
     }
 
     @Tag(name = "houseWorkComplete")
-    @ApiOperation(value = "팀 멤버 집안일 별 완료 통계 조회")
+    @ApiOperation(value = "월별 집안일 완료 통계 상세")
     @GetMapping("/statistic/team/by-housework")
-    public ResponseEntity<TeamHouseWorkStatisticPerMonthByHouseWorkResponseDto> getTeamHouseWorkStatisticPerMonthByHouseWorkName(
-            @Valid TeamHouseWorkStaticsPerMonthByHouseWorkRequestDto requestDto,
+    public ResponseEntity<MonthlyHouseWorkStatisticByHouseWorkResponseDto> getMonthlyHouseWorkStatisticByHouseWorkName(
+            @Valid MonthlyHouseWorkStaticsByHouseWorkRequestDto requestDto,
             @ApiIgnore @RequestMemberId Long memberId
     ) {
-        TeamHouseWorkStatisticPerMonthByHouseWorkResponseDto teamHouseWorkStatisticPerMonthResponseDto = houseWorkCompleteService.getTeamHouseWorkStatisticPerMonthByHouseWorkName(memberId, requestDto);
-        return ResponseEntity.ok(teamHouseWorkStatisticPerMonthResponseDto);
+        MonthlyHouseWorkStatisticByHouseWorkResponseDto monthlyHouseWorkStatisticByHouseWorkResponseDto = houseWorkCompleteService.getTeamHouseWorkStatisticPerMonthByHouseWorkName(memberId, requestDto);
+        return ResponseEntity.ok(monthlyHouseWorkStatisticByHouseWorkResponseDto);
     }
 
 }

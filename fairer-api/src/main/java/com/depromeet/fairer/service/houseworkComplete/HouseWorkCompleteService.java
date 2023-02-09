@@ -5,12 +5,12 @@ import com.depromeet.fairer.domain.housework.QHouseWork;
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.member.QMember;
-import com.depromeet.fairer.dto.houseworkComplete.request.TeamHouseWorkStaticsPerMonthByHouseWorkRequestDto;
-import com.depromeet.fairer.dto.houseworkComplete.request.TeamHouseWorkStatisticPerMonthRequestDto;
+import com.depromeet.fairer.dto.houseworkComplete.request.MonthlyHouseWorkStaticsByHouseWorkRequestDto;
+import com.depromeet.fairer.dto.houseworkComplete.request.MonthlyHouseWorkStatisticRequestDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.MemberHouseWorkStatisticByHouseWorkDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.MemberHouseWorkStatisticDto;
-import com.depromeet.fairer.dto.houseworkComplete.response.TeamHouseWorkStatisticPerMonthByHouseWorkResponseDto;
-import com.depromeet.fairer.dto.houseworkComplete.response.TeamHouseWorkStatisticPerMonthResponseDto;
+import com.depromeet.fairer.dto.houseworkComplete.response.MonthlyHouseWorkStatisticByHouseWorkResponseDto;
+import com.depromeet.fairer.dto.houseworkComplete.response.MonthlyHouseWorkStatisticResponseDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.NoSuchMemberException;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
@@ -64,15 +64,14 @@ public class HouseWorkCompleteService {
         return houseWorkCompleteRepository.getCompleteList(houseWorkId).size();
     }
 
-    public TeamHouseWorkStatisticPerMonthResponseDto getTeamHouseWorkStatisticThisMonthByMemberId(
+    public MonthlyHouseWorkStatisticResponseDto getMonthlyHouseWorkStatisticByMemberId(
             Long memberId,
-            TeamHouseWorkStatisticPerMonthRequestDto requestDto
+            MonthlyHouseWorkStatisticRequestDto requestDto
     ) {
         Member currentMember = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다."));
 
-        List<Tuple> teamHouseWorkStatistics = houseWorkCompleteRepository.getTeamHouseWorkStatisticPerMonthByTeamIdAndHouseWorkName(
+        List<Tuple> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(
                 currentMember.getTeam().getTeamId(),
-                requestDto.getYear(),
                 requestDto.getMonth(),
                 null);
 
@@ -82,20 +81,19 @@ public class HouseWorkCompleteService {
                     Long count = statistic.get(QMember.member.count());
                     return MemberHouseWorkStatisticDto.of(member, count);
                 }
-        ).toList();
+        ).collect(Collectors.toList());
 
-        return TeamHouseWorkStatisticPerMonthResponseDto.of(houseWorkStatics);
+        return MonthlyHouseWorkStatisticResponseDto.of(houseWorkStatics);
     }
 
-    public TeamHouseWorkStatisticPerMonthByHouseWorkResponseDto getTeamHouseWorkStatisticPerMonthByHouseWorkName(
+    public MonthlyHouseWorkStatisticByHouseWorkResponseDto getTeamHouseWorkStatisticPerMonthByHouseWorkName(
             Long memberId,
-            TeamHouseWorkStaticsPerMonthByHouseWorkRequestDto requestDto
+            MonthlyHouseWorkStaticsByHouseWorkRequestDto requestDto
     ) {
         Member currentMember = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다."));
 
-        List<Tuple> teamHouseWorkStatistics = houseWorkCompleteRepository.getTeamHouseWorkStatisticPerMonthByTeamIdAndHouseWorkName(
+        List<Tuple> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(
                 currentMember.getTeam().getTeamId(),
-                requestDto.getYear(),
                 requestDto.getMonth(),
                 requestDto.getHouseWorkName());
 
@@ -106,9 +104,9 @@ public class HouseWorkCompleteService {
                     String houseWorkName = statistic.get(QHouseWork.houseWork.houseWorkName);
                     return MemberHouseWorkStatisticByHouseWorkDto.of(member, count, houseWorkName);
                 }
-        ).toList();
+        ).collect(Collectors.toList());
 
-        return TeamHouseWorkStatisticPerMonthByHouseWorkResponseDto.of(houseWorkStatics);
+        return MonthlyHouseWorkStatisticByHouseWorkResponseDto.of(houseWorkStatics);
 
     }
 
