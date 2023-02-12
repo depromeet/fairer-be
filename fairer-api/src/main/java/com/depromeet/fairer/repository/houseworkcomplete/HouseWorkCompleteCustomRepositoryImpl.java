@@ -1,6 +1,8 @@
 package com.depromeet.fairer.repository.houseworkcomplete;
 
+import com.depromeet.fairer.vo.houseWorkComplete.HouseWorkCompleteStatisticsVo;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +24,17 @@ public class HouseWorkCompleteCustomRepositoryImpl implements HouseWorkCompleteC
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<Tuple> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(Long teamId, YearMonth month, String houseWorkName) {
+    public List<HouseWorkCompleteStatisticsVo> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(Long teamId, YearMonth month, String houseWorkName) {
         LocalDateTime startTimeOfMonth = month.atDay(1) .atStartOfDay();
         LocalDateTime endTimeOfMonth = month.atEndOfMonth().atTime(LocalTime.MAX);
 
-        return jpaQueryFactory.select(member, member.count())
+        return jpaQueryFactory.select(
+                    Projections.fields(
+                            HouseWorkCompleteStatisticsVo.class,
+                            member.as("member"),
+                            member.count().as("completeCount")
+                    )
+                )
                 .from(houseworkComplete)
                 .leftJoin(houseWork).on(houseWork.houseWorkId.eq(houseworkComplete.houseWork.houseWorkId))
                 .leftJoin(assignment).on(houseWork.houseWorkId.eq(assignment.houseWork.houseWorkId))

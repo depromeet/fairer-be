@@ -2,6 +2,7 @@ package com.depromeet.fairer.repository.houseworkcomplete;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
+import com.depromeet.fairer.vo.houseWorkComplete.HouseWorkCompleteStatisticsVo;
 import com.querydsl.core.Tuple;
 import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,5 +34,5 @@ public interface HouseWorkCompleteRepository extends JpaRepository<HouseworkComp
     @Query("select c from HouseworkComplete c where c.houseWork.houseWorkId =:houseWorkId")
     List<HouseworkComplete> getCompleteList(@Param(value = "houseWorkId") Long houseWorkId);
 
-    List<Tuple> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(Long teamId, YearMonth month, String houseWorkName);
+    List<HouseWorkCompleteStatisticsVo> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(Long teamId, YearMonth month, String houseWorkName);
 }

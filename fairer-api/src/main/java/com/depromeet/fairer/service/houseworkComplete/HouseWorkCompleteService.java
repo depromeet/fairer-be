@@ -1,22 +1,17 @@
 package com.depromeet.fairer.service.houseworkComplete;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
-import com.depromeet.fairer.domain.housework.QHouseWork;
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.domain.member.Member;
-import com.depromeet.fairer.domain.member.QMember;
-import com.depromeet.fairer.dto.houseworkComplete.request.MonthlyHouseWorkStaticsByHouseWorkRequestDto;
-import com.depromeet.fairer.dto.houseworkComplete.request.MonthlyHouseWorkStatisticRequestDto;
-import com.depromeet.fairer.dto.houseworkComplete.response.MemberHouseWorkStatisticByHouseWorkDto;
+import com.depromeet.fairer.dto.statistic.response.request.MonthlyHouseWorkStatisticRequestDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.MemberHouseWorkStatisticDto;
-import com.depromeet.fairer.dto.houseworkComplete.response.MonthlyHouseWorkStatisticByHouseWorkResponseDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.MonthlyHouseWorkStatisticResponseDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.NoSuchMemberException;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.houseworkcomplete.HouseWorkCompleteRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
-import com.querydsl.core.Tuple;
+import com.depromeet.fairer.vo.houseWorkComplete.HouseWorkCompleteStatisticsVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,9 +22,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.depromeet.fairer.domain.member.QMember.member;
 
 @Slf4j
 @Service
@@ -68,46 +60,24 @@ public class HouseWorkCompleteService {
             Long memberId,
             MonthlyHouseWorkStatisticRequestDto requestDto
     ) {
-        Member currentMember = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다."));
+        Member currentMember = memberRepository.findById(memberId).orElseThrow(
+                () -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다.")
+        );
 
-        List<Tuple> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(
+        List<HouseWorkCompleteStatisticsVo> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(
                 currentMember.getTeam().getTeamId(),
                 requestDto.getMonth(),
-                null);
+                requestDto.getHouseWorkName());
 
         List<MemberHouseWorkStatisticDto> houseWorkStatics = teamHouseWorkStatistics.stream().map(
                 statistic -> {
-                    Member member = statistic.get(QMember.member);
-                    Long count = statistic.get(QMember.member.count());
+                    Member member = statistic.getMember();
+                    Long count = statistic.getCompleteCount();
                     return MemberHouseWorkStatisticDto.of(member, count);
                 }
         ).collect(Collectors.toList());
 
         return MonthlyHouseWorkStatisticResponseDto.of(houseWorkStatics);
-    }
-
-    public MonthlyHouseWorkStatisticByHouseWorkResponseDto getTeamHouseWorkStatisticPerMonthByHouseWorkName(
-            Long memberId,
-            MonthlyHouseWorkStaticsByHouseWorkRequestDto requestDto
-    ) {
-        Member currentMember = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다."));
-
-        List<Tuple> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(
-                currentMember.getTeam().getTeamId(),
-                requestDto.getMonth(),
-                requestDto.getHouseWorkName());
-
-        List<MemberHouseWorkStatisticByHouseWorkDto> houseWorkStatics = teamHouseWorkStatistics.stream().map(
-                statistic -> {
-                    Member member = statistic.get(QMember.member);
-                    Long count = statistic.get(QMember.member.count());
-                    String houseWorkName = statistic.get(QHouseWork.houseWork.houseWorkName);
-                    return MemberHouseWorkStatisticByHouseWorkDto.of(member, count, houseWorkName);
-                }
-        ).collect(Collectors.toList());
-
-        return MonthlyHouseWorkStatisticByHouseWorkResponseDto.of(houseWorkStatics);
-
     }
 
 }

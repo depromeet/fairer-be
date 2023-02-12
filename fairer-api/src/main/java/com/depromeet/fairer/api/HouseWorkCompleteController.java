@@ -1,11 +1,6 @@
 package com.depromeet.fairer.api;
 
-import com.depromeet.fairer.dto.houseworkComplete.request.MonthlyHouseWorkStaticsByHouseWorkRequestDto;
-import com.depromeet.fairer.dto.houseworkComplete.request.MonthlyHouseWorkStatisticRequestDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.HouseWorkCompleteResponseDto;
-import com.depromeet.fairer.dto.houseworkComplete.response.MonthlyHouseWorkStatisticByHouseWorkResponseDto;
-import com.depromeet.fairer.dto.houseworkComplete.response.MonthlyHouseWorkStatisticResponseDto;
-import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.global.util.DateTimeUtils;
 import com.depromeet.fairer.service.houseworkComplete.HouseWorkCompleteService;
 import io.swagger.annotations.ApiOperation;
@@ -15,9 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.Valid;
 import java.time.LocalDate;
 
 @Slf4j
@@ -47,27 +40,4 @@ public class HouseWorkCompleteController {
         houseWorkCompleteService.delete(houseWorkCompleteId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    @Tag(name = "houseWorkComplete")
-    @ApiOperation(value = "월별 집안일 완료 통계")
-    @GetMapping("/statistic/team")
-    public ResponseEntity<MonthlyHouseWorkStatisticResponseDto> getMonthlyHouseWorkStatistic(
-            @Valid MonthlyHouseWorkStatisticRequestDto requestDto,
-            @ApiIgnore @RequestMemberId Long memberId
-    ) {
-        MonthlyHouseWorkStatisticResponseDto monthlyHouseWorkStatisticResponseDto = houseWorkCompleteService.getMonthlyHouseWorkStatisticByMemberId(memberId, requestDto);
-        return ResponseEntity.ok(monthlyHouseWorkStatisticResponseDto);
-    }
-
-    @Tag(name = "houseWorkComplete")
-    @ApiOperation(value = "월별 집안일 완료 통계 상세")
-    @GetMapping("/statistic/team/by-housework")
-    public ResponseEntity<MonthlyHouseWorkStatisticByHouseWorkResponseDto> getMonthlyHouseWorkStatisticByHouseWorkName(
-            @Valid MonthlyHouseWorkStaticsByHouseWorkRequestDto requestDto,
-            @ApiIgnore @RequestMemberId Long memberId
-    ) {
-        MonthlyHouseWorkStatisticByHouseWorkResponseDto monthlyHouseWorkStatisticByHouseWorkResponseDto = houseWorkCompleteService.getTeamHouseWorkStatisticPerMonthByHouseWorkName(memberId, requestDto);
-        return ResponseEntity.ok(monthlyHouseWorkStatisticByHouseWorkResponseDto);
-    }
-
 }
