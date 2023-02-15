@@ -4,7 +4,6 @@ import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.dto.statistic.response.StatisticResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
-import com.depromeet.fairer.global.util.DateTimeUtils;
 import com.depromeet.fairer.service.housework.HouseWorkService;
 import com.depromeet.fairer.service.houseworkComplete.HouseWorkCompleteService;
 import com.depromeet.fairer.service.member.MemberService;
@@ -17,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
@@ -33,12 +34,15 @@ public class StatisticController {
 
 
     @Tag(name = "statistics")
-    @ApiOperation(value = "통계 리스트 조회")
+    @ApiOperation(value = "통계 리스트 조회", notes = "yearMonth는 yyyy-MM로 보내주시면 됩니다.")
     @GetMapping("")
-    public ResponseEntity<StatisticResponseDto.StatisticResponseDtoList> getStatisticList(@RequestParam("date") String date,
+    public ResponseEntity<StatisticResponseDto.StatisticResponseDtoList> getStatisticList(@RequestParam String yearMonth,
                                                                                           @ApiIgnore @RequestMemberId Long memberId) {
 
-        final LocalDate today = DateTimeUtils.stringToLocalDate(date);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        YearMonth date = YearMonth.parse(yearMonth, dateTimeFormatter);
+
+        LocalDate today = LocalDate.of(date.getYear(), date.getMonth(), 1);
         Member member = memberService.find(memberId);
 
         // 한달 집안일 조회
