@@ -351,4 +351,9 @@ public class HouseWorkService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일 입니다."));
     }
 
+    public List<HouseWork> getStatisticList(Team team, LocalDate date) {
+
+        return houseWorkRepository.getCycleHouseWorkByTeamMonth(date.withDayOfMonth(1), date.withDayOfMonth(date.lengthOfMonth()), team);
+    }
+
 }
