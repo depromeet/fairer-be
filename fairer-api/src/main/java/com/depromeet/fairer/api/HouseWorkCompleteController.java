@@ -1,7 +1,6 @@
 package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.dto.houseworkComplete.response.HouseWorkCompleteResponseDto;
-import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.global.util.DateTimeUtils;
 import com.depromeet.fairer.service.houseworkComplete.HouseWorkCompleteService;
 import io.swagger.annotations.ApiOperation;

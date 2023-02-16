@@ -2,6 +2,8 @@ package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
+import com.depromeet.fairer.dto.houseworkComplete.response.MonthlyHouseWorkStatisticResponseDto;
+import com.depromeet.fairer.dto.statistic.response.request.MonthlyHouseWorkStatisticRequestDto;
 import com.depromeet.fairer.dto.statistic.response.StatisticResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.housework.HouseWorkService;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -31,7 +34,6 @@ public class StatisticController {
     private final MemberService memberService;
     private final HouseWorkService houseWorkService;
     private final HouseWorkCompleteService houseWorkCompleteService;
-
 
     @Tag(name = "statistics")
     @ApiOperation(value = "통계 리스트 조회", notes = "yearMonth는 yyyy-MM로 보내주시면 됩니다.")
@@ -70,6 +72,18 @@ public class StatisticController {
         });
 
         return ResponseEntity.ok(new StatisticResponseDto.StatisticResponseDtoList(response));
+    }
+
+    @Tag(name = "statistics")
+    @ApiOperation(value = "월별 집안일 완료 통계")
+    @GetMapping("/team-member")
+    public ResponseEntity<MonthlyHouseWorkStatisticResponseDto> getMonthlyHouseWorkStatistic(
+            @Valid @ModelAttribute MonthlyHouseWorkStatisticRequestDto requestDto,
+            @ApiIgnore @RequestMemberId Long memberId
+    ) {
+        MonthlyHouseWorkStatisticResponseDto monthlyHouseWorkStatisticResponseDto =
+                houseWorkCompleteService.getMonthlyHouseWorkStatisticByMemberId(memberId, requestDto);
+        return ResponseEntity.ok(monthlyHouseWorkStatisticResponseDto);
     }
 
 }
