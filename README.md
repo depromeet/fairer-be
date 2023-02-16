@@ -30,46 +30,50 @@ fairer의 백엔드 레포지토리 입니다.
 ## **💻 Tech Stack**
 
 - Skills
-    
-    > Spring Boot, Data JPA(+Querydsl)
-    > 
+
+  > Spring Boot, Data JPA(+Querydsl)
+>
 - Database
-    
-    > Mysql, RDS
-    > 
+
+  > Mysql, RDS
+>
 - 개발 환경
-    
-    > AWS EC2
-    > 
+
+  > AWS EC2
+  
+  > Docker
+>
 - 운영 환경
-    
-    > Elastic Beanstalk
-    > 
+
+  > Elastic Beanstalk
+>
 - CI/CD
-    
-    > [Github Actions](https://github.com/depromeet/fairer-be/actions)
-    > 
+
+  > [Github Actions](https://github.com/depromeet/fairer-be/actions)
+>
 - 문서화
-    
-    > [Swagger](http://ec2-13-125-232-180.ap-northeast-2.compute.amazonaws.com:8080/swagger-ui/index.html)
-    >
+
+  > [Swagger](http://ec2-3-39-60-64.ap-northeast-2.compute.amazonaws.com:8080/swagger-ui/index.html)
+>
 - ETC
-    
-    > JWT, Oauth2(google)
-    
-    > Spring Batch
-    > 
+
+  > JWT, Oauth2(google)
+
+  > Spring Batch
+
+  > Firebase Cloud Messaging
+>
 
 <br/>
 
 ## 📚 Architecture
 <img src="https://user-images.githubusercontent.com/77181984/175924599-312a74a4-c506-49b5-a937-3fd82706419f.PNG" width="750"/>
-    
+
 <br/>
 
 ## 🗂 Directory
 ```
-📂 fairer
+📂 fairer-api
     📂 api
     📂 domain
     📂 dto
@@ -83,13 +87,20 @@ fairer의 백엔드 레포지토리 입니다.
     📂 repository
     📂 service
     📂 vo
-	- Application.java
+	  - Application.java
+📂 fairer-batch
+    📂 config
+    📂 domain
+     ├── 📂 command
+     └── 📂 config
+    📂 scheduler
+	  - Application.java
 ```
 
 <br/>
 
 ## 📝ERD
-<img src="https://user-images.githubusercontent.com/77181984/176247477-e1c0277b-e4d1-4049-817c-16e08668976b.PNG" width="550"/>
+<img width="808" alt="image" src="https://user-images.githubusercontent.com/77181984/218323606-81d2c2f0-4dbe-4d89-89a7-8e124816deda.png">
 
 <br/>
 
@@ -124,3 +135,5 @@ $ java -jar fairer-0.0.1-SNAPSHOT.jar
 ## 📞 Contact
 [![Facebook](https://img.shields.io/badge/facebook-1877f2?style=flat-square&logo=facebook&logoColor=white&link=https://www.facebook.com/fairer.official/)](https://www.facebook.com/fairer.official)
 [![instagram](https://img.shields.io/badge/instagram-E4405F?style=flat-square&logo=Instagram&logoColor=white&link=https://www.instagram.com/fairer.official/)](https://www.instagram.com/fairer.official/)
+
+
