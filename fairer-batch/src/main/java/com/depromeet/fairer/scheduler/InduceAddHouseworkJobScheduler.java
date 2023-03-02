@@ -18,7 +18,7 @@ public class InduceAddHouseworkJobScheduler {
     private final JobLauncher jobLauncher;
     private final InduceAddHouseworkJobConfig induceAddHouseworkJobConfig;
 
-    @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(cron = "0 0 18 * * *")
     public void induceAddHouseworkJobScheduler() {
         Map<String, JobParameter> confMap = new HashMap<>();
         confMap.put("time", new JobParameter(System.currentTimeMillis()));

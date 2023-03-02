@@ -2,22 +2,17 @@ package com.depromeet.fairer.domain.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.base.BaseTimeEntity;
-import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
-import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
-import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.preset.Space;
 import com.depromeet.fairer.domain.repeatexception.RepeatException;
 import com.depromeet.fairer.domain.team.Team;
-import com.depromeet.fairer.global.exception.BadRequestException;
-import com.depromeet.fairer.global.util.DateTimeUtils;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "housework")
@@ -95,5 +90,9 @@ public class HouseWork extends BaseTimeEntity {
         } else if (repeatCycle == RepeatCycle.MONTHLY) {
             repeatEndDate = deleteStandardDate.minusMonths(1);
         }
+    }
+    
+    public void deleteRepeatEndDateByCycle(LocalDate deleteStandardDate) {
+        repeatEndDate = deleteStandardDate.minusDays(1);
     }
 }

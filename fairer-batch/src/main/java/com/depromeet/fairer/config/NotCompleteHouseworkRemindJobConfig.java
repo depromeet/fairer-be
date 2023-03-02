@@ -19,11 +19,14 @@ import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @Configuration
@@ -56,14 +59,30 @@ public class NotCompleteHouseworkRemindJobConfig {
     @Bean
     @StepScope
     public JdbcCursorItemReader<NotCompleteHouseworkRemindCommand> notCompleteHouseworkRemindReader() {
+        LocalDate now = LocalDate.now();
+        String date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String weekly = now.getDayOfWeek().toString();
+        String month = Integer.toString(now.getDayOfMonth());
+
         return new JdbcCursorItemReaderBuilder<NotCompleteHouseworkRemindCommand>()
-                .name("InduceAddHouseworkReader")
+                .name("NotCompleteHouseworkRemindReader")
                 .fetchSize(1)
                 .dataSource(dataSource)
                 .rowMapper(new BeanPropertyRowMapper<>(NotCompleteHouseworkRemindCommand.class))
-                .sql("SELECT member_id as memberId,count(*) as totalCount, housework_name as houseworkName\n" +
-                        "FROM assignment INNER JOIN housework ON assignment.housework_id=housework.housework_id\n" +
-                        "WHERE success=0 GROUP BY member_id")
+                .sql("SELECT assignment.member_id as memberId, COUNT(*) AS totalCount, housework.housework_name as houseworkName\n" +
+                        "FROM housework\n" +
+                        "INNER JOIN assignment ON assignment.housework_id=housework.housework_id\n" +
+                        "INNER JOIN member ON assignment.member_id=member.member_id\n" +
+                        "INNER JOIN alarm ON alarm.member_id=member.member_id\n" +
+                        "LEFT OUTER JOIN housework_complete ON housework_complete.housework_id=housework.housework_id\n" +
+                        "WHERE member.fcm_token IS NOT NULL AND alarm.not_complete_status=1\n" +
+                        "AND housework.scheduled_date <= ? AND (housework.repeat_end_date IS NULL OR ?<=housework.repeat_end_date)\n" +
+                        "AND housework_complete.housework_complete_id IS NULL\n" +
+                        "AND ((housework.repeat_cycle='ONCE' AND housework.repeat_pattern=?)\n" +
+                        "OR (housework.repeat_cycle='WEEKLY' AND INSTR(housework.repeat_pattern, ?)>0)\n" +
+                        "OR (housework.repeat_cycle='MONTHLY' AND housework.repeat_pattern=?))\n" +
+                        "GROUP BY assignment.member_id")
+                .preparedStatementSetter(new ArgumentPreparedStatementSetter(new Object[]{date, date, date, weekly, month}))
                 .saveState(false)
                 .build();
     }

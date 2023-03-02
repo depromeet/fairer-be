@@ -14,6 +14,7 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
@@ -24,6 +25,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @Configuration
@@ -49,6 +54,7 @@ public class InduceAddHouseworkJobConfig {
         return stepBuilderFactory.get("InduceAddHouseworkStep")
                 .<InduceAddHouseworkCommand, InduceAddHouseworkCommand>chunk(1)
                 .reader(induceAddHouseworkReader())
+                .processor(induceAddHouseworkProcessor())
                 .writer(induceAddHouseworkWriter())
                 .build();
     }
@@ -61,11 +67,25 @@ public class InduceAddHouseworkJobConfig {
                 .fetchSize(1)
                 .dataSource(dataSource)
                 .rowMapper(new BeanPropertyRowMapper<>(InduceAddHouseworkCommand.class))
-                .sql("SELECT member_id, team_name\n" +
-                        "FROM member INNER JOIN team ON team.team_id=member.team_id\n" +
-                        "WHERE member.fcm_token IS NOT NULL")
+                .sql("SELECT member.member_id as memberId, MAX(assignment.created_date) as lastDate\n" +
+                        "FROM housework\n" +
+                        "INNER JOIN assignment ON assignment.housework_id=housework.housework_id\n" +
+                        "INNER JOIN member ON assignment.member_id=member.member_id\n" +
+                        "WHERE member.fcm_token IS NOT NULL\n" +
+                        "GROUP BY member.member_id")
                 .saveState(false)
                 .build();
+    }
+
+    @Bean
+    @StepScope
+    public ItemProcessor<InduceAddHouseworkCommand, InduceAddHouseworkCommand> induceAddHouseworkProcessor() {
+        return item -> {
+            LocalDate now = LocalDate.now();
+            LocalDate date = LocalDateTime.parse(item.getLastDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.nnnnnn")).toLocalDate();
+            long diffDays = ChronoUnit.DAYS.between(date, now);
+            return diffDays > 0 && (diffDays - 3) % 7 == 0 ? item : null;
+        };
     }
 
     @Bean
@@ -85,7 +105,7 @@ public class InduceAddHouseworkJobConfig {
     private FCMMessageRequest getFCMMessageRequest(InduceAddHouseworkCommand command) {
         Long memberId = command.getMemberId();
         String title = FCMMessageTemplate.INDUCE_ADD_HOUSEWORK.getTitle();
-        String body = String.format(FCMMessageTemplate.INDUCE_ADD_HOUSEWORK.getBody(), command.getTeamName());
+        String body = String.format(FCMMessageTemplate.INDUCE_ADD_HOUSEWORK.getBody());
         return FCMMessageRequest.of(memberId, title, body);
     }
 }

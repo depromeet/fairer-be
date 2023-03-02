@@ -20,6 +20,10 @@ import java.util.List;
 @ApiModel(value = "집안일 업데이트 요청 객체", description = "집안일 업데이트 요청 객체")
 public class HouseWorkUpdateRequestDto {
 
+    @ApiModelProperty(value = "수정할 집안일 ID", required = true)
+    @NotNull
+    private Long houseWorkId;
+
     @ApiModelProperty(value = "집안일 담당자 목록", example = "[1, 13] (동일한 그룹 내 유저 id만 가능)", required = true)
     @NotNull
     private List<Long> assignees;
@@ -63,3 +67,21 @@ public class HouseWorkUpdateRequestDto {
     }
 }
 
+    @ApiModelProperty(value = "집안일 반복 요일", example = "repeatCycle이 weekly일 경우: monday, sunday / monthly일 경우: 31")
+    private String repeatPattern;
+
+    @ApiModelProperty(value = "집안일 종료일", example = "2022-07-02", required = true)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    private LocalDate repeatEndDate;
+
+    @ApiModelProperty(value = "수정할 집안일 기간", required = true, example = "단일 수정: 'O' / 앞으로 일정 수정: 'H' / 모두 수정: 'A'")
+    @NotNull
+    private String type;
+
+    @ApiModelProperty(value = "수정 기준 날짜", example = "2022-07-02",
+            notes = "주기에 해당하는 날짜여야 함, 수요일 주기일 경우 수정의 기준이 되는 원하는 마지막 수요일 날짜")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    private LocalDate updateStandardDate;
+}

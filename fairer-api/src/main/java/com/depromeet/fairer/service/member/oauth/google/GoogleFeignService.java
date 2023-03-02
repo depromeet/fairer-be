@@ -3,6 +3,7 @@ package com.depromeet.fairer.service.member.oauth.google;
 import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.depromeet.fairer.dto.member.oauth.GoogleUserInfo;
 import com.depromeet.fairer.dto.member.oauth.OAuthAttributes;
+import com.depromeet.fairer.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -12,9 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.Objects;
 
@@ -64,10 +66,21 @@ public class GoogleFeignService {
     }
 
     private String getAccessToken(String code) {
-        final HttpEntity request = createRequest(code);
-        ResponseEntity<Map> response = postRequest(request);
-        log.info("plz response: {}", response.toString());
-        return (String) Objects.requireNonNull(response.getBody()).get("access_token");
+        try {
+            final HttpEntity request = createRequest(code);
+
+            ResponseEntity<Map> response = postRequest(request);
+
+            log.info("plz response: {}", response.toString());
+            return (String) Objects.requireNonNull(response.getBody()).get("access_token");
+
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                throw new BadRequestException(e.getMessage());
+            }
+
+            throw e;
+        }
     }
 
     private HttpEntity<MultiValueMap<String, String>> createRequest(String code) {

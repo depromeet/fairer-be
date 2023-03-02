@@ -38,4 +38,10 @@ public class HouseworkComplete {
     public int countFeedback() {
         return this.feedbackList.size();
     }
+
+    public HouseworkComplete(LocalDate scheduledDate, HouseWork houseWork, LocalDateTime successDateTime) {
+        this.setScheduledDate(scheduledDate);
+        this.setHouseWork(houseWork);
+        this.setSuccessDateTime(successDateTime);
+    }
 }
