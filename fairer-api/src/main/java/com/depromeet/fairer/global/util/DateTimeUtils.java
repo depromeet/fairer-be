@@ -26,6 +26,10 @@ public class DateTimeUtils {
         return localDate.format(DateTimeFormatter.ISO_DATE);
     }
 
+    public static String convertDayOfWeekToKor(DayOfWeek dayOfWeek) {
+        return dayOfWeek.getDisplayName(TextStyle.NARROW, Locale.KOREAN);
+    }
+
     public static String convertDayOfWeekToEng(DayOfWeek dayOfWeek) {
         return dayOfWeek.getDisplayName(TextStyle.FULL, Locale.US);
     }
