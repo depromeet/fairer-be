@@ -2,9 +2,12 @@ package com.depromeet.fairer.domain.housework;
 
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.base.BaseTimeEntity;
+import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
+import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.domain.preset.Space;
 import com.depromeet.fairer.domain.repeatexception.RepeatException;
 import com.depromeet.fairer.domain.team.Team;
+import com.depromeet.fairer.global.util.DateTimeUtils;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 
@@ -58,10 +61,10 @@ public class HouseWork extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "repeat_cycle", columnDefinition = "VARCHAR(30)")
-    private  RepeatCycle repeatCycle;
+    private RepeatCycle repeatCycle;
 
-    @Column(name = "repeat_day_of_week", columnDefinition = "VARCHAR(30)")
-    private String repeatDayOfWeek;
+    @Column(name = "repeat_pattern", columnDefinition = "VARCHAR(100)")
+    private String repeatPattern;
 
     @Column(name = "repeat_end_date", columnDefinition = "DATE")
     private LocalDate repeatEndDate; //endDate 당일까지 반복 포함
@@ -72,18 +75,25 @@ public class HouseWork extends BaseTimeEntity {
     @OneToMany(mappedBy = "houseWork", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RepeatException> repeatExceptionList;
 
-    private String rrule;
-
     public boolean isIncludingDate(LocalDate date) {
         if (repeatEndDate != null && date.isAfter(repeatEndDate)) {
-                return false;
+            return false;
         }
-        return repeatDayOfWeek.contains(DateTimeUtils.convertDayOfWeekToKor(date.getDayOfWeek()))
-                && date.isAfter(scheduledDate);
+        boolean result = true;
+        if (repeatCycle == RepeatCycle.WEEKLY) {
+            result = StringUtils.containsIgnoreCase(repeatPattern, DateTimeUtils.convertDayOfWeekToEng(date.getDayOfWeek()));
+        } else if (repeatCycle == RepeatCycle.MONTHLY) {
+            result = Integer.parseInt(repeatPattern) == date.getDayOfMonth();
+        } /*else if (repeatCycle == RepeatCycle.DAILY) {
+            return date.isEqual(scheduledDate) || date.isAfter(scheduledDate);
+        } else if (repeatCycle == RepeatCycle.ONCE) {
+            return date.isEqual(scheduledDate) || date.isAfter(scheduledDate);
+        }*/
+        return result && (date.isEqual(scheduledDate) || date.isAfter(scheduledDate));
     }
 
     public void updateRepeatEndDateByCycle(LocalDate deleteStandardDate) {
-        if (repeatCycle == RepeatCycle.EVERY) {
+        if (repeatCycle == RepeatCycle.DAILY) {
             repeatEndDate = deleteStandardDate.minusDays(1);
         } else if (repeatCycle == RepeatCycle.WEEKLY) {
             repeatEndDate = deleteStandardDate.minusWeeks(1);

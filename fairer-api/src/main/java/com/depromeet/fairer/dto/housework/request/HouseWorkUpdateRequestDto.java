@@ -59,13 +59,12 @@ public class HouseWorkUpdateRequestDto {
                 .houseWorkName(houseWorkName)
                 .scheduledDate(scheduledDate)
                 .scheduledTime(scheduledTime)
-                .repeatDayOfWeek(repeatDayOfWeek)
+                //.repeatDayOfWeek(repeatDayOfWeek)
                 .repeatCycle(RepeatCycle.of(repeatCycle))
                 .success(false)
                 .successDateTime(null)
                 .build();
     }
-}
 
     @ApiModelProperty(value = "집안일 반복 요일", example = "repeatCycle이 weekly일 경우: monday, sunday / monthly일 경우: 31")
     private String repeatPattern;

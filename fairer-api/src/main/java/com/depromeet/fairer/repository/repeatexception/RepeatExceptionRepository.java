@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RepeatExceptionRepository extends JpaRepository<RepeatException, Long> {
+public interface RepeatExceptionRepository extends JpaRepository<RepeatException, Long>, RepeatExceptionCustomRepository {
 
     @Modifying(clearAutomatically = true)
     @Query("delete from RepeatException R where R.houseWork.houseWorkId = :houseWorkId and R.exceptionDate > R.houseWork.repeatEndDate")

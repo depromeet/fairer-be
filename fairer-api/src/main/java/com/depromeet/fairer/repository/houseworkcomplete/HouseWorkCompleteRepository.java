@@ -5,6 +5,7 @@ import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.vo.houseWorkComplete.HouseWorkCompleteStatisticsVo;
 import com.querydsl.core.Tuple;
 import feign.Param;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -35,7 +36,7 @@ public interface HouseWorkCompleteRepository extends JpaRepository<HouseworkComp
     List<HouseworkComplete> getCompleteList(@Param(value = "houseWorkId") Long houseWorkId);
 
     List<HouseWorkCompleteStatisticsVo> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(Long teamId, YearMonth month, String houseWorkName);
-    
+
     @EntityGraph(attributePaths = {"feedbackList"})
     Optional<HouseworkComplete> findWithFeedbackByHouseWorkCompleteId(Long houseWorkCompleteId);
 

@@ -190,16 +190,6 @@ public class HouseWorkController {
     }
 
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "집안일 삭제 API - 반복 기능 구현 후")
-    @DeleteMapping("/v2")
-    public ResponseEntity<?> deleteHouseWork(
-            @ApiIgnore @RequestMemberId Long memberId,
-            @RequestBody @Valid HouseWorkDeleteRequestDto dto) {
-        houseWorkService.deleteHouseWork(memberId, dto.getHouseWorkId(), dto.getType(), dto.getDeleteStandardDate());
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Tag(name = "houseWorks")
     @ApiOperation(value = "날짜별 집안일 조회", notes = "본인 포함 팀원들의 집안일까지 모두 조회")
     @GetMapping(value = "")
     @Deprecated
@@ -274,13 +264,4 @@ public class HouseWorkController {
                                                                             @RequestBody @Valid HouseWorkStatusRequestDto req) {
         return ResponseEntity.ok(houseWorkService.updateHouseWorkStatus(houseWorkId, req.getToBeStatus()));
     }
-
-    @Tag(name = "houseWorks")
-    @GetMapping("/success/count")
-    public ResponseEntity<HouseWorkSuccessCountResponseDto> getSuccessCount(@RequestParam String scheduledDate,
-                                                                            @ApiIgnore @RequestMemberId Long memberId) {
-        HouseWorkSuccessCountResponseDto houseWorkSuccessCountResponseDto = houseWorkService.getSuccessCount(scheduledDate, memberId);
-        return ResponseEntity.ok(houseWorkSuccessCountResponseDto);
-    }
-
 }
