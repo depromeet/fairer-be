@@ -31,6 +31,8 @@ public class FeedbackService {
         HouseworkComplete houseworkComplete = findWithFeedbackListOrThrow(houseCompleteId);
         Member member = findMemberOrThrow(memberId);
 
+        if (emoji > 7) throw new BadRequestException("이모지 입력이 잘못되었습니다.");
+
         Feedback feedback = Feedback.create(houseworkComplete, member, comment, emoji);
         return feedbackRepository.save(feedback).getFeedbackId();
     }
