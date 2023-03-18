@@ -84,7 +84,8 @@ public class FeedbackService {
     }
 
     public List<HouseWorkCompFeedbackVO> findAll(Long houseWorkCompleteId) {
-        final List<Feedback> feedbackList = findWithFeedbackListAndMemberOrThrow(houseWorkCompleteId).getFeedbackList();
+       // final List<Feedback> feedbackList = findWithFeedbackListAndMemberOrThrow(houseWorkCompleteId).getFeedbackList();
+        final List<Feedback> feedbackList = feedbackRepository.findByHouseWorkCompleteId(houseWorkCompleteId);
 
         final List<HouseWorkCompFeedbackVO> VOList = new ArrayList<>();
         for (Feedback feedback : feedbackList) {
@@ -92,7 +93,11 @@ public class FeedbackService {
             VO.setMemberName(feedback.getMember().getMemberName());
             VO.setProfilePath(feedback.getMember().getProfilePath());
             VO.setComment(feedback.getComment());
-            VO.setEmoji(feedback.getEmoji());
+            if(feedback.getEmoji() != null) {
+                VO.setEmoji(feedback.getEmoji());
+            } else {
+                VO.setEmoji(0);
+            }
             VOList.add(VO);
         }
         return VOList;

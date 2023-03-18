@@ -2,9 +2,11 @@ package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
+import com.depromeet.fairer.dto.feedback.response.FeedbackCountResponseDto;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.global.util.DateTimeUtils;
+import com.depromeet.fairer.service.feedback.FeedbackService;
 import com.depromeet.fairer.service.housework.HouseWorkService;
 import com.depromeet.fairer.dto.housework.request.HouseWorksCreateRequestDto;
 import com.depromeet.fairer.dto.housework.request.HouseWorkUpdateRequestDto;
@@ -14,6 +16,7 @@ import com.depromeet.fairer.service.member.MemberService;
 
 import com.depromeet.fairer.service.team.TeamService;
 import com.depromeet.fairer.dto.housework.request.HouseWorkDeleteRequestDto;
+import com.depromeet.fairer.vo.houseWork.HouseWorkCompFeedbackVO;
 import com.depromeet.fairer.vo.houseWork.HouseWorkUpdateVo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -42,6 +45,7 @@ public class HouseWorkController {
     private final HouseWorkService houseWorkService;
     private final MemberService memberService;
     private final TeamService teamService;
+    private final FeedbackService feedbackService;
     private final ModelMapper modelMapper;
 
     @Tag(name = "houseWorks")
@@ -104,6 +108,39 @@ public class HouseWorkController {
         return ResponseEntity.ok(makeHouseWorkListResponse(teamMemberId, results));
     }
 
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "팀원의 특정 기간 집안일 목록 조회 - 피드백 적용 후", notes = "본인이 속한 팀의 팀원의 특정 기간 집안일 목록 조회")
+    @GetMapping("/list/member/{teamMemberId}/query/v2")
+    public ResponseEntity<Map<String, HouseWorkDateResponseDtoV2>> getHouseWorkListByTeamMemberAndDateQueryV2(@RequestParam("fromDate") String fromDate,
+                                                                                                          @RequestParam("toDate") String toDate,@PathVariable("teamMemberId") Long teamMemberId,
+                                                                                                          @ApiIgnore @RequestMemberId Long memberId) {
+        final LocalDate from = DateTimeUtils.stringToLocalDate(fromDate);
+        final LocalDate to = DateTimeUtils.stringToLocalDate(toDate);
+
+        teamService.checkJoinSameTeam(teamMemberId, memberId);
+        Member teamMember = memberService.find(teamMemberId);
+
+        Map<LocalDate, List<HouseWorkResponseDtoV2>> results = new HashMap<>();
+        Stream.iterate(from, date -> date.plusDays(1))
+                .limit(ChronoUnit.DAYS.between(from, to) + 1).forEach(date -> {
+
+                    List<HouseWorkResponseDtoV2> houseWorkResponseDtoList = houseWorkService.getHouseWorkByDateRepeatQuery(teamMember, date).stream().map(arr -> {
+                        List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(arr.getHouseWork().getHouseWorkId())
+                                .stream().map(MemberDto::from).collect(Collectors.toList());
+
+                        makeFeedbackCount(arr.getHouseWorkCompleteId());
+
+
+                        return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeFeedbackCount(arr.getHouseWorkCompleteId()));
+
+                    }).collect(Collectors.toList());
+
+                    results.put(date, houseWorkResponseDtoList);
+                });
+
+        return ResponseEntity.ok(makeHouseWorkListResponseV2(teamMemberId, results));
+    }
+
     // 팀 전체 쿼리 1개
     @Tag(name = "houseWorks")
     @ApiOperation(value = "특정 날짜별 집안일 조회 - 반복 기능 구현 후", notes = "특정 날짜별 집안일 조회")
@@ -147,6 +184,31 @@ public class HouseWorkController {
             response.put(DateTimeUtils.localDateToString(scheduledDate), HouseWorkDateResponseDto.from(memberId, scheduledDate, countDone, countLeft, houseWorkResponseDtoList));
         });
         return response;
+    }
+
+    private Map<String, HouseWorkDateResponseDtoV2> makeHouseWorkListResponseV2(Long memberId, Map<LocalDate, List<HouseWorkResponseDtoV2>> houseWorkListGroupByScheduledDate) {
+        Map<String, HouseWorkDateResponseDtoV2> response = new HashMap<>();
+        houseWorkListGroupByScheduledDate.forEach((scheduledDate, houseWorkResponseDtoList) -> {
+            long countDone = houseWorkResponseDtoList.stream().filter(HouseWorkResponseDtoV2::getSuccess).count();
+            long countLeft = houseWorkResponseDtoList.stream().filter(houseWorkResponseDto -> !houseWorkResponseDto.getSuccess()).count();
+            response.put(DateTimeUtils.localDateToString(scheduledDate), HouseWorkDateResponseDtoV2.from(memberId, scheduledDate, countDone, countLeft, houseWorkResponseDtoList));
+        });
+        return response;
+    }
+
+    private FeedbackCountResponseDto makeFeedbackCount(Long houseWorkCompleteId){
+
+        List<HouseWorkCompFeedbackVO> feedbackVOS= feedbackService.findAll(houseWorkCompleteId);
+        return FeedbackCountResponseDto.from(
+                feedbackVOS.size(),
+                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(1);}).count(),
+                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(2);}).count(),
+                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(3);}).count(),
+                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(4);}).count(),
+                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(5);}).count(),
+                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(6);}).count()
+        );
+
     }
 
     @Tag(name = "houseWorks")
