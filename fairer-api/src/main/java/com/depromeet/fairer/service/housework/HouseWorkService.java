@@ -56,7 +56,7 @@ public class HouseWorkService {
 
     public HouseWorkResponseDto createHouseWork(Long memberId, HouseWorksCreateRequestDto requestDto) {
         if(!isValidRepeatPattern(RepeatCycle.of(requestDto.getRepeatCycle()), requestDto.getRepeatPattern())) {
-            throw new FairerException("유효하지 않은 파라미터 입니다.");
+            throw new BadRequestException("유효하지 않은 파라미터 입니다.");
         }
 
         final Team team = teamService.getTeam(memberId);
@@ -80,12 +80,16 @@ public class HouseWorkService {
             }
         } else if (repeatCycle == RepeatCycle.WEEKLY) {
             String[] params = repeatPattern.split(",");
-            for(String param : params) {
-                if(Arrays.stream(DayOfWeek.values()).noneMatch(dayOfWeek -> dayOfWeek == DayOfWeek.valueOf(param))) {
+
+            return Arrays.stream(params).allMatch(param -> {
+                try {
+                    DayOfWeek.valueOf(param);
+                    return true;
+                } catch (IllegalArgumentException e) {
                     return false;
                 }
-            }
-            return true;
+            });
+
         } else if (repeatCycle == RepeatCycle.MONTHLY) {
             return 1 <= Integer.parseInt(repeatPattern) && Integer.parseInt(repeatPattern) <= 31;
         }
