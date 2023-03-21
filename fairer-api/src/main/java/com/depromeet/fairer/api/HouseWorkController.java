@@ -128,9 +128,6 @@ public class HouseWorkController {
                         List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(arr.getHouseWork().getHouseWorkId())
                                 .stream().map(MemberDto::from).collect(Collectors.toList());
 
-                        makeFeedbackCount(arr.getHouseWorkCompleteId());
-
-
                         return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeFeedbackCount(arr.getHouseWorkCompleteId()));
 
                     }).collect(Collectors.toList());
@@ -199,16 +196,30 @@ public class HouseWorkController {
     private FeedbackCountResponseDto makeFeedbackCount(Long houseWorkCompleteId){
 
         List<HouseWorkCompFeedbackVO> feedbackVOS= feedbackService.findAll(houseWorkCompleteId);
+        final Map<Integer, Integer> emojiCount = new HashMap<>() {{
+            put(1, 0);
+            put(2, 0);
+            put(3, 0);
+            put(4, 0);
+            put(5, 0);
+            put(6, 0);
+        }};
+
+        feedbackVOS.forEach(vo -> {
+            if(vo.getComment() == null) {
+                emojiCount.put(vo.getEmoji(), emojiCount.get(vo.getEmoji()) + 1);
+            }
+        });
+
         return FeedbackCountResponseDto.from(
                 feedbackVOS.size(),
-                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(1);}).count(),
-                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(2);}).count(),
-                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(3);}).count(),
-                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(4);}).count(),
-                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(5);}).count(),
-                (int) feedbackVOS.stream().filter(vo -> {return vo.getEmoji().equals(6);}).count()
-        );
-
+                emojiCount.get(1),
+                emojiCount.get(2),
+                emojiCount.get(3),
+                emojiCount.get(4),
+                emojiCount.get(5),
+                emojiCount.get(6)
+                );
     }
 
     @Tag(name = "houseWorks")

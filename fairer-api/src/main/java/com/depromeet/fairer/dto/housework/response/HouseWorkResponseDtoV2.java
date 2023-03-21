@@ -43,17 +43,17 @@ public class HouseWorkResponseDtoV2 {
 
     @ApiModelProperty(value = "집안일 예약일자", example = "2022-07-02")
     @JsonSerialize(using = LocalDateSerializer.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate scheduledDate;
 
     @ApiModelProperty(value = "집안일 예약시간", example = "10:00")
     @JsonSerialize(using = LocalTimeSerializer.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm", timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime scheduledTime;
 
     @ApiModelProperty(value = "집안일 완료일자", example = "2022-07-02T09:00:00")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime successDateTime;
 
     @ApiModelProperty(value = "집안일 완료 여부")

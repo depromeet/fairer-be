@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 
-@Getter
 @Data
 @Builder
 @NoArgsConstructor
