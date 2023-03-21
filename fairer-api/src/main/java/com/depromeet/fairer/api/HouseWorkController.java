@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -111,25 +112,22 @@ public class HouseWorkController {
     @Tag(name = "houseWorks")
     @ApiOperation(value = "팀원의 특정 기간 집안일 목록 조회 - 피드백 적용 후", notes = "본인이 속한 팀의 팀원의 특정 기간 집안일 목록 조회")
     @GetMapping("/list/member/{teamMemberId}/query/v2")
-    public ResponseEntity<Map<String, HouseWorkDateResponseDtoV2>> getHouseWorkListByTeamMemberAndDateQueryV2(@RequestParam("fromDate") String fromDate,
-                                                                                                          @RequestParam("toDate") String toDate,@PathVariable("teamMemberId") Long teamMemberId,
-                                                                                                          @ApiIgnore @RequestMemberId Long memberId) {
-        final LocalDate from = DateTimeUtils.stringToLocalDate(fromDate);
-        final LocalDate to = DateTimeUtils.stringToLocalDate(toDate);
+    public ResponseEntity<Map<String, HouseWorkDateResponseDtoV2>> getHouseWorkListByTeamMemberAndDateQueryV2(
+            @RequestParam("fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate, @RequestParam("toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            @PathVariable("teamMemberId") Long teamMemberId, @ApiIgnore @RequestMemberId Long memberId) {
 
         teamService.checkJoinSameTeam(teamMemberId, memberId);
         Member teamMember = memberService.find(teamMemberId);
 
         Map<LocalDate, List<HouseWorkResponseDtoV2>> results = new HashMap<>();
-        Stream.iterate(from, date -> date.plusDays(1))
-                .limit(ChronoUnit.DAYS.between(from, to) + 1).forEach(date -> {
+        Stream.iterate(fromDate, date -> date.plusDays(1))
+                .limit(ChronoUnit.DAYS.between(fromDate, toDate) + 1).forEach(date -> {
 
                     List<HouseWorkResponseDtoV2> houseWorkResponseDtoList = houseWorkService.getHouseWorkByDateRepeatQuery(teamMember, date).stream().map(arr -> {
                         List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(arr.getHouseWork().getHouseWorkId())
                                 .stream().map(MemberDto::from).collect(Collectors.toList());
 
                         return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeFeedbackCount(arr.getHouseWorkCompleteId()));
-
                     }).collect(Collectors.toList());
 
                     results.put(date, houseWorkResponseDtoList);
