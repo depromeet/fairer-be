@@ -18,6 +18,7 @@ import com.depromeet.fairer.service.member.oauth.google.GoogleFeignService;
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.apache.v2.ApacheHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +49,9 @@ public class OauthLoginService {
     private final MemberRepository memberRepository;
     private final MemberTokenRepository memberTokenRepository;
     private final AlarmRepository alarmRepository;
+
+    @Value("${oauth2.clientId}")
+    private String CLIENT_ID;
 
     public ResponseJwtTokenDto createMemberAndJwt(OauthLoginDto oauthLoginDto) {
         // 소셜 회원 정보 조회
@@ -164,8 +169,12 @@ public class OauthLoginService {
     }
 
     public GoogleIdToken getVerifiedIdToken(String idTokenString) {
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(UrlFetchTransport.getDefaultInstance(), new GsonFactory())
-                .setAudience(Collections.singletonList("CLIENT_ID"))
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier
+                .Builder(
+                    new ApacheHttpTransport(ApacheHttpTransport.newDefaultHttpClient()),
+                    new GsonFactory()
+                )
+                .setAudience(Collections.singletonList(CLIENT_ID))
                 .setIssuer("https://accounts.google.com")
                 .build();
         try {
