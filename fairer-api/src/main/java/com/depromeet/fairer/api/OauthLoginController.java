@@ -1,9 +1,12 @@
 package com.depromeet.fairer.api;
 
+import com.depromeet.fairer.dto.member.oauth.ClientType;
 import com.depromeet.fairer.dto.member.oauth.OauthRequestDto;
 import com.depromeet.fairer.dto.member.jwt.ResponseJwtTokenDto;
 import com.depromeet.fairer.domain.member.constant.SocialType;
+import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.service.member.oauth.OauthLoginService;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -29,17 +33,33 @@ public class OauthLoginController {
     @Tag(name = "oauth")
     @PostMapping(value = "/login", headers = {"Content-type=application/json"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "OAuth 로그인 API", description = "Authorization code로 로그인 시 JWT 토큰 반환, 현재 GOOGLE만 지원")
-    public ResponseEntity<ResponseJwtTokenDto> loginOauth(@RequestBody OauthRequestDto oauthRequestDto, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ResponseJwtTokenDto> loginOauth(@Valid @RequestBody OauthRequestDto oauthRequestDto, HttpServletRequest httpServletRequest) {
         log.info("=== Oauth login start ===");
 
-        final String accessToken = oauthLoginService.getAccessToken(httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION)); // access token 발급
-        final String socialTypeStr = oauthRequestDto.getSocialType();
+        final SocialType socialType = oauthRequestDto.getSocialType();
+        ResponseJwtTokenDto jwtTokenDto;
 
-        oauthLoginService.validateLoginParams(socialTypeStr, accessToken);
+        if (oauthRequestDto.getClientType() == ClientType.ANDROID) {
+            final String accessToken = oauthLoginService.getAccessToken(httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION)); // access token 발급
+            oauthLoginService.validateLoginParams(socialType, accessToken);
+            jwtTokenDto = oauthLoginService.login(socialType, accessToken);
 
-        final SocialType socialType = EnumUtils.getEnumIgnoreCase(SocialType.class, socialTypeStr);
+        } else if (oauthRequestDto.getClientType() == ClientType.IOS) {
+            final String tokenString = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
 
-        final ResponseJwtTokenDto jwtTokenDto = oauthLoginService.login(socialType, accessToken);
+            if (tokenString == null || tokenString.isEmpty()) {
+                throw new BadRequestException("토큰이 없습니다.");
+            }
+
+            jwtTokenDto = oauthLoginService.loginIos(tokenString);
+
+        } else {
+            throw new BadRequestException("클라이언트 타입이 올바르지 않습니다.");
+        }
+
+//        final SocialType socialType = EnumUtils.getEnumIgnoreCase(SocialType.class, socialTypeStr);
+
+
         log.info("=== Oauth login end ===");
         return ResponseEntity.ok(jwtTokenDto);
     }
