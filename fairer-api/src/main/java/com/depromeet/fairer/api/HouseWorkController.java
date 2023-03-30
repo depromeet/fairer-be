@@ -74,9 +74,9 @@ public class HouseWorkController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // 쿼리 1개로 처리
+
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "팀원의 특정 기간 집안일 목록 조회 - 반복 기능 구현 후", notes = "본인이 속한 팀의 팀원의 특정 기간 집안일 목록 조회")
+    @ApiOperation(value = "팀원 1명에게 할당된 특정 기간 집안일 목록 조회 - 반복 기능 구현 후", notes = "본인이 속한 팀의 팀원 1명의 특정 기간 집안일 목록 조회")
     @GetMapping("/list/member/{teamMemberId}/query")
     public ResponseEntity<Map<String, HouseWorkDateResponseDto>> getHouseWorkListByTeamMemberAndDateQuery(@RequestParam("fromDate") String fromDate,
                                                                                                           @RequestParam("toDate") String toDate,@PathVariable("teamMemberId") Long teamMemberId,
@@ -104,9 +104,9 @@ public class HouseWorkController {
         return ResponseEntity.ok(makeHouseWorkListResponse(teamMemberId, results));
     }
 
-    // 팀 전체 쿼리 1개
+
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "특정 날짜별 집안일 조회 - 반복 기능 구현 후", notes = "특정 날짜별 집안일 조회")
+    @ApiOperation(value = "팀 전체의 특정 기간별 집안일 조회 - 반복 기능 구현 후", notes = "팀 전체의 특정 날짜별 집안일 조회")
     @GetMapping("/list/query")
     public ResponseEntity<Map<String, HouseWorkDateResponseDto>> getHouseWorkListByDateQuery(@RequestParam("fromDate") String fromDate,
                                                                                              @RequestParam("toDate") String toDate,
@@ -158,6 +158,7 @@ public class HouseWorkController {
 
     @Tag(name = "houseWorks")
     @GetMapping("/success/count")
+    @Deprecated
     public ResponseEntity<HouseWorkSuccessCountResponseDto> getSuccessCount(@RequestParam String scheduledDate,
                                                                             @ApiIgnore @RequestMemberId Long memberId) {
         HouseWorkSuccessCountResponseDto houseWorkSuccessCountResponseDto = houseWorkService.getSuccessCount(scheduledDate, memberId);
