@@ -15,5 +15,5 @@ public class OauthRequestDto {
     private SocialType socialType;
 
     @ApiModelProperty(value = "로그인 클라이언트 타입")
-    private ClientType clientType;
+    private ClientType clientType = ClientType.ANDROID;
 }
