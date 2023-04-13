@@ -110,7 +110,7 @@ public class HouseWorkController {
     }
 
     @Tag(name = "houseWorks")
-    @ApiOperation(value = "팀원의 특정 기간 집안일 목록 조회 - 피드백 적용 후", notes = "본인이 속한 팀의 팀원의 특정 기간 집안일 목록 조회")
+    @ApiOperation(value = "팀원의 특정 기간 집안일 목록 조회 - 피드백 기능 구현 후", notes = "본인이 속한 팀의 팀원의 특정 기간 집안일 목록 조회")
     @GetMapping("/list/member/{teamMemberId}/query/v2")
     public ResponseEntity<Map<String, HouseWorkDateResponseDtoV2>> getHouseWorkListByTeamMemberAndDateQueryV2(
             @RequestParam("fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate, @RequestParam("toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
@@ -161,6 +161,34 @@ public class HouseWorkController {
                 });
 
         return ResponseEntity.ok(makeHouseWorkListResponse(memberId, results));
+    }
+
+    @Tag(name = "houseWorks")
+    @ApiOperation(value = "특정 날짜별 집안일 조회 - 피드백 기능 구현 후", notes = "특정 날짜별 집안일 조회")
+    @GetMapping("/list/query/v2")
+    public ResponseEntity<Map<String, HouseWorkDateResponseDtoV2>> getHouseWorkListByDateQueryV2(@RequestParam("fromDate") String fromDate,
+                                                                                             @RequestParam("toDate") String toDate,
+                                                                                             @ApiIgnore @RequestMemberId Long memberId) {
+        final LocalDate from = DateTimeUtils.stringToLocalDate(fromDate);
+        final LocalDate to = DateTimeUtils.stringToLocalDate(toDate);
+
+        Member member = memberService.find(memberId);
+        Map<LocalDate, List<HouseWorkResponseDtoV2>> results = new HashMap<>();
+
+        Stream.iterate(from, date -> date.plusDays(1))
+                .limit(ChronoUnit.DAYS.between(from, to) + 1).forEach(date -> {
+                    List<HouseWorkResponseDtoV2> houseWorkResponseDtoList = houseWorkService.getHouseWorkByDateRepeatTeamQuery(member.getTeam(), date).stream().map(arr -> {
+                        List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(arr.getHouseWork().getHouseWorkId())
+                                .stream().map(MemberDto::from).collect(Collectors.toList());
+
+                       // return HouseWorkResponseDto.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId());
+                        return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeFeedbackCount(arr.getHouseWorkCompleteId()));
+                    }).collect(Collectors.toList());
+
+                    results.put(date, houseWorkResponseDtoList);
+                });
+
+        return ResponseEntity.ok(makeHouseWorkListResponseV2(memberId, results));
     }
 
     private Map<LocalDate, List<HouseWorkResponseDto>> getHouseWorkListGroupByScheduledDate(List<HouseWork> houseWorkList) {
