@@ -53,7 +53,7 @@ spring:
     password: '>BRLtas~%j2>(\6#eC2M'
 
 domain:
-  apiUrl: http://ec2-3-39-60-64.ap-northeast-2.compute.amazonaws.com:8080
+  apiUrl: http://temp-env.eba-m4gbat8d.ap-northeast-2.elasticbeanstalk.com/
 
 ---
 
