@@ -56,7 +56,7 @@ jobs:
           cp fairer-api/build/libs/*.jar deploy/fairer-api.jar
           cp fairer-batch/build/libs/*.jar deploy/fairer-batch.jar
           cp Procfile deploy/Procfile
-          cp -r .ebextensions-real deploy/.ebextensions
+          cp -r .ebextensions-dev deploy/.ebextensions
           cp -r .platform deploy/.platform
           cd deploy && zip -r deploy.zip .
 
