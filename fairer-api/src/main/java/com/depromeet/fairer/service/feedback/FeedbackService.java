@@ -31,6 +31,8 @@ public class FeedbackService {
         HouseworkComplete houseworkComplete = findWithFeedbackListOrThrow(houseCompleteId);
         Member member = findMemberOrThrow(memberId);
 
+        if (emoji > 7) throw new BadRequestException("이모지 입력이 잘못되었습니다.");
+
         Feedback feedback = Feedback.create(houseworkComplete, member, comment, emoji);
         return feedbackRepository.save(feedback).getFeedbackId();
     }
@@ -82,7 +84,8 @@ public class FeedbackService {
     }
 
     public List<HouseWorkCompFeedbackVO> findAll(Long houseWorkCompleteId) {
-        final List<Feedback> feedbackList = findWithFeedbackListAndMemberOrThrow(houseWorkCompleteId).getFeedbackList();
+       // final List<Feedback> feedbackList = findWithFeedbackListAndMemberOrThrow(houseWorkCompleteId).getFeedbackList();
+        final List<Feedback> feedbackList = feedbackRepository.findByHouseWorkCompleteId(houseWorkCompleteId);
 
         final List<HouseWorkCompFeedbackVO> VOList = new ArrayList<>();
         for (Feedback feedback : feedbackList) {
@@ -90,7 +93,11 @@ public class FeedbackService {
             VO.setMemberName(feedback.getMember().getMemberName());
             VO.setProfilePath(feedback.getMember().getProfilePath());
             VO.setComment(feedback.getComment());
-            VO.setEmoji(feedback.getEmoji());
+            if(feedback.getEmoji() != null) {
+                VO.setEmoji(feedback.getEmoji());
+            } else {
+                VO.setEmoji(0);
+            }
             VOList.add(VO);
         }
         return VOList;

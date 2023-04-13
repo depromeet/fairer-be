@@ -32,7 +32,7 @@ public class FeedbackController {
     private final FeedbackService feedbackService;
 
     @Tag(name = "Feedback")
-    @ApiOperation(value = "피드백 생성 api")
+    @ApiOperation(value = "피드백 생성 api", notes = "emoji : 1부터 7까지 입력, 다른 숫자 입력 시 예외처리")
     @PostMapping(value="")
     public ResponseEntity<FeedbackCreateResponseDto> createFeedback(@ApiIgnore @RequestMemberId Long memberId,
                                                                     @RequestBody @Valid FeedbackCreateRequestDto req){

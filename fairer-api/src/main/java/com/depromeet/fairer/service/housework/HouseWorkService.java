@@ -16,6 +16,7 @@ import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.exception.PermissionDeniedException;
 import com.depromeet.fairer.repository.assignment.AssignmentRepository;
+import com.depromeet.fairer.repository.feedback.FeedbackRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.houseworkcomplete.HouseWorkCompleteRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
