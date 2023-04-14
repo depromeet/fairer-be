@@ -1,4 +1,4 @@
-package com.depromeet.fairer.dto.statistic.response.request;
+package com.depromeet.fairer.dto.statistic.request;
 
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.fasterxml.jackson.annotation.JsonFormat;

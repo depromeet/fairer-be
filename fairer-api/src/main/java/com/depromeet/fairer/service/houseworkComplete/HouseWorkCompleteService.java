@@ -3,7 +3,7 @@ package com.depromeet.fairer.service.houseworkComplete;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.domain.member.Member;
-import com.depromeet.fairer.dto.statistic.response.request.MonthlyHouseWorkStatisticRequestDto;
+import com.depromeet.fairer.dto.statistic.request.MonthlyHouseWorkStatisticRequestDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.MemberHouseWorkStatisticDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.MonthlyHouseWorkStatisticResponseDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
@@ -21,6 +21,7 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,24 @@ public class HouseWorkCompleteService {
                     return MemberHouseWorkStatisticDto.of(member, count);
                 }
         ).collect(Collectors.toList());
+
+        return MonthlyHouseWorkStatisticResponseDto.of(houseWorkStatics);
+    }
+
+    public MonthlyHouseWorkStatisticResponseDto getMonthlyHouseWorkRanking(Long memberId, LocalDate month) {
+
+        Member currentMember = memberRepository.findById(memberId).orElseThrow(
+                () -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다.")
+        );
+
+        List<HouseWorkCompleteStatisticsVo> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkRanking(
+                currentMember.getTeam().getTeamId(),
+                YearMonth.from(month));
+
+        List<MemberHouseWorkStatisticDto> houseWorkStatics = teamHouseWorkStatistics.stream()
+                .map(statistic -> MemberHouseWorkStatisticDto.of(statistic.getMember(), statistic.getCompleteCount()))
+                .sorted(Comparator.comparing(MemberHouseWorkStatisticDto::getHouseWorkCount).reversed())
+                .collect(Collectors.toList());
 
         return MonthlyHouseWorkStatisticResponseDto.of(houseWorkStatics);
     }

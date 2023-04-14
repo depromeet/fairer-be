@@ -2,8 +2,10 @@ package com.depromeet.fairer.api;
 
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
+import com.depromeet.fairer.dto.houseworkComplete.response.MemberHouseWorkStatisticDto;
 import com.depromeet.fairer.dto.houseworkComplete.response.MonthlyHouseWorkStatisticResponseDto;
-import com.depromeet.fairer.dto.statistic.response.request.MonthlyHouseWorkStatisticRequestDto;
+import com.depromeet.fairer.dto.statistic.request.MonthlyHouseWorkStatisticRequestDto;
+import com.depromeet.fairer.dto.statistic.request.MonthlyRankingRequestDto;
 import com.depromeet.fairer.dto.statistic.response.StatisticResponseDto;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.housework.HouseWorkService;
@@ -13,6 +15,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -22,6 +25,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -83,6 +87,18 @@ public class StatisticController {
     ) {
         MonthlyHouseWorkStatisticResponseDto monthlyHouseWorkStatisticResponseDto =
                 houseWorkCompleteService.getMonthlyHouseWorkStatisticByMemberId(memberId, requestDto);
+        return ResponseEntity.ok(monthlyHouseWorkStatisticResponseDto);
+    }
+
+    @Tag(name = "statistics")
+    @ApiOperation(value = "월별 집안일 완료 랭킹", notes = "1등부터 차례대로 리턴")
+    @GetMapping("/rank")
+    public ResponseEntity<MonthlyHouseWorkStatisticResponseDto> getMonthlyHouseWorkRanking(
+            @Valid @ModelAttribute MonthlyRankingRequestDto requestDto,
+            @ApiIgnore @RequestMemberId Long memberId
+    ) {
+        MonthlyHouseWorkStatisticResponseDto monthlyHouseWorkStatisticResponseDto =
+                houseWorkCompleteService.getMonthlyHouseWorkRanking(memberId, requestDto.getMonth());
         return ResponseEntity.ok(monthlyHouseWorkStatisticResponseDto);
     }
 

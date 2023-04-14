@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface HouseWorkCompleteCustomRepository {
     List<HouseWorkCompleteStatisticsVo> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(Long teamId, YearMonth month, String houseWorkName);
+
+    List<HouseWorkCompleteStatisticsVo> findMonthlyHouseWorkRanking(Long teamId, YearMonth month);
 }
