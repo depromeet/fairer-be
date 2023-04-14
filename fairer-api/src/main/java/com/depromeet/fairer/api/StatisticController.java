@@ -92,7 +92,7 @@ public class StatisticController {
 
     @Tag(name = "statistics")
     @ApiOperation(value = "월별 집안일 완료 랭킹", notes = "1등부터 차례대로 리턴")
-    @GetMapping("/rank")
+    @GetMapping("/ranking")
     public ResponseEntity<MonthlyHouseWorkStatisticResponseDto> getMonthlyHouseWorkRanking(
             @Valid @ModelAttribute MonthlyRankingRequestDto requestDto,
             @ApiIgnore @RequestMemberId Long memberId
