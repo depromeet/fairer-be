@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FeedbackRepository extends JpaRepository<Feedback,Long> {
+public interface FeedbackRepository extends JpaRepository<Feedback,Long>, FeedbackCustomRepository {
 
     @Modifying(clearAutomatically = true)
     @Query("select f from Feedback f where f.houseworkComplete.houseWorkCompleteId =:houseWorkCompleteId")

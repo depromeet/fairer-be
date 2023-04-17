@@ -13,6 +13,4 @@ public class FeedbackUpdateRequestDto {
     @ApiModelProperty(value = "텍스트 코멘트")
     private String comment;
 
-    @ApiModelProperty(value = "이모지 id")
-    private Integer emoji;
 }

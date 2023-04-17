@@ -70,12 +70,13 @@ public class FeedbackService {
         });
     }
 
-    public Feedback modify(Long feedbackId, String comment, Integer emoji) {
-        Feedback feedback = findFeedbackOrThrow(feedbackId);
+    public Feedback modify(Long houseworkCompleteId, String comment, Long memberId) {
 
+        Feedback feedback = feedbackRepository.getFeedback(houseworkCompleteId, memberId);
+        if(feedback == null){
+            throw new BadRequestException("존재하지 않는 피드백입니다.");
+        }
         feedback.updateComment(comment);
-        feedback.updateEmoji(emoji);
-
         return feedback;
     }
 

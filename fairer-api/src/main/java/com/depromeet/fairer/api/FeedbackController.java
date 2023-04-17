@@ -51,13 +51,13 @@ public class FeedbackController {
 
 
     @Tag(name = "Feedback")
-    @ApiOperation(value = "피드백 수정 api")
-    @PatchMapping("/{feedbackId}")
+    @ApiOperation(value = "텍스트 피드백 수정 api")
+    @PatchMapping("/{houseworkCompleteId}")
     public ResponseEntity<FeedbackUpdateResponseDto> modifyFeedback(@ApiIgnore @RequestMemberId Long memberId,
-                                            @PathVariable("feedbackId") Long feedbackId,
+                                            @PathVariable("houseworkCompleteId") Long houseworkCompleteId,
                                             @RequestBody @Valid FeedbackUpdateRequestDto req){
 
-        Feedback feedback = feedbackService.modify(feedbackId, req.getComment(), req.getEmoji());
+        Feedback feedback = feedbackService.modify(houseworkCompleteId, req.getComment(), memberId);
         return ResponseEntity.ok(FeedbackUpdateResponseDto.from(feedback));
     }
 
@@ -79,6 +79,5 @@ public class FeedbackController {
         return ResponseEntity.ok(FeedbackFindAllResponseDto.from(responseDtoList));
     }
 
-    //TODO Read는 FeedbackController와 HouseWorkController 모두 구현 필요
 
 }
