@@ -29,6 +29,14 @@ public class FeedbackService {
     public Long create(Long memberId, Long houseCompleteId, String comment, int emoji){
 
         HouseworkComplete houseworkComplete = findWithFeedbackListOrThrow(houseCompleteId);
+
+        List<Feedback> feedbacks = houseworkComplete.getFeedbackList();
+        for(Feedback fb : feedbacks){
+            if(fb.getComment() != null){
+                throw new BadRequestException("텍스트 피드백은 하나만 작성할 수 있습니다.");
+            }
+        }
+
         Member member = findMemberOrThrow(memberId);
 
         if (emoji > 7) throw new BadRequestException("이모지 입력이 잘못되었습니다.");

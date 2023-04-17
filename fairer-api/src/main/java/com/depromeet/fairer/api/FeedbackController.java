@@ -24,14 +24,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@Tag(name = "Feedback", description = "피드백 API")
+@Tag(name = "feedback", description = "피드백 API")
 @RequiredArgsConstructor
 @RequestMapping("/api/feedback")
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
 
-    @Tag(name = "Feedback")
+    @Tag(name = "feedback")
     @ApiOperation(value = "피드백 생성 api", notes = "emoji : 1부터 7까지 입력, 다른 숫자 입력 시 예외처리")
     @PostMapping(value="")
     public ResponseEntity<FeedbackCreateResponseDto> createFeedback(@ApiIgnore @RequestMemberId Long memberId,
@@ -40,7 +40,7 @@ public class FeedbackController {
         return new ResponseEntity<>(FeedbackCreateResponseDto.create(feedbackId), HttpStatus.CREATED);
     }
 
-    @Tag(name = "Feedback")
+    @Tag(name = "feedback")
     @ApiOperation(value = "피드백 삭제 api")
     @DeleteMapping("/{feedbackId}")
     public ResponseEntity<?> deleteFeedback(@ApiIgnore @RequestMemberId Long memberId,
@@ -50,7 +50,7 @@ public class FeedbackController {
     }
 
 
-    @Tag(name = "Feedback")
+    @Tag(name = "feedback")
     @ApiOperation(value = "텍스트 피드백 수정 api")
     @PatchMapping("/{houseworkCompleteId}")
     public ResponseEntity<FeedbackUpdateResponseDto> modifyFeedback(@ApiIgnore @RequestMemberId Long memberId,
@@ -61,7 +61,7 @@ public class FeedbackController {
         return ResponseEntity.ok(FeedbackUpdateResponseDto.from(feedback));
     }
 
-    @Tag(name = "Feedback")
+    @Tag(name = "feedback")
     @ApiOperation(value = "피드백 단건 조회 api")
     @GetMapping("/{feedbackId}")
     public ResponseEntity<FeedbackFindResponseDto> getFeedback(@PathVariable("feedbackId") Long feedbackId) {
@@ -69,7 +69,7 @@ public class FeedbackController {
         return ResponseEntity.ok(FeedbackFindResponseDto.from(feedback));
     }
 
-    @Tag(name = "Feedback")
+    @Tag(name = "feedback")
     @ApiOperation(value = "완료한 집안일의 모든 피드백 조회 api")
     @GetMapping("/houseworks/{houseWorkCompleteId}")
     public ResponseEntity<FeedbackFindAllResponseDto> getAllFeedbacks(@PathVariable("houseWorkCompleteId") Long houseWorkCompleteId) {
