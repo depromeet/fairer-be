@@ -45,7 +45,7 @@ public class FCMController {
     @PostMapping("/hurry")
     @ApiOperation(value = "재촉하기 api", notes = "재촉할 housework id -> 할당된 멤버 모두에게 ")
     public ResponseEntity<List<FCMMessageResponse>> sendHurry(@Valid @RequestBody HurryMessageRequest request) {
-        return ResponseEntity.ok(fcmService.sendHurry(request.getHouseworkId()));
+        return ResponseEntity.ok(fcmService.sendHurry(request.getHouseworkId(), request.getScheduledDate()));
     }
 
 }

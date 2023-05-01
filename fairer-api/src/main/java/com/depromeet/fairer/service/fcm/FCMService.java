@@ -1,5 +1,6 @@
 package com.depromeet.fairer.service.fcm;
 
+import com.depromeet.fairer.domain.feedback.Feedback;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.dto.fcm.FCMSendRequest;
@@ -8,9 +9,12 @@ import com.depromeet.fairer.dto.fcm.request.SaveTokenRequest;
 import com.depromeet.fairer.dto.fcm.response.FCMMessageResponse;
 import com.depromeet.fairer.dto.fcm.response.SaveTokenResponse;
 import com.depromeet.fairer.dto.member.MemberDto;
+import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.FairerException;
+import com.depromeet.fairer.global.exception.NoSuchMemberException;
 import com.depromeet.fairer.global.factory.RestTemplateFactory;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
+import com.depromeet.fairer.repository.houseworkcomplete.HouseWorkCompleteRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +50,7 @@ public class FCMService {
 
     private final MemberRepository memberRepository;
     private final HouseWorkRepository houseWorkRepository;
+    private final HouseWorkCompleteRepository houseWorkCompleteRepository;
 
     public SaveTokenResponse saveToken(SaveTokenRequest request, Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -70,28 +76,25 @@ public class FCMService {
         return FCMMessageResponse.of(fcmMessageRequest.getTitle(), fcmMessageRequest.getBody(), fcmMessageRequest.getMemberId());
     }
 
-    public List<FCMMessageResponse> sendHurry(Long houseworkId) {
+    public List<FCMMessageResponse> sendHurry(Long houseworkId, LocalDate date) {
 
-        // housework
-        HouseWork houseWork = houseWorkRepository.findById(houseworkId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일입니다."));
+        HouseWork houseWork = findHouseWorkOrThrow(houseworkId);    // housework exception
 
-        List<Member> members = getAssignedMemberList(houseworkId);
+        if(houseWorkCompleteRepository.getHouseworkCompleteByHouseWork(houseworkId, date) != null){
+            throw new BadRequestException("이미 완료된 집안일입니다.");    // houseworkComplete exception
+        }
 
         String[] sentences = {"아직 " + houseWork.getHouseWorkName() + "이 남아있어요. 서둘러 처리해주세요.",
                 "오늘은 " + houseWork.getHouseWorkName() + " 하는 날이에요. " + houseWork.getHouseWorkName() + "을 해주세요!",
                 "재촉알림이 왔어요!"};
+        int index = new Random().nextInt(sentences.length);     // 랜덤으로 재촉메세지 생성
 
-        Random random = new Random();
-        int index = random.nextInt(sentences.length);
-
+        List<Member> members = getAssignedMemberList(houseworkId);  // 할당된 멤버에게 모두 전송
 
         List<FCMMessageResponse> response = new ArrayList<>();
         for(Member member : members){
 
-            if(Objects.isNull(member.getFcmToken())) {
-                throw new FairerException("FCM Token이 null 입니다. member id : " + member.getMemberId());
-            }
+            fcmTokenOrThrow(member);    // fcm token exception
             FCMSendRequest fcmSendRequest = createMessage(member.getFcmToken(), "재촉하기", sentences[index]);
             String body = convertFCMSendRequestToString(fcmSendRequest);
             this.sendFCMMessage(body);
@@ -144,5 +147,16 @@ public class FCMService {
         GoogleCredentials googleCredentials = GoogleCredentials.fromStream(new ClassPathResource(FIREBASE_KEY_PATH).getInputStream()).createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
         googleCredentials.refreshIfExpired();
         return googleCredentials.getAccessToken().getTokenValue();
+    }
+
+    private void fcmTokenOrThrow(Member member){
+        if(Objects.isNull(member.getFcmToken())) {
+            throw new FairerException("FCM Token이 null 입니다. member id : " + member.getMemberId());
+        }
+    }
+
+    private HouseWork findHouseWorkOrThrow(Long houseworkId) {
+        return houseWorkRepository.findById(houseworkId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일입니다."));
     }
 }

@@ -31,9 +31,13 @@ public interface HouseWorkCompleteRepository extends JpaRepository<HouseworkComp
 
     void deleteAllByHouseWorkAndScheduledDate(HouseWork houseWork, LocalDate scheduledDate);
 
-    @Modifying(clearAutomatically = true)
+    // @Modifying(clearAutomatically = true)
     @Query("select c from HouseworkComplete c where c.houseWork.houseWorkId =:houseWorkId")
     List<HouseworkComplete> getCompleteList(@Param(value = "houseWorkId") Long houseWorkId);
+
+    // @Modifying(clearAutomatically = true)
+    @Query("select c from HouseworkComplete c where c.scheduledDate = :scheduledDate and c.houseWork.houseWorkId = :houseWorkId")
+    HouseworkComplete getHouseworkCompleteByHouseWork(@Param(value = "houseWorkId") Long houseWorkId, @Param(value = "scheduledDate") LocalDate scheduledDate);
 
     List<HouseWorkCompleteStatisticsVo> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(Long teamId, YearMonth month, String houseWorkName);
 
