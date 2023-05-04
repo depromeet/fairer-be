@@ -67,7 +67,7 @@ jobs:
           aws_access_key: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}     # github secrets로 등록한 값 사용
           aws_secret_key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}  # github secrets로 등록한 값 사용
           application_name: fairer-dev        # EB application 이름
-          environment_name: Fairer-dev-env-1  # EB environment 이름
+          environment_name: Fairer-dev-env    # EB environment 이름
           version_label: github-action-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
           deployment_package: deploy/deploy.zip
