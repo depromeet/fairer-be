@@ -10,7 +10,7 @@ name: dev-fairer
 on:
   workflow_dispatch:
   push:
-    branches: [ feat/eb ]
+    branches: [ develop ]
 
 jobs:
   build:
