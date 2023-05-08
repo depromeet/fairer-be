@@ -14,6 +14,9 @@ import lombok.NoArgsConstructor;
 @ApiModel(value = "완료한 집안일의 모든 피드백 조회 반환 객체 - 피드백 단일 객체")
 public class FeedbackFindOneResponseDto {
 
+    @ApiModelProperty(value = "피드백 id")
+    private Long feedbackId;
+
     @ApiModelProperty(value = "피드백 작성자 이름")
     private String memberName;
 
@@ -28,6 +31,7 @@ public class FeedbackFindOneResponseDto {
 
     public static FeedbackFindOneResponseDto fromVO(HouseWorkCompFeedbackVO VO) {
         return FeedbackFindOneResponseDto.builder()
+                .feedbackId(VO.getFeedbackId())
                 .memberName(VO.getMemberName())
                 .profilePath(VO.getProfilePath())
                 .comment(VO.getComment())

@@ -8,6 +8,8 @@ import lombok.Setter;
 @Setter
 public class HouseWorkCompFeedbackVO {
 
+    private Long feedbackId;
+
     private String memberName;
 
     private String profilePath;
