@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Transactional
 @Service
@@ -31,9 +32,12 @@ public class FeedbackService {
         HouseworkComplete houseworkComplete = findWithFeedbackListOrThrow(houseCompleteId);
 
         List<Feedback> feedbacks = houseworkComplete.getFeedbackList();
-        for(Feedback fb : feedbacks){
-            if(fb.getComment() != null){
-                throw new BadRequestException("텍스트 피드백은 하나만 작성할 수 있습니다.");
+
+        if (!Objects.equals(comment, "")) {
+            for (Feedback fb : feedbacks) {
+                if (fb.getComment() != null) {
+                    throw new BadRequestException("텍스트 피드백은 하나만 작성할 수 있습니다.");
+                }
             }
         }
 
@@ -99,6 +103,7 @@ public class FeedbackService {
         final List<HouseWorkCompFeedbackVO> VOList = new ArrayList<>();
         for (Feedback feedback : feedbackList) {
             final HouseWorkCompFeedbackVO VO = new HouseWorkCompFeedbackVO();
+            VO.setFeedbackId(feedback.getFeedbackId());
             VO.setMemberName(feedback.getMember().getMemberName());
             VO.setProfilePath(feedback.getMember().getProfilePath());
             VO.setComment(feedback.getComment());
