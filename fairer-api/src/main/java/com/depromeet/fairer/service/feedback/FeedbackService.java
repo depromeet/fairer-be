@@ -96,7 +96,7 @@ public class FeedbackService {
         return findFeedbackOrThrow(feedbackId);
     }
 
-    public List<HouseWorkCompFeedbackVO> findAll(Long houseWorkCompleteId) {
+    public List<HouseWorkCompFeedbackVO> findAll(Long houseWorkCompleteId, Long memberId) {
        // final List<Feedback> feedbackList = findWithFeedbackListAndMemberOrThrow(houseWorkCompleteId).getFeedbackList();
         final List<Feedback> feedbackList = feedbackRepository.findByHouseWorkCompleteId(houseWorkCompleteId);
 
@@ -107,6 +107,7 @@ public class FeedbackService {
             VO.setMemberName(feedback.getMember().getMemberName());
             VO.setProfilePath(feedback.getMember().getProfilePath());
             VO.setComment(feedback.getComment());
+            VO.setMyFeedback(myFeedbackCheck(feedback, memberId));
             if(feedback.getEmoji() != null) {
                 VO.setEmoji(feedback.getEmoji());
             } else {
@@ -121,5 +122,13 @@ public class FeedbackService {
         return houseWorkCompleteRepository.findWithFeedbackAndMemberByHouseWorkCompleteId(houseWorkCompleteId).orElseThrow(() -> {
             throw new BadRequestException("완료되지 않은 집안일입니다");
         });
+    }
+
+    private boolean myFeedbackCheck(Feedback feedback, Long memberId){
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> {
+            throw new NoSuchMemberException("존재하지 않는 멤버입니다.");
+        });
+        return feedback.getMember().equals(member);
     }
 }

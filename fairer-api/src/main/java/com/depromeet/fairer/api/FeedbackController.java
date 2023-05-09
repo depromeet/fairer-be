@@ -72,8 +72,9 @@ public class FeedbackController {
     @Tag(name = "feedback")
     @ApiOperation(value = "완료한 집안일의 모든 피드백 조회 api")
     @GetMapping("/houseworks/{houseWorkCompleteId}")
-    public ResponseEntity<FeedbackFindAllResponseDto> getAllFeedbacks(@PathVariable("houseWorkCompleteId") Long houseWorkCompleteId) {
-        final List<HouseWorkCompFeedbackVO> feedbackVOList = feedbackService.findAll(houseWorkCompleteId);
+    public ResponseEntity<FeedbackFindAllResponseDto> getAllFeedbacks(@PathVariable("houseWorkCompleteId") Long houseWorkCompleteId,
+                                                                      @ApiIgnore @RequestMemberId Long memberId) {
+        final List<HouseWorkCompFeedbackVO> feedbackVOList = feedbackService.findAll(houseWorkCompleteId, memberId);
 
         final List<FeedbackFindOneResponseDto> responseDtoList = feedbackVOList.stream().map(FeedbackFindOneResponseDto::fromVO).collect(Collectors.toList());
         return ResponseEntity.ok(FeedbackFindAllResponseDto.from(responseDtoList));

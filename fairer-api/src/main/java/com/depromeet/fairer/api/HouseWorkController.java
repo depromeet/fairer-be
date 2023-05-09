@@ -127,7 +127,7 @@ public class HouseWorkController {
                         List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(arr.getHouseWork().getHouseWorkId())
                                 .stream().map(MemberDto::from).collect(Collectors.toList());
 
-                        return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeFeedbackCount(arr.getHouseWorkCompleteId()));
+                        return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeFeedbackCount(arr.getHouseWorkCompleteId(), memberId));
                     }).collect(Collectors.toList());
 
                     results.put(date, houseWorkResponseDtoList);
@@ -182,7 +182,7 @@ public class HouseWorkController {
                                 .stream().map(MemberDto::from).collect(Collectors.toList());
 
                        // return HouseWorkResponseDto.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId());
-                        return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeFeedbackCount(arr.getHouseWorkCompleteId()));
+                        return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeFeedbackCount(arr.getHouseWorkCompleteId(), memberId));
                     }).collect(Collectors.toList());
 
                     results.put(date, houseWorkResponseDtoList);
@@ -219,9 +219,9 @@ public class HouseWorkController {
         return response;
     }
 
-    private FeedbackCountResponseDto makeFeedbackCount(Long houseWorkCompleteId){
+    private FeedbackCountResponseDto makeFeedbackCount(Long houseWorkCompleteId, Long memberId){
 
-        List<HouseWorkCompFeedbackVO> feedbackVOS= feedbackService.findAll(houseWorkCompleteId);
+        List<HouseWorkCompFeedbackVO> feedbackVOS= feedbackService.findAll(houseWorkCompleteId, memberId);
         final Map<Integer, Integer> emojiCount = new HashMap<>() {{
             put(1, 0);
             put(2, 0);

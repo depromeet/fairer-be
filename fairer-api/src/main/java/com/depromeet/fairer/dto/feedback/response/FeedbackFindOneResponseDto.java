@@ -20,6 +20,9 @@ public class FeedbackFindOneResponseDto {
     @ApiModelProperty(value = "피드백 작성자 이름")
     private String memberName;
 
+    @ApiModelProperty(value = "본인 작성 여부  - 본인이 작성 : true, 아님 : false")
+    private boolean myFeedback;
+
     @ApiModelProperty(value = "피드백 작성자 프로필 이미지 경로")
     private String profilePath;
 
@@ -33,6 +36,7 @@ public class FeedbackFindOneResponseDto {
         return FeedbackFindOneResponseDto.builder()
                 .feedbackId(VO.getFeedbackId())
                 .memberName(VO.getMemberName())
+                .myFeedback(VO.isMyFeedback())
                 .profilePath(VO.getProfilePath())
                 .comment(VO.getComment())
                 .emoji(VO.getEmoji())
