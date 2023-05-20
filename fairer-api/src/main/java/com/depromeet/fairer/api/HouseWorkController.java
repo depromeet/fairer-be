@@ -1,9 +1,12 @@
 package com.depromeet.fairer.api;
 
+import com.depromeet.fairer.domain.feedback.Feedback;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.dto.feedback.response.FeedbackCountResponseDto;
+import com.depromeet.fairer.dto.feedback.response.FeedbackHouseworkResponseDto;
 import com.depromeet.fairer.dto.member.MemberDto;
+import com.depromeet.fairer.global.exception.NoSuchMemberException;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.global.util.DateTimeUtils;
 import com.depromeet.fairer.service.feedback.FeedbackService;
@@ -127,7 +130,7 @@ public class HouseWorkController {
                         List<MemberDto> memberDtoList = memberService.getMemberListByHouseWorkId(arr.getHouseWork().getHouseWorkId())
                                 .stream().map(MemberDto::from).collect(Collectors.toList());
 
-                        return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeFeedbackCount(arr.getHouseWorkCompleteId(), memberId));
+                        return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeHouseWorkFeedback(arr.getHouseWorkCompleteId(), memberId));
                     }).collect(Collectors.toList());
 
                     results.put(date, houseWorkResponseDtoList);
@@ -182,7 +185,7 @@ public class HouseWorkController {
                                 .stream().map(MemberDto::from).collect(Collectors.toList());
 
                        // return HouseWorkResponseDto.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId());
-                        return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeFeedbackCount(arr.getHouseWorkCompleteId(), memberId));
+                        return HouseWorkResponseDtoV2.from(arr.getHouseWork(), memberDtoList, date, arr.getHouseWorkCompleteId(), makeHouseWorkFeedback(arr.getHouseWorkCompleteId(), memberId));
                     }).collect(Collectors.toList());
 
                     results.put(date, houseWorkResponseDtoList);
@@ -219,33 +222,42 @@ public class HouseWorkController {
         return response;
     }
 
-    private FeedbackCountResponseDto makeFeedbackCount(Long houseWorkCompleteId, Long memberId){
+
+    private Map<Integer, FeedbackHouseworkResponseDto> makeHouseWorkFeedback(Long houseWorkCompleteId, Long memberId){
 
         List<HouseWorkCompFeedbackVO> feedbackVOS= feedbackService.findAll(houseWorkCompleteId, memberId);
-        final Map<Integer, Integer> emojiCount = new HashMap<>() {{
-            put(1, 0);
-            put(2, 0);
-            put(3, 0);
-            put(4, 0);
-            put(5, 0);
-            put(6, 0);
-        }};
 
-        feedbackVOS.forEach(vo -> {
-            if(vo.getComment() == null) {
-                emojiCount.put(vo.getEmoji(), emojiCount.get(vo.getEmoji()) + 1);
+        Map<Integer, FeedbackHouseworkResponseDto> result = new HashMap<>();
+        result.put(0, makeFeedbackResponse(0, feedbackVOS, memberId));
+        result.put(1, makeFeedbackResponse(1, feedbackVOS, memberId));
+        result.put(2, makeFeedbackResponse(2, feedbackVOS, memberId));
+        result.put(3, makeFeedbackResponse(3, feedbackVOS, memberId));
+        result.put(4, makeFeedbackResponse(4, feedbackVOS, memberId));
+        result.put(5, makeFeedbackResponse(5, feedbackVOS, memberId));
+        result.put(6, makeFeedbackResponse(6, feedbackVOS, memberId));
+
+        return result;
+    }
+
+    private FeedbackHouseworkResponseDto makeFeedbackResponse(int emojiNum, List<HouseWorkCompFeedbackVO> feedbackVOs, long memberId){
+
+        int cnt = 0;
+        boolean myFeedbackCheck = false;
+        long feedbackId = 0;
+
+        for(HouseWorkCompFeedbackVO vo : feedbackVOs){
+
+            if(vo.getEmoji().equals(emojiNum)) {
+                cnt += 1;   // feedbackNum
+
+                if (vo.getMemberId().equals(memberId)){
+                    myFeedbackCheck = true;
+                    feedbackId = vo.getFeedbackId();
+                }
             }
-        });
+        }
 
-        return FeedbackCountResponseDto.from(
-                feedbackVOS.size(),
-                emojiCount.get(1),
-                emojiCount.get(2),
-                emojiCount.get(3),
-                emojiCount.get(4),
-                emojiCount.get(5),
-                emojiCount.get(6)
-                );
+        return FeedbackHouseworkResponseDto.from(cnt, feedbackId, myFeedbackCheck);
     }
 
     @Tag(name = "houseWorks")

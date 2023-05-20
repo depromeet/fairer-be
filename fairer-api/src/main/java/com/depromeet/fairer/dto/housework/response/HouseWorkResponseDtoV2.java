@@ -4,6 +4,7 @@ package com.depromeet.fairer.dto.housework.response;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.preset.Space;
 import com.depromeet.fairer.dto.feedback.response.FeedbackCountResponseDto;
+import com.depromeet.fairer.dto.feedback.response.FeedbackHouseworkResponseDto;
 import com.depromeet.fairer.dto.member.MemberDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 
 @Data
@@ -73,8 +75,11 @@ public class HouseWorkResponseDtoV2 {
     @ApiModelProperty(value = "집안일 완료 ID")
     private Long houseWorkCompleteId;
 
-    @ApiModelProperty(value = "피드백 이모지 별 개수")
-    private FeedbackCountResponseDto feedbackCountResponseDto;
+    // @ApiModelProperty(value = "피드백 이모지 별 개수")
+    // private FeedbackCountResponseDto feedbackCountResponseDto;
+
+    @ApiModelProperty(value = "완료된 집안일 별 피드백 정보")
+    private Map<Integer, FeedbackHouseworkResponseDto> feedbackHouseworkResponse;
 
     public static HouseWorkResponseDtoV2 from(HouseWork houseWork, List<MemberDto> memberDtoList) {
         return new HouseWorkResponseDtoV2Builder()
@@ -107,7 +112,7 @@ public class HouseWorkResponseDtoV2 {
 
     // 피드백 추가
     public static HouseWorkResponseDtoV2 from(HouseWork houseWork, List<MemberDto> memberDtoList, LocalDate date, Long houseWorkCompleteId,
-                                              FeedbackCountResponseDto feedbackCountResponseDto) {
+                                              Map<Integer, FeedbackHouseworkResponseDto> feedbackHouseworkResponse) {
 
         if (houseWorkCompleteId != null){
             return new HouseWorkResponseDtoV2Builder()
@@ -120,7 +125,8 @@ public class HouseWorkResponseDtoV2 {
                     .successDateTime(houseWork.getSuccessDateTime())
                     .success(true)
                     .houseWorkCompleteId(houseWorkCompleteId)
-                    .feedbackCountResponseDto(feedbackCountResponseDto)
+                    .feedbackHouseworkResponse(feedbackHouseworkResponse)
+                    //.feedbackCountResponseDto(feedbackCountResponseDto)
                     .build();
         }
         else {
@@ -134,7 +140,8 @@ public class HouseWorkResponseDtoV2 {
                     .successDateTime(houseWork.getSuccessDateTime())
                     .success(false)
                     .houseWorkCompleteId(0L)
-                    .feedbackCountResponseDto(feedbackCountResponseDto)
+                    .feedbackHouseworkResponse(feedbackHouseworkResponse)
+                    //.feedbackCountResponseDto(feedbackCountResponseDto)
                     .build();
         }
 

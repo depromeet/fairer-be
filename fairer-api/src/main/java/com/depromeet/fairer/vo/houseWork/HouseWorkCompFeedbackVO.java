@@ -12,6 +12,8 @@ public class HouseWorkCompFeedbackVO {
 
     private String memberName;
 
+    private Long memberId;
+
     private boolean myFeedback;
 
     private String profilePath;

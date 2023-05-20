@@ -105,6 +105,7 @@ public class FeedbackService {
             final HouseWorkCompFeedbackVO VO = new HouseWorkCompFeedbackVO();
             VO.setFeedbackId(feedback.getFeedbackId());
             VO.setMemberName(feedback.getMember().getMemberName());
+            VO.setMemberId(feedback.getMember().getMemberId());
             VO.setProfilePath(feedback.getMember().getProfilePath());
             VO.setComment(feedback.getComment());
             VO.setMyFeedback(myFeedbackCheck(feedback, memberId));
