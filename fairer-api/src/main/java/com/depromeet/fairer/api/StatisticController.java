@@ -72,7 +72,9 @@ public class StatisticController {
 
         List<StatisticResponseDto> response = new ArrayList<>();
         statistic.forEach((name, count) -> {
-            response.add(StatisticResponseDto.from(name, count));
+            if (count > 0) {
+                response.add(StatisticResponseDto.from(name, count));
+            }
         });
 
         return ResponseEntity.ok(new StatisticResponseDto.StatisticResponseDtoList(response));
