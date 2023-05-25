@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 import static com.depromeet.fairer.domain.feedback.QFeedback.feedback;
 import static com.depromeet.fairer.domain.houseworkComplete.QHouseworkComplete.houseworkComplete;
 import static com.depromeet.fairer.domain.member.QMember.member;
@@ -18,7 +20,7 @@ public class FeedbackCustomRepositoryImpl implements FeedbackCustomRepository{
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Feedback getFeedback(Long houseworkCompleteId, Long memberId) {
+    public List<Feedback> getFeedback(Long houseworkCompleteId, Long memberId) {
 
         return jpaQueryFactory.select(feedback)
                 .from(feedback)
@@ -26,7 +28,7 @@ public class FeedbackCustomRepositoryImpl implements FeedbackCustomRepository{
                 .leftJoin(houseworkComplete).on(houseworkComplete.houseWorkCompleteId.eq(feedback.houseworkComplete.houseWorkCompleteId))
                 .where(feedback.member.memberId.eq(memberId)
                         .and(feedback.houseworkComplete.houseWorkCompleteId.eq(houseworkCompleteId)))
-                .fetchOne();
+                .fetch();
     }
 
 }

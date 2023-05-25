@@ -84,12 +84,16 @@ public class FeedbackService {
 
     public Feedback modify(Long houseworkCompleteId, String comment, Long memberId) {
 
-        Feedback feedback = feedbackRepository.getFeedback(houseworkCompleteId, memberId);
-        if(feedback == null){
-            throw new BadRequestException("존재하지 않는 피드백입니다.");
+        List<Feedback> feedbacks = feedbackRepository.getFeedback(houseworkCompleteId, memberId);
+
+        for(Feedback feedback : feedbacks){
+            if(feedback.getEmoji().equals(0)){
+                feedback.updateComment(comment);
+                return feedback;
+            }
         }
-        feedback.updateComment(comment);
-        return feedback;
+
+        return null;
     }
 
     public Feedback find(Long feedbackId) {

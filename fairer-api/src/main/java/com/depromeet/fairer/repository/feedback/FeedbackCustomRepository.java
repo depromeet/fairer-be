@@ -2,7 +2,9 @@ package com.depromeet.fairer.repository.feedback;
 
 import com.depromeet.fairer.domain.feedback.Feedback;
 
+import java.util.List;
+
 public interface FeedbackCustomRepository {
 
-    Feedback getFeedback(Long houseworkCompleteId, Long memberId);
+    List<Feedback> getFeedback(Long houseworkCompleteId, Long memberId);
 }
