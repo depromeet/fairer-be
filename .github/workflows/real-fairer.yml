@@ -64,8 +64,8 @@ jobs:
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v19
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}     # github secrets로 등록한 값 사용
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # github secrets로 등록한 값 사용
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID_REAL }}     # github secrets로 등록한 값 사용
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_REAL }} # github secrets로 등록한 값 사용
           application_name: fairer         # EB application 이름
           environment_name: Fairer-env    # EB environment 이름
           version_label: github-action-${{steps.current-time.outputs.formattedTime}}

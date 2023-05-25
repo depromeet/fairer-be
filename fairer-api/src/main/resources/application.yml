@@ -116,7 +116,7 @@ springfox:
     enabled: false
 
 swagger:
-  url: http://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com:8080
+  url: http://fairer-env.eba-w7ubjjfy.ap-northeast-2.elasticbeanstalk.com/
   desc: for real usages
 
 # JWT token
