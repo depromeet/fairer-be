@@ -1,5 +1,7 @@
 package com.depromeet.fairer.dto.housework.request;
 
+import com.depromeet.fairer.domain.housework.HouseWork;
+import com.depromeet.fairer.domain.housework.constant.RepeatCycle;
 import com.depromeet.fairer.domain.preset.Space;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -48,7 +50,23 @@ public class HouseWorkUpdateRequestDto {
     @ApiModelProperty(value = "집안일 반복 주기", example = "O / D / W / M", notes = "단일: O, 매일: D, 주마다: W, 달마다: M")
     private String repeatCycle;
 
-    @ApiModelProperty(value = "집안일 반복 요일", example = "repeatCycle이 weekly일 경우: monday, sunday / monthly일 경우: 31")
+//    @ApiModelProperty(value = "집안일 반복 요일", example = "월수")
+//    private String repeatDayOfWeek;
+
+    public HouseWork toEntity() {
+        return HouseWork.builder()
+                .space(space)
+                .houseWorkName(houseWorkName)
+                .scheduledDate(scheduledDate)
+                .scheduledTime(scheduledTime)
+                //.repeatDayOfWeek(repeatDayOfWeek)
+                .repeatCycle(RepeatCycle.of(repeatCycle))
+                .success(false)
+                .successDateTime(null)
+                .build();
+    }
+
+    @ApiModelProperty(value = "집안일 반복 패턴", example = "repeatCycle이 weekly일 경우: monday, sunday / monthly일 경우: 31")
     private String repeatPattern;
 
     @ApiModelProperty(value = "집안일 종료일", example = "2022-07-02", required = true)

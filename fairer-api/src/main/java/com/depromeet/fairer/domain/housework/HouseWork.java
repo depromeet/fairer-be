@@ -61,7 +61,7 @@ public class HouseWork extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "repeat_cycle", columnDefinition = "VARCHAR(30)")
-    private  RepeatCycle repeatCycle;
+    private RepeatCycle repeatCycle;
 
     @Column(name = "repeat_pattern", columnDefinition = "VARCHAR(100)")
     private String repeatPattern;
@@ -77,7 +77,7 @@ public class HouseWork extends BaseTimeEntity {
 
     public boolean isIncludingDate(LocalDate date) {
         if (repeatEndDate != null && date.isAfter(repeatEndDate)) {
-                return false;
+            return false;
         }
         boolean result = true;
         if (repeatCycle == RepeatCycle.WEEKLY) {
@@ -92,6 +92,16 @@ public class HouseWork extends BaseTimeEntity {
         return result && (date.isEqual(scheduledDate) || date.isAfter(scheduledDate));
     }
 
+    public void updateRepeatEndDateByCycle(LocalDate deleteStandardDate) {
+        if (repeatCycle == RepeatCycle.DAILY) {
+            repeatEndDate = deleteStandardDate.minusDays(1);
+        } else if (repeatCycle == RepeatCycle.WEEKLY) {
+            repeatEndDate = deleteStandardDate.minusWeeks(1);
+        } else if (repeatCycle == RepeatCycle.MONTHLY) {
+            repeatEndDate = deleteStandardDate.minusMonths(1);
+        }
+    }
+    
     public void deleteRepeatEndDateByCycle(LocalDate deleteStandardDate) {
         repeatEndDate = deleteStandardDate.minusDays(1);
     }
