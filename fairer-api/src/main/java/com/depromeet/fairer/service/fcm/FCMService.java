@@ -84,9 +84,9 @@ public class FCMService {
             throw new BadRequestException("이미 완료된 집안일입니다.");    // houseworkComplete exception
         }
 
-        String[] sentences = {"아직 " + houseWork.getHouseWorkName() + "이 남아있어요. 서둘러 처리해주세요.",
-                "오늘은 " + houseWork.getHouseWorkName() + " 하는 날이에요. " + houseWork.getHouseWorkName() + "을 해주세요!",
-                "재촉알림이 왔어요!"};
+        String[] sentences = {"아직 " + houseWork.getHouseWorkName() + " 남아있어요. 서둘러 처리해주세요.\uD83D\uDCA1",
+                "오늘은 " + houseWork.getHouseWorkName() + " 하는 날이에요. " + houseWork.getHouseWorkName() + " 해주세요!\uD83E\uDD14",
+                "재촉알림이 왔어요!\uD83D\uDE4C"};
         int index = new Random().nextInt(sentences.length);     // 랜덤으로 재촉메세지 생성
 
         List<Member> members = getAssignedMemberList(houseworkId);  // 할당된 멤버에게 모두 전송
@@ -102,6 +102,19 @@ public class FCMService {
         }
 
         return response;
+    }
+
+    public FCMMessageResponse sendUpdate(Long memberId) {
+
+        Member member = findMemberOrThrow(memberId);
+
+        String updates = member.getMemberName() + "님, 업데이트를 통해 새로워진 페어러를 만나보세요!\uD83E\uDD17" +
+                "https://play.google.com/store/apps/details?id=com.depromeet.housekeeper";
+
+        FCMSendRequest fcmSendRequest = createMessage(member.getFcmToken(), "업데이트 알림", updates);
+        String body = convertFCMSendRequestToString(fcmSendRequest);
+        this.sendFCMMessage(body);
+        return FCMMessageResponse.of("업데이트", updates, memberId);
     }
 
 
@@ -130,7 +143,7 @@ public class FCMService {
     }
 
     @Async(value = "fcmTaskExecutor")
-    private void sendFCMMessage(String body) {
+    public void sendFCMMessage(String body) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken());
@@ -158,5 +171,10 @@ public class FCMService {
     private HouseWork findHouseWorkOrThrow(Long houseworkId) {
         return houseWorkRepository.findById(houseworkId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일입니다."));
+    }
+
+    private Member findMemberOrThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
     }
 }
