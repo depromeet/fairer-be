@@ -12,7 +12,7 @@ import org.checkerframework.checker.units.qual.C;
 public class OauthRequestDto {
 
     @ApiModelProperty(value = "소셜 로그인 타입 (GOOGLE)")
-    private SocialType socialType;
+    private SocialType socialType = SocialType.GOOGLE;
 
     @ApiModelProperty(value = "로그인 클라이언트 타입")
     private ClientType clientType = ClientType.ANDROID;

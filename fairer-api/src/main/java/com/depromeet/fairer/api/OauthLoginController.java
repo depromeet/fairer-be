@@ -39,19 +39,28 @@ public class OauthLoginController {
         final SocialType socialType = oauthRequestDto.getSocialType();
         ResponseJwtTokenDto jwtTokenDto;
 
-        if (oauthRequestDto.getClientType() == ClientType.ANDROID) {
+        if (socialType == SocialType.GOOGLE && oauthRequestDto.getClientType() == ClientType.ANDROID) {
             final String accessToken = oauthLoginService.getAccessToken(httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION)); // access token 발급
             oauthLoginService.validateLoginParams(socialType, accessToken);
             jwtTokenDto = oauthLoginService.login(socialType, accessToken);
 
-        } else if (oauthRequestDto.getClientType() == ClientType.IOS) {
+        } else if (socialType == SocialType.GOOGLE && oauthRequestDto.getClientType() == ClientType.IOS) {
             final String tokenString = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
 
             if (tokenString == null || tokenString.isEmpty()) {
                 throw new BadRequestException("토큰이 없습니다.");
             }
 
-            jwtTokenDto = oauthLoginService.loginIos(tokenString);
+            jwtTokenDto = oauthLoginService.googleLoginIos(tokenString);
+
+        } else if (socialType == SocialType.APPLE && oauthRequestDto.getClientType() == ClientType.IOS) {
+            final String tokenString = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+
+            if (tokenString == null || tokenString.isEmpty()) {
+                throw new BadRequestException("토큰이 없습니다.");
+            }
+
+            jwtTokenDto = oauthLoginService.loginAppleIos(tokenString);
 
         } else {
             throw new BadRequestException("클라이언트 타입이 올바르지 않습니다.");
