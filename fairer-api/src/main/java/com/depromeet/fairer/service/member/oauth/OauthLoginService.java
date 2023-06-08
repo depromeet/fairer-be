@@ -9,6 +9,7 @@ import com.depromeet.fairer.dto.member.jwt.TokenDto;
 import com.depromeet.fairer.dto.member.oauth.OAuthAttributes;
 import com.depromeet.fairer.dto.member.oauth.OauthLoginDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
+import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
 import com.depromeet.fairer.repository.alarm.AlarmRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
@@ -21,21 +22,36 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.firebase.ErrorCode;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.InvalidParameterException;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.RSAPublicKeySpec;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -99,7 +115,7 @@ public class OauthLoginService {
         return googleFeignService.getAccess(authorizationCode);
     }
 
-    public ResponseJwtTokenDto loginIos(String tokenString) {
+    public ResponseJwtTokenDto googleLoginIos(String tokenString) {
 
         Member requestMember;
         GoogleIdToken idToken = getVerifiedIdToken(tokenString);
@@ -133,6 +149,110 @@ public class OauthLoginService {
         return responseJwtTokenDto;
     }
 
+    public ResponseJwtTokenDto loginAppleIos(String tokenString) {
+        Member requestMember;
+
+        String[] decodeArray = tokenString.split("\\.");
+        String header = new String(Base64.getDecoder().decode(decodeArray[0]));
+
+        //apple에서 제공해주는 kid값과 일치하는지 알기 위해
+        JsonElement kid = ((JsonObject) JsonParser.parseString(header)).get("kid");
+        JsonElement alg = ((JsonObject) JsonParser.parseString(header)).get("alg");
+
+        PublicKey publicKey = this.getPublicKey(kid, alg);
+
+        Claims userInfo = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(tokenString).getBody();
+        JsonObject userInfoObject = JsonParser.parseString(userInfo.toString()).getAsJsonObject();
+        JsonElement appleAlg = userInfoObject.get("email");
+        String email = appleAlg.getAsString();
+
+        OAuthAttributes socialUserInfo = OAuthAttributes
+                                            .builder()
+                                                .email(email) // 이메일 동의 x 경우
+                                                .name("")
+                                                .socialType(SocialType.APPLE)
+                                            .build();
+
+        log.info("oauthAttributes: {}", socialUserInfo.toString());
+
+        final Optional<Member> foundMember = memberRepository.findWithTeamByEmail(email);
+
+        if (foundMember.isEmpty()) { // 기존 회원 아닐 때
+            Member newMember = Member.create(socialUserInfo);
+            requestMember = memberRepository.save(newMember);
+            alarmRepository.save(Alarm.create(requestMember));
+        } else {
+            requestMember = foundMember.get(); // 기존 회원일 때
+        }
+
+        // JWT 토큰 생성
+
+        return generateToken(requestMember);
+    }
+
+    private JsonArray getApplePublicKeys() {
+        StringBuilder apiKey = new StringBuilder();
+        try {
+            URL url = new URL("https://appleid.apple.com/auth/keys");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String line = "";
+
+            while ((line = br.readLine()) != null) {
+                apiKey.append(line);
+            }
+
+            JsonObject keys = (JsonObject) JsonParser.parseString(apiKey.toString());
+
+            return (JsonArray) keys.get("keys");
+        } catch (IOException e) {
+            throw new FairerException("URL 파싱 실패");
+        }
+    }
+
+    public PublicKey getPublicKey(JsonElement kid, JsonElement alg) {
+
+        JsonArray keys = this.getApplePublicKeys();
+
+        JsonObject avaliableObject = null;
+
+        for (int i = 0; i < keys.size(); i++) {
+            JsonObject appleObject = (JsonObject) keys.get(i);
+            JsonElement appleKid = appleObject.get("kid");
+            JsonElement appleAlg = appleObject.get("alg");
+
+            if (Objects.equals(appleKid, kid) && Objects.equals(appleAlg, alg)) {
+                avaliableObject = appleObject;
+                break;
+            }
+        }
+
+        //일치하는 공개키 없음
+        if (ObjectUtils.isEmpty(avaliableObject)) {
+            throw new BadRequestException("유호하지 않은 토큰입니다.");
+        }
+
+        String nStr = avaliableObject.get("n").toString();
+        String eStr = avaliableObject.get("e").toString();
+
+        byte[] nBytes = Base64.getUrlDecoder().decode(nStr.substring(1, nStr.length() - 1));
+        byte[] eBytes = Base64.getUrlDecoder().decode(eStr.substring(1, eStr.length() - 1));
+
+        BigInteger n = new BigInteger(1, nBytes);
+        BigInteger e = new BigInteger(1, eBytes);
+
+        try {
+            RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(n, e);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
+            return publicKey;
+        } catch (Exception exception) {
+            throw new FairerException("애플 로그인 퍼블릭 키를 불러오는데 실패했습니다.");
+        }
+    }
+
     public ResponseJwtTokenDto generateToken(Member member) {
         // JWT 토큰 생성
         TokenDto tokenDto = tokenProvider.createTokenDto(member.getMemberId());
@@ -161,11 +281,11 @@ public class OauthLoginService {
         String name = (String) payload.get("name");
 
         return OAuthAttributes
-                    .builder()
-                        .email(StringUtils.isBlank(email) ? userId : email) // 이메일 동의 x 경우
-                        .name(name)
-                        .socialType(SocialType.GOOGLE)
-                    .build();
+                .builder()
+                .email(StringUtils.isBlank(email) ? userId : email) // 이메일 동의 x 경우
+                .name(name)
+                .socialType(SocialType.GOOGLE)
+                .build();
     }
 
     public GoogleIdToken getVerifiedIdToken(String idTokenString) {
