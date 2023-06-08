@@ -159,27 +159,7 @@ public class OauthLoginService {
         JsonElement kid = ((JsonObject) JsonParser.parseString(header)).get("kid");
         JsonElement alg = ((JsonObject) JsonParser.parseString(header)).get("alg");
 
-        JsonArray keys = getApplePublicKeys();
-        //써야하는 Element (kid, alg 일치하는 element)
-        JsonObject avaliableObject = null;
-
-        for (int i = 0; i < keys.size(); i++) {
-            JsonObject appleObject = (JsonObject) keys.get(i);
-            JsonElement appleKid = appleObject.get("kid");
-            JsonElement appleAlg = appleObject.get("alg");
-
-            if (Objects.equals(appleKid, kid) && Objects.equals(appleAlg, alg)) {
-                avaliableObject = appleObject;
-                break;
-            }
-        }
-
-        //일치하는 공개키 없음
-        if (ObjectUtils.isEmpty(avaliableObject)) {
-            throw new BadRequestException("유호하지 않은 토큰입니다.");
-        }
-
-        PublicKey publicKey = this.getPublicKey(avaliableObject);
+        PublicKey publicKey = this.getPublicKey(kid, alg);
 
         Claims userInfo = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(tokenString).getBody();
         JsonObject userInfoObject = JsonParser.parseString(userInfo.toString()).getAsJsonObject();
@@ -210,8 +190,6 @@ public class OauthLoginService {
         return generateToken(requestMember);
     }
 
-
-
     private JsonArray getApplePublicKeys() {
         StringBuilder apiKey = new StringBuilder();
         try {
@@ -234,9 +212,30 @@ public class OauthLoginService {
         }
     }
 
-    public PublicKey getPublicKey(JsonObject object) {
-        String nStr = object.get("n").toString();
-        String eStr = object.get("e").toString();
+    public PublicKey getPublicKey(JsonElement kid, JsonElement alg) {
+
+        JsonArray keys = this.getApplePublicKeys();
+
+        JsonObject avaliableObject = null;
+
+        for (int i = 0; i < keys.size(); i++) {
+            JsonObject appleObject = (JsonObject) keys.get(i);
+            JsonElement appleKid = appleObject.get("kid");
+            JsonElement appleAlg = appleObject.get("alg");
+
+            if (Objects.equals(appleKid, kid) && Objects.equals(appleAlg, alg)) {
+                avaliableObject = appleObject;
+                break;
+            }
+        }
+
+        //일치하는 공개키 없음
+        if (ObjectUtils.isEmpty(avaliableObject)) {
+            throw new BadRequestException("유호하지 않은 토큰입니다.");
+        }
+
+        String nStr = avaliableObject.get("n").toString();
+        String eStr = avaliableObject.get("e").toString();
 
         byte[] nBytes = Base64.getUrlDecoder().decode(nStr.substring(1, nStr.length() - 1));
         byte[] eBytes = Base64.getUrlDecoder().decode(eStr.substring(1, eStr.length() - 1));
