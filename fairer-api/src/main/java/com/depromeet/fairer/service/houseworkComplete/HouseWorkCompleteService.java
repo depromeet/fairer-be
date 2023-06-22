@@ -21,6 +21,7 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,24 +63,20 @@ public class HouseWorkCompleteService {
             Long memberId,
             MonthlyHouseWorkStatisticRequestDto requestDto
     ) {
+
         Member currentMember = memberRepository.findById(memberId).orElseThrow(
-                () -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다.")
-        );
+                () -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다."));
 
-        List<HouseWorkCompleteStatisticsVo> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkName(
-                currentMember.getTeam().getTeamId(),
-                YearMonth.from(requestDto.getMonth()),
-                requestDto.getHouseWorkName());
+        List<Member> members = memberRepository.findAllByTeam(currentMember.getTeam());
 
-        List<MemberHouseWorkStatisticDto> houseWorkStatics = teamHouseWorkStatistics.stream().map(
-                statistic -> {
-                    Member member = statistic.getMember();
-                    Long count = statistic.getCompleteCount();
-                    return MemberHouseWorkStatisticDto.of(member, count);
-                }
-        ).collect(Collectors.toList());
+        List<MemberHouseWorkStatisticDto> result = new ArrayList<>();
+        for(Member member : members){
+            Long completeCount = (long) houseWorkCompleteRepository.findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(
+                    member.getMemberId(), YearMonth.from(requestDto.getMonth()), requestDto.getHouseWorkName()).size();
+            result.add(MemberHouseWorkStatisticDto.of(member, completeCount));
+        }
 
-        return MonthlyHouseWorkStatisticResponseDto.of(houseWorkStatics);
+        return MonthlyHouseWorkStatisticResponseDto.of(result);
     }
 
     public MonthlyHouseWorkStatisticResponseDto getMonthlyHouseWorkRanking(Long memberId, LocalDate month) {

@@ -1,5 +1,6 @@
 package com.depromeet.fairer.repository.houseworkcomplete;
 
+import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.vo.houseWorkComplete.HouseWorkCompleteStatisticsVo;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
@@ -70,6 +71,21 @@ public class HouseWorkCompleteCustomRepositoryImpl implements HouseWorkCompleteC
                         houseworkComplete.successDateTime.between(startTimeOfMonth, endTimeOfMonth))
                 .groupBy(member)
                 .orderBy(member.count().desc())
+                .fetch();
+    }
+
+    @Override
+    public List<HouseworkComplete> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(Long memberId, YearMonth month, String houseWorkName) {
+        LocalDateTime startTimeOfMonth = month.atDay(1) .atStartOfDay();
+        LocalDateTime endTimeOfMonth = month.atEndOfMonth().atTime(LocalTime.MAX);
+
+        return jpaQueryFactory.selectFrom(houseworkComplete)
+                .leftJoin(houseWork).on(houseWork.houseWorkId.eq(houseworkComplete.houseWork.houseWorkId))
+                .leftJoin(assignment).on(houseWork.houseWorkId.eq(assignment.houseWork.houseWorkId))
+                .leftJoin(member).on(assignment.member.memberId.eq(member.memberId))
+                .where(assignment.member.memberId.eq(memberId),
+                        houseworkComplete.successDateTime.between(startTimeOfMonth, endTimeOfMonth),
+                        houseworkComplete.houseWork.houseWorkName.eq(houseWorkName))
                 .fetch();
     }
 
