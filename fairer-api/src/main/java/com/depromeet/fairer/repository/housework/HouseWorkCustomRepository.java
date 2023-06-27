@@ -13,4 +13,6 @@ public interface HouseWorkCustomRepository {
     List<HouseWorkQueryResponseDto> getCycleHouseWorkQuery(LocalDate date, Long memberId);
 
     List<HouseWorkQueryResponseDto> getCycleHouseWorkByTeamQuery(LocalDate date, Team team);
+
+    List<HouseWork> getCycleHouseWorkByTeamMonth(LocalDate fromDate, LocalDate toDate, Team team);
 }

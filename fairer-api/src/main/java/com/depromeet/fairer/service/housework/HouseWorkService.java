@@ -16,6 +16,7 @@ import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.exception.PermissionDeniedException;
 import com.depromeet.fairer.repository.assignment.AssignmentRepository;
+import com.depromeet.fairer.repository.feedback.FeedbackRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.houseworkcomplete.HouseWorkCompleteRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
@@ -56,7 +57,7 @@ public class HouseWorkService {
 
     public HouseWorkResponseDto createHouseWork(Long memberId, HouseWorksCreateRequestDto requestDto) {
         if(!isValidRepeatPattern(RepeatCycle.of(requestDto.getRepeatCycle()), requestDto.getRepeatPattern())) {
-            throw new FairerException("유효하지 않은 파라미터 입니다.");
+            throw new BadRequestException("유효하지 않은 파라미터 입니다.");
         }
 
         final Team team = teamService.getTeam(memberId);
@@ -80,12 +81,16 @@ public class HouseWorkService {
             }
         } else if (repeatCycle == RepeatCycle.WEEKLY) {
             String[] params = repeatPattern.split(",");
-            for(String param : params) {
-                if(Arrays.stream(DayOfWeek.values()).noneMatch(dayOfWeek -> dayOfWeek == DayOfWeek.valueOf(param))) {
+
+            return Arrays.stream(params).allMatch(param -> {
+                try {
+                    DayOfWeek.valueOf(param);
+                    return true;
+                } catch (IllegalArgumentException e) {
                     return false;
                 }
-            }
-            return true;
+            });
+
         } else if (repeatCycle == RepeatCycle.MONTHLY) {
             return 1 <= Integer.parseInt(repeatPattern) && Integer.parseInt(repeatPattern) <= 31;
         }
@@ -349,6 +354,11 @@ public class HouseWorkService {
     private HouseWork getHouseWorkById(Long houseWorkId) {
         return houseWorkRepository.findById(houseWorkId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 집안일 입니다."));
+    }
+
+    public List<HouseWork> getStatisticList(Team team, LocalDate date) {
+
+        return houseWorkRepository.getCycleHouseWorkByTeamMonth(date.withDayOfMonth(1), date.withDayOfMonth(date.lengthOfMonth()), team);
     }
 
 }
