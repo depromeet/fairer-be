@@ -113,7 +113,7 @@ spring:
 # swagger
 springfox:
   documentation:
-    enabled: false
+    enabled: true
 
 swagger:
   url: http://fairer-env.eba-w7ubjjfy.ap-northeast-2.elasticbeanstalk.com
