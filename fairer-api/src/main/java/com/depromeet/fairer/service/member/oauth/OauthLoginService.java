@@ -38,6 +38,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -149,7 +151,7 @@ public class OauthLoginService {
         return responseJwtTokenDto;
     }
 
-    public ResponseJwtTokenDto loginAppleIos(String tokenString) {
+    public ResponseJwtTokenDto loginAppleIos(String tokenString) throws JsonProcessingException {
         Member requestMember;
 
         String[] decodeArray = tokenString.split("\\.");
@@ -162,7 +164,15 @@ public class OauthLoginService {
         PublicKey publicKey = this.getPublicKey(kid, alg);
 
         Claims userInfo = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(tokenString).getBody();
-        JsonObject userInfoObject = JsonParser.parseString(userInfo.toString()).getAsJsonObject();
+
+        // json 파싱 다시
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = objectMapper.writeValueAsString(userInfo);
+        log.info("json: :::::::::" + jsonString);
+
+        //JsonObject userInfoObject = JsonParser.parseString(userInfo.toString()).getAsJsonObject();
+        JsonObject userInfoObject = (JsonObject) JsonParser.parseString(jsonString);
+
         JsonElement appleAlg = userInfoObject.get("email");
         String email = appleAlg.getAsString();
 
