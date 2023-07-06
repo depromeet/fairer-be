@@ -35,7 +35,7 @@ public class FeedbackService {
 
         if (!Objects.equals(comment, "")) {
             for (Feedback fb : feedbacks) {
-                if (fb.getEmoji().equals(0)) {
+                if (fb.isCreator(memberId) && fb.getEmoji().equals(0)) {
                     throw new BadRequestException("텍스트 피드백은 하나만 작성할 수 있습니다.");
                 }
             }
