@@ -99,6 +99,10 @@ public class DoHouseworkJobConfig {
     }
 
     private FCMMessageRequest getFCMMessageRequest(DoHouseworkCommand command) {
+
+        log.info("push test!!!!!!!!!!!!");
+        log.info("houseworkName ::::::::::::::::::: " + command.getHouseworkName());
+
         Long memberId = command.getMemberId();
         String title = String.format(FCMMessageTemplate.DO_HOUSEWORK.getTitle(), command.getHouseworkName());
         String body = String.format(FCMMessageTemplate.DO_HOUSEWORK.getBody(), command.getScheduledTime().format(DateTimeFormatter.ofPattern("a hh시 mm분")), command.getScheduledTime().get(ChronoField.CLOCK_HOUR_OF_AMPM), command.getScheduledTime().get(ChronoField.MINUTE_OF_HOUR));
