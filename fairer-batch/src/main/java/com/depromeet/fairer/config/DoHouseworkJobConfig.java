@@ -89,6 +89,7 @@ public class DoHouseworkJobConfig {
     public ItemWriter<DoHouseworkCommand> doHouseworkWriter() {
         return items -> {
             for(DoHouseworkCommand item : items) {
+                log.info("pushtest :::: " + item.getHouseworkName());
                 String uri = UriComponentsBuilder.fromHttpUrl(properties.getApiUrl())
                         .path("/api/fcm/message")
                         .encode().build().toString();
