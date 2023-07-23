@@ -10,7 +10,7 @@ name: real-fairer
 on:
   workflow_dispatch:
   push:
-    branches: [ feat/real ]
+    branches: [ main ]
 
 jobs:
   build:
