@@ -11,6 +11,7 @@ import com.depromeet.fairer.dto.member.oauth.OauthLoginDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
+import com.depromeet.fairer.global.exception.NoSuchMemberException;
 import com.depromeet.fairer.repository.alarm.AlarmRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.memberToken.MemberTokenRepository;
@@ -22,7 +23,6 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.firebase.ErrorCode;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -70,6 +70,9 @@ public class OauthLoginService {
 
     @Value("${oauth2.clientId}")
     private String CLIENT_ID;
+
+    @Value("${token.secret}")
+    private String TOKEN_SECRET;
 
     public ResponseJwtTokenDto createMemberAndJwt(OauthLoginDto oauthLoginDto) {
         // 소셜 회원 정보 조회
@@ -355,5 +358,16 @@ public class OauthLoginService {
         final MemberToken memberToken = memberTokenRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new MemberTokenNotFoundException("해당 리프레시 토큰이 존재하지 않습니다."));
         memberToken.expire(now);
+    }
+
+    public void signOut(Long memberId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchMemberException("해당 멤버가 존재하지 않습니다."));
+
+        member.setDeletedAt(LocalDateTime.now());
+        memberRepository.save(member);
+
+        memberTokenRepository.updateExpirationTimeByMemberId(memberId, LocalDateTime.now());
     }
 }
