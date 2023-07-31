@@ -365,8 +365,7 @@ public class OauthLoginService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NoSuchMemberException("해당 멤버가 존재하지 않습니다."));
 
-        member.setDeletedAt(LocalDateTime.now());
-        memberRepository.save(member);
+        memberRepository.delete(member);
 
         memberTokenRepository.updateExpirationTimeByMemberId(memberId, LocalDateTime.now());
     }
