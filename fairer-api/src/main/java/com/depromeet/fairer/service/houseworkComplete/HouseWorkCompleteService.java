@@ -88,16 +88,23 @@ public class HouseWorkCompleteService {
                 () -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다.")
         );
 
-        List<HouseWorkCompleteStatisticsVo> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkRanking(
-                currentMember.getTeam().getTeamId(),
-                YearMonth.from(month));
+        List<MemberHouseWorkStatisticDto> memberHouseWorkStatisticDtos = new ArrayList<>();
+        for(Member member : currentMember.getTeam().getMembers()){
+            memberHouseWorkStatisticDtos.add(
+                    MemberHouseWorkStatisticDto.of(member, houseWorkCompleteRepository.findMonthlyHouseWorkByMember(member.getMemberId(), YearMonth.from(month))));
+        }
 
-        List<MemberHouseWorkStatisticDto> houseWorkStatics = teamHouseWorkStatistics.stream()
-                .map(statistic -> MemberHouseWorkStatisticDto.of(statistic.getMember(), statistic.getCompleteCount()))
-                .sorted(Comparator.comparing(MemberHouseWorkStatisticDto::getHouseWorkCount).reversed())
-                .collect(Collectors.toList());
+//        List<HouseWorkCompleteStatisticsVo> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkRanking(
+//                currentMember.getTeam().getTeamId(),
+//                YearMonth.from(month));
+//
+//        List<MemberHouseWorkStatisticDto> houseWorkStatics = teamHouseWorkStatistics.stream()
+//                .map(statistic -> MemberHouseWorkStatisticDto.of(statistic.getMember(), statistic.getCompleteCount()))
+//                .sorted(Comparator.comparing(MemberHouseWorkStatisticDto::getHouseWorkCount).reversed())
+//                .collect(Collectors.toList());
 
-        return MonthlyHouseWorkStatisticResponseDto.of(houseWorkStatics);
+        memberHouseWorkStatisticDtos.sort(Comparator.comparing(MemberHouseWorkStatisticDto::getHouseWorkCount).reversed());
+        return MonthlyHouseWorkStatisticResponseDto.of(memberHouseWorkStatisticDtos);
     }
 
 }

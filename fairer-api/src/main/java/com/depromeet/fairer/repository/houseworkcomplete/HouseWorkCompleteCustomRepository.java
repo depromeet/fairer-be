@@ -15,4 +15,6 @@ public interface HouseWorkCompleteCustomRepository {
     List<HouseWorkCompleteStatisticsVo> findMonthlyHouseWorkRanking(Long teamId, YearMonth month);
 
     List<HouseworkComplete> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(Long memberId, YearMonth from, String houseWorkName);
+
+    Long findMonthlyHouseWorkByMember(Long memberId, YearMonth month);
 }

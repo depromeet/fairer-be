@@ -89,6 +89,19 @@ public class HouseWorkCompleteCustomRepositoryImpl implements HouseWorkCompleteC
                 .fetch();
     }
 
+    @Override
+    public Long findMonthlyHouseWorkByMember(Long memberId, YearMonth month) {
+
+        LocalDateTime startTimeOfMonth = month.atDay(1) .atStartOfDay();
+        LocalDateTime endTimeOfMonth = month.atEndOfMonth().atTime(LocalTime.MAX);
+
+        return (long) jpaQueryFactory.selectFrom(houseworkComplete)
+                .where(houseworkComplete.member.memberId.eq(memberId),
+                        houseworkComplete.successDateTime.between(startTimeOfMonth, endTimeOfMonth))
+                .fetch()
+                .size();
+    }
+
     private BooleanExpression houseworkNameEq(String houseworkName) {
         return houseworkName != null? houseWork.houseWorkName.eq(houseworkName) : null;
     }
