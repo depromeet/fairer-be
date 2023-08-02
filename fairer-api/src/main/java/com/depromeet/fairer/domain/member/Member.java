@@ -1,6 +1,7 @@
 package com.depromeet.fairer.domain.member;
 
 import com.depromeet.fairer.domain.base.BaseTimeEntity;
+import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
 import com.depromeet.fairer.dto.member.oauth.OAuthAttributes;
 import com.depromeet.fairer.domain.assignment.Assignment;
 import com.depromeet.fairer.domain.team.Team;
@@ -53,6 +54,9 @@ public class Member extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Assignment> assignments;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HouseworkComplete> houseworkCompletes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")

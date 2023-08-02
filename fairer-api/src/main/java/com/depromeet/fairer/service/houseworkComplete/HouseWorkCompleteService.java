@@ -36,12 +36,15 @@ public class HouseWorkCompleteService {
     private final HouseWorkCompleteRepository houseWorkCompleteRepository;
     private final MemberRepository memberRepository;
 
-    public Long create(Long houseWorkId, LocalDate scheduledDate) {
+    public Long create(Long houseWorkId, LocalDate scheduledDate, Long memberId) {
 
         HouseWork houseWork = houseWorkRepository.findById(houseWorkId)
                 .orElseThrow(() -> new EntityNotFoundException("houseworkId: " + houseWorkId + "에 해당하는 집안일을 찾을 수 없습니다."));
 
-        HouseworkComplete complete = new HouseworkComplete(scheduledDate, houseWork, LocalDateTime.now());
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("memberId: " + memberId + "에 해당하는 멤버를 찾을 수 없습니다."));
+
+        HouseworkComplete complete = new HouseworkComplete(scheduledDate, houseWork, LocalDateTime.now(), member);
         return houseWorkCompleteRepository.save(complete).getHouseWorkCompleteId();
     }
 

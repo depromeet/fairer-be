@@ -2,6 +2,7 @@ package com.depromeet.fairer.domain.houseworkComplete;
 
 import com.depromeet.fairer.domain.feedback.Feedback;
 import com.depromeet.fairer.domain.housework.HouseWork;
+import com.depromeet.fairer.domain.member.Member;
 import lombok.*;
 
 import javax.persistence.*;
@@ -35,13 +36,19 @@ public class HouseworkComplete {
     @OneToMany(mappedBy = "houseworkComplete", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Feedback> feedbackList;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+
     public int countFeedback() {
         return this.feedbackList.size();
     }
 
-    public HouseworkComplete(LocalDate scheduledDate, HouseWork houseWork, LocalDateTime successDateTime) {
+    public HouseworkComplete(LocalDate scheduledDate, HouseWork houseWork, LocalDateTime successDateTime, Member member) {
         this.setScheduledDate(scheduledDate);
         this.setHouseWork(houseWork);
         this.setSuccessDateTime(successDateTime);
+        this.setMember(member);
     }
 }
