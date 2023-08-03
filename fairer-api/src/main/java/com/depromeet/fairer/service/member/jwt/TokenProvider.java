@@ -63,7 +63,7 @@ public class TokenProvider {
         String accessToken = createAccessToken(memberId, accessTokenExpireTime);
         String refreshToken = createRefreshToken(memberId, refreshTokenExpireTime);
 
-        final MemberToken memberToken = MemberToken.create(refreshToken, DateTimeUtils.convertToLocalDateTime(refreshTokenExpireTime));
+        final MemberToken memberToken = MemberToken.create(refreshToken, DateTimeUtils.convertToLocalDateTime(refreshTokenExpireTime), memberId);
         memberTokenRepository.save(memberToken);
 
         return TokenDto.builder()

@@ -5,18 +5,18 @@ import com.depromeet.fairer.dto.member.oauth.OauthRequestDto;
 import com.depromeet.fairer.dto.member.jwt.ResponseJwtTokenDto;
 import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.depromeet.fairer.global.exception.BadRequestException;
+import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.member.oauth.OauthLoginService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.EnumUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -86,5 +86,18 @@ public class OauthLoginController {
     public ResponseEntity<String> logout(@RequestHeader(value = "Authorization") String refreshToken) {
         oauthLoginService.logout(refreshToken, LocalDateTime.now());
         return ResponseEntity.ok().body("로그아웃이 완료되었습니다.");
+    }
+
+    /**
+     * 회원 탈퇴
+     */
+
+    @Tag(name = "oauth")
+    @PostMapping(value = "/signout")
+    @Operation(summary = "회원 탈퇴", description = "토큰에 해당하는 멤버의 refresh token 만료 처리")
+    public ResponseEntity<String> signOut(@ApiIgnore @RequestMemberId Long memberId) {
+
+        oauthLoginService.signOut(memberId);
+        return ResponseEntity.ok().body("회원 탈퇴가 완료되었습니다.");
     }
 }

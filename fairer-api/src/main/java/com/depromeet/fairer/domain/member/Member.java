@@ -7,6 +7,8 @@ import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -28,6 +30,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Where(clause = "deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE member SET deleted_at = NOW() WHERE member_id = ?")
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -63,6 +67,9 @@ public class Member extends BaseTimeEntity {
 
     @Column(name = "fcm_token_date", columnDefinition = "DATETIME")
     private LocalDateTime fcmTokenDate;
+
+    @Column(name = "deleted_at", columnDefinition = "DATETIME")
+    private LocalDateTime deletedAt;
 
     /**
      * TODO 닉네임 동의 안했을 때 처리 (입력한 닉네임으로 변경)
