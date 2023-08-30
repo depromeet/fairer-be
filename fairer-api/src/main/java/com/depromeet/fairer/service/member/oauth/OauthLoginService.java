@@ -16,6 +16,8 @@ import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.memberToken.MemberTokenRepository;
 import com.depromeet.fairer.service.member.jwt.TokenProvider;
 import com.depromeet.fairer.service.member.oauth.google.GoogleFeignService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -149,7 +151,7 @@ public class OauthLoginService {
         return responseJwtTokenDto;
     }
 
-    public ResponseJwtTokenDto loginAppleIos(String tokenString) {
+    public ResponseJwtTokenDto loginAppleIos(String tokenString) throws JsonProcessingException {
         Member requestMember;
 
         String[] decodeArray = tokenString.split("\\.");
@@ -162,16 +164,24 @@ public class OauthLoginService {
         PublicKey publicKey = this.getPublicKey(kid, alg);
 
         Claims userInfo = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(tokenString).getBody();
-        JsonObject userInfoObject = JsonParser.parseString(userInfo.toString()).getAsJsonObject();
+
+        // json 파싱 다시
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = objectMapper.writeValueAsString(userInfo);
+        log.info("json: :::::::::" + jsonString);
+
+        //JsonObject userInfoObject = JsonParser.parseString(userInfo.toString()).getAsJsonObject();
+        JsonObject userInfoObject = (JsonObject) JsonParser.parseString(jsonString);
+
         JsonElement appleAlg = userInfoObject.get("email");
         String email = appleAlg.getAsString();
 
         OAuthAttributes socialUserInfo = OAuthAttributes
-                                            .builder()
-                                                .email(email) // 이메일 동의 x 경우
-                                                .name("")
-                                                .socialType(SocialType.APPLE)
-                                            .build();
+                .builder()
+                .email(email) // 이메일 동의 x 경우
+                .name("")
+                .socialType(SocialType.APPLE)
+                .build();
 
         log.info("oauthAttributes: {}", socialUserInfo.toString());
 

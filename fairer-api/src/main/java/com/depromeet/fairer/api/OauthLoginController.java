@@ -6,6 +6,7 @@ import com.depromeet.fairer.dto.member.jwt.ResponseJwtTokenDto;
 import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.service.member.oauth.OauthLoginService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +34,7 @@ public class OauthLoginController {
     @Tag(name = "oauth")
     @PostMapping(value = "/login", headers = {"Content-type=application/json"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "OAuth 로그인 API", description = "Authorization code로 로그인 시 JWT 토큰 반환, 현재 GOOGLE만 지원")
-    public ResponseEntity<ResponseJwtTokenDto> loginOauth(@Valid @RequestBody OauthRequestDto oauthRequestDto, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ResponseJwtTokenDto> loginOauth(@Valid @RequestBody OauthRequestDto oauthRequestDto, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         log.info("=== Oauth login start ===");
 
         final SocialType socialType = oauthRequestDto.getSocialType();
