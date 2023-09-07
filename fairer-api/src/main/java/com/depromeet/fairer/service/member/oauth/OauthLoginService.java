@@ -396,10 +396,6 @@ public class OauthLoginService {
         member.setProfilePath(defaultProfileUrl);
         member.delete();
 
-        memberRepository.findAll();
-
-        System.out.println(houseWorkRepository.findAll().size());
-
         memberTokenRepository.updateExpirationTimeByMemberId(memberId, LocalDateTime.now());
     }
 }
