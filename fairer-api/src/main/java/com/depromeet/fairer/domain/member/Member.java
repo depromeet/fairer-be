@@ -7,6 +7,7 @@ import com.depromeet.fairer.domain.team.Team;
 import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.depromeet.fairer.global.exception.CannotJoinTeamException;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -108,5 +109,13 @@ public class Member extends BaseTimeEntity {
         this.memberName = memberName;
         this.profilePath = profilePath;
         this.statusMessage = statusMessage;
+    }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

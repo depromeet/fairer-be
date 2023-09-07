@@ -23,10 +23,12 @@ public class MemberDto {
     private String profilePath;
 
     public static MemberDto from(Member member) {
+        String memberName = member.isDeleted() ? "알 수 없음" : member.getMemberName();
+        String profilePath = member.isDeleted() ? "" : member.getProfilePath();
         return MemberDto.builder()
                 .memberId(member.getMemberId())
-                .memberName(member.getMemberName())
-                .profilePath(member.getProfilePath())
+                .memberName(memberName)
+                .profilePath(profilePath)
                 .build();
     }
 

@@ -86,6 +86,14 @@ public class HouseWorkCustomRepositoryImpl implements HouseWorkCustomRepository 
                 ).fetch();
     }
 
+    @Override
+    public void updateAllByHouseWorkIdSetRepeatEndDate(List<Long> houseWorkIds, LocalDate date) {
+        jpaQueryFactory.update(houseWork)
+                .set(houseWork.repeatEndDate, date)
+                .where(houseWork.houseWorkId.in(houseWorkIds))
+                .execute();
+    }
+
 
     @Override
     public List<HouseWork> getCycleHouseWorkByTeamMonth(LocalDate fromDate, LocalDate toDate, Team team) {

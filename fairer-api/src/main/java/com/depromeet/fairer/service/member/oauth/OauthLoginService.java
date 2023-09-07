@@ -1,6 +1,8 @@
 package com.depromeet.fairer.service.member.oauth;
 
 import com.depromeet.fairer.domain.alarm.Alarm;
+import com.depromeet.fairer.domain.assignment.Assignment;
+import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.depromeet.fairer.domain.memberToken.MemberToken;
@@ -13,6 +15,8 @@ import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
 import com.depromeet.fairer.global.exception.NoSuchMemberException;
 import com.depromeet.fairer.repository.alarm.AlarmRepository;
+import com.depromeet.fairer.repository.assignment.AssignmentRepository;
+import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.memberToken.MemberTokenRepository;
 import com.depromeet.fairer.service.member.jwt.TokenProvider;
@@ -52,8 +56,11 @@ import java.security.InvalidParameterException;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.RSAPublicKeySpec;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -67,6 +74,8 @@ public class OauthLoginService {
     private final MemberRepository memberRepository;
     private final MemberTokenRepository memberTokenRepository;
     private final AlarmRepository alarmRepository;
+    private final AssignmentRepository assignmentRepository;
+    private final HouseWorkRepository houseWorkRepository;
 
     @Value("${oauth2.clientId}")
     private String CLIENT_ID;
@@ -188,7 +197,7 @@ public class OauthLoginService {
 
         log.info("oauthAttributes: {}", socialUserInfo.toString());
 
-        final Optional<Member> foundMember = memberRepository.findWithTeamByEmail(email);
+        final Optional<Member> foundMember = memberRepository.findByEmail(email);
 
         if (foundMember.isEmpty()) { // 기존 회원 아닐 때
             Member newMember = Member.create(socialUserInfo);
@@ -365,7 +374,29 @@ public class OauthLoginService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NoSuchMemberException("해당 멤버가 존재하지 않습니다."));
 
-        memberRepository.delete(member);
+        List<Assignment> memberAssignmentList = assignmentRepository.findAllByMember(member);
+
+        List<HouseWork> beStoppedHousework = assignmentRepository.findAllHouseWorkByAssignmentIdInAndHasOnlyAssignee(
+                memberAssignmentList.stream()
+                            .map(Assignment::getAssignmentId)
+                            .collect(Collectors.toList()
+                        ));
+
+        List<Long> beStoppedHouseworkIdList = beStoppedHousework.stream()
+                .map(HouseWork::getHouseWorkId)
+                .collect(Collectors.toList());
+
+        houseWorkRepository.updateAllByHouseWorkIdSetRepeatEndDate(beStoppedHouseworkIdList, LocalDate.now().minusDays(1));
+
+        assignmentRepository.deleteAllByMember(member);
+
+        member.setEmail(member.getEmail() + "_deleted_at_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+
+        member.delete();
+
+        memberRepository.findAll();
+
+        System.out.println(houseWorkRepository.findAll().size());
 
         memberTokenRepository.updateExpirationTimeByMemberId(memberId, LocalDateTime.now());
     }
