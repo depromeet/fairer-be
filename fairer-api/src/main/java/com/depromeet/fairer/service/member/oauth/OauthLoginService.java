@@ -390,8 +390,10 @@ public class OauthLoginService {
 
         assignmentRepository.deleteAllByMember(member);
 
-        member.setEmail(member.getEmail() + "_deleted_at_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        String defaultProfileUrl = "https://firebasestorage.googleapis.com/v0/b/fairer-def59.appspot.com/o/fairer-profile-images%2Fic_profile1.svg?alt=media&token=13ef5688-3e56-452d-9c63-763958427674";
 
+        member.setEmail(member.getEmail() + "_deleted_at_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        member.setProfilePath(defaultProfileUrl);
         member.delete();
 
         memberRepository.findAll();
