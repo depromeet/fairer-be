@@ -1,6 +1,7 @@
 package com.depromeet.fairer.repository.houseworkcomplete;
 
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
+import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.vo.houseWorkComplete.HouseWorkCompleteStatisticsVo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -89,14 +90,15 @@ public class HouseWorkCompleteCustomRepositoryImpl implements HouseWorkCompleteC
     }
 
     @Override
-    public Long getMonthlyCountByMember(Long memberId, YearMonth month) {
+    public Long getMonthlyCountByMember(Member member, YearMonth month) {
 
         LocalDateTime startTimeOfMonth = month.atDay(1) .atStartOfDay();
         LocalDateTime endTimeOfMonth = month.atEndOfMonth().atTime(LocalTime.MAX);
 
         return (long) jpaQueryFactory.select(houseworkComplete.count())
-                .from(houseWork)
-                .where(houseworkComplete.member.memberId.eq(memberId),
+                .from(houseworkComplete)
+                .leftJoin(houseworkComplete.member).fetchJoin()
+                .where(houseworkComplete.member.eq(member),
                         houseworkComplete.successDateTime.between(startTimeOfMonth, endTimeOfMonth))
                 .fetchOne();
     }

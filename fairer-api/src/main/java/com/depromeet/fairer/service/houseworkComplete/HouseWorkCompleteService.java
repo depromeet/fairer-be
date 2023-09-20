@@ -91,17 +91,8 @@ public class HouseWorkCompleteService {
         List<MemberHouseWorkStatisticDto> memberHouseWorkStatisticDtos = new ArrayList<>();
         for(Member member : currentMember.getTeam().getMembers()){
             memberHouseWorkStatisticDtos.add(
-                    MemberHouseWorkStatisticDto.of(member, houseWorkCompleteRepository.getMonthlyCountByMember(member.getMemberId(), YearMonth.from(month))));
+                    MemberHouseWorkStatisticDto.of(member, houseWorkCompleteRepository.getMonthlyCountByMember(member, YearMonth.from(month))));
         }
-
-//        List<HouseWorkCompleteStatisticsVo> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkRanking(
-//                currentMember.getTeam().getTeamId(),
-//                YearMonth.from(month));
-//
-//        List<MemberHouseWorkStatisticDto> houseWorkStatics = teamHouseWorkStatistics.stream()
-//                .map(statistic -> MemberHouseWorkStatisticDto.of(statistic.getMember(), statistic.getCompleteCount()))
-//                .sorted(Comparator.comparing(MemberHouseWorkStatisticDto::getHouseWorkCount).reversed())
-//                .collect(Collectors.toList());
 
         memberHouseWorkStatisticDtos.sort(Comparator.comparing(MemberHouseWorkStatisticDto::getHouseWorkCount).reversed());
         return MonthlyHouseWorkStatisticResponseDto.of(memberHouseWorkStatisticDtos);
