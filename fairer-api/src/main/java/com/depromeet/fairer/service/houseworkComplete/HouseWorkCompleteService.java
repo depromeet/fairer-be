@@ -91,7 +91,7 @@ public class HouseWorkCompleteService {
         List<MemberHouseWorkStatisticDto> memberHouseWorkStatisticDtos = new ArrayList<>();
         for(Member member : currentMember.getTeam().getMembers()){
             memberHouseWorkStatisticDtos.add(
-                    MemberHouseWorkStatisticDto.of(member, houseWorkCompleteRepository.findMonthlyHouseWorkByMember(member.getMemberId(), YearMonth.from(month))));
+                    MemberHouseWorkStatisticDto.of(member, houseWorkCompleteRepository.getMonthlyCountByMember(member.getMemberId(), YearMonth.from(month))));
         }
 
 //        List<HouseWorkCompleteStatisticsVo> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkRanking(
