@@ -75,18 +75,19 @@ public class HouseWorkCompleteCustomRepositoryImpl implements HouseWorkCompleteC
     }
 
     @Override
-    public List<HouseworkComplete> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(Long memberId, YearMonth month, String houseWorkName) {
+    public Long findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(Member member, YearMonth month, String houseWorkName) {
         LocalDateTime startTimeOfMonth = month.atDay(1) .atStartOfDay();
         LocalDateTime endTimeOfMonth = month.atEndOfMonth().atTime(LocalTime.MAX);
 
-        return jpaQueryFactory.selectFrom(houseworkComplete)
-                .leftJoin(houseWork).on(houseWork.houseWorkId.eq(houseworkComplete.houseWork.houseWorkId))
-                .leftJoin(assignment).on(houseWork.houseWorkId.eq(assignment.houseWork.houseWorkId))
-                .leftJoin(member).on(assignment.member.memberId.eq(member.memberId))
-                .where(assignment.member.memberId.eq(memberId),
+        return (long) jpaQueryFactory.select(houseworkComplete.count())
+                .from(houseworkComplete)
+                .leftJoin(houseWork).on(houseWork.eq(houseworkComplete.houseWork))
+                .leftJoin(assignment).on(houseWork.eq(assignment.houseWork))
+                .leftJoin(assignment.member).on(assignment.member.eq(member))
+                .where(houseworkComplete.member.eq(member),
                         houseworkComplete.successDateTime.between(startTimeOfMonth, endTimeOfMonth),
                         houseworkComplete.houseWork.houseWorkName.eq(houseWorkName))
-                .fetch();
+                .fetchOne();
     }
 
     @Override

@@ -74,8 +74,8 @@ public class HouseWorkCompleteService {
 
         List<MemberHouseWorkStatisticDto> result = new ArrayList<>();
         for(Member member : members){
-            Long completeCount = (long) houseWorkCompleteRepository.findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(
-                    member.getMemberId(), YearMonth.from(requestDto.getMonth()), requestDto.getHouseWorkName()).size();
+            Long completeCount = houseWorkCompleteRepository.findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(
+                    member, YearMonth.from(requestDto.getMonth()), requestDto.getHouseWorkName());
             result.add(MemberHouseWorkStatisticDto.of(member, completeCount));
         }
 
