@@ -1,8 +1,8 @@
 package com.depromeet.fairer.repository.houseworkcomplete;
 
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
+import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.vo.houseWorkComplete.HouseWorkCompleteStatisticsVo;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -75,18 +75,33 @@ public class HouseWorkCompleteCustomRepositoryImpl implements HouseWorkCompleteC
     }
 
     @Override
-    public List<HouseworkComplete> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(Long memberId, YearMonth month, String houseWorkName) {
+    public Long findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(Member member, YearMonth month, String houseWorkName) {
         LocalDateTime startTimeOfMonth = month.atDay(1) .atStartOfDay();
         LocalDateTime endTimeOfMonth = month.atEndOfMonth().atTime(LocalTime.MAX);
 
-        return jpaQueryFactory.selectFrom(houseworkComplete)
-                .leftJoin(houseWork).on(houseWork.houseWorkId.eq(houseworkComplete.houseWork.houseWorkId))
-                .leftJoin(assignment).on(houseWork.houseWorkId.eq(assignment.houseWork.houseWorkId))
-                .leftJoin(member).on(assignment.member.memberId.eq(member.memberId))
-                .where(assignment.member.memberId.eq(memberId),
+        return (long) jpaQueryFactory.select(houseworkComplete.count())
+                .from(houseworkComplete)
+                .leftJoin(houseWork).on(houseWork.eq(houseworkComplete.houseWork))
+                .leftJoin(assignment).on(houseWork.eq(assignment.houseWork))
+                .leftJoin(assignment.member).on(assignment.member.eq(member))
+                .where(houseworkComplete.member.eq(member),
                         houseworkComplete.successDateTime.between(startTimeOfMonth, endTimeOfMonth),
                         houseworkComplete.houseWork.houseWorkName.eq(houseWorkName))
-                .fetch();
+                .fetchOne();
+    }
+
+    @Override
+    public Long getMonthlyCountByMember(Member member, YearMonth month) {
+
+        LocalDateTime startTimeOfMonth = month.atDay(1) .atStartOfDay();
+        LocalDateTime endTimeOfMonth = month.atEndOfMonth().atTime(LocalTime.MAX);
+
+        return (long) jpaQueryFactory.select(houseworkComplete.count())
+                .from(houseworkComplete)
+                .leftJoin(houseworkComplete.member).fetchJoin()
+                .where(houseworkComplete.member.eq(member),
+                        houseworkComplete.successDateTime.between(startTimeOfMonth, endTimeOfMonth))
+                .fetchOne();
     }
 
     private BooleanExpression houseworkNameEq(String houseworkName) {
