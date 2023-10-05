@@ -22,7 +22,6 @@ public interface HouseWorkRepository extends JpaRepository<HouseWork, Long>, Hou
     List<HouseWork> findAllByScheduledDateAndAssignmentsIn(LocalDate scheduledDate, List<Assignment> assignments);
     List<HouseWork> findAllByScheduledDateBetweenAndAssignmentsIn(LocalDate fromDate, LocalDate toDate, List<Assignment> assignments);
     List<HouseWork> findAllByScheduledDateBetweenAndTeam(LocalDate fromDate, LocalDate toDate, Team team);
-
     @EntityGraph(attributePaths = {"team"})
     Optional<HouseWork> findWithTeamByHouseWorkId(Long houseWorkId);
 
