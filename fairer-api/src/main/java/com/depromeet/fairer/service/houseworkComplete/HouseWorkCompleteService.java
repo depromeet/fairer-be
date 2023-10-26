@@ -36,12 +36,15 @@ public class HouseWorkCompleteService {
     private final HouseWorkCompleteRepository houseWorkCompleteRepository;
     private final MemberRepository memberRepository;
 
-    public Long create(Long houseWorkId, LocalDate scheduledDate) {
+    public Long create(Long houseWorkId, LocalDate scheduledDate, Long memberId) {
 
         HouseWork houseWork = houseWorkRepository.findById(houseWorkId)
                 .orElseThrow(() -> new EntityNotFoundException("houseworkId: " + houseWorkId + "에 해당하는 집안일을 찾을 수 없습니다."));
 
-        HouseworkComplete complete = new HouseworkComplete(scheduledDate, houseWork, LocalDateTime.now());
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("memberId: " + memberId + "에 해당하는 멤버를 찾을 수 없습니다."));
+
+        HouseworkComplete complete = new HouseworkComplete(scheduledDate, houseWork, LocalDateTime.now(), member);
         return houseWorkCompleteRepository.save(complete).getHouseWorkCompleteId();
     }
 
@@ -71,8 +74,8 @@ public class HouseWorkCompleteService {
 
         List<MemberHouseWorkStatisticDto> result = new ArrayList<>();
         for(Member member : members){
-            Long completeCount = (long) houseWorkCompleteRepository.findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(
-                    member.getMemberId(), YearMonth.from(requestDto.getMonth()), requestDto.getHouseWorkName()).size();
+            Long completeCount = houseWorkCompleteRepository.findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(
+                    member, YearMonth.from(requestDto.getMonth()), requestDto.getHouseWorkName());
             result.add(MemberHouseWorkStatisticDto.of(member, completeCount));
         }
 
@@ -85,16 +88,14 @@ public class HouseWorkCompleteService {
                 () -> new NoSuchMemberException("memberId에 해당하는 회원을 찾지 못했습니다.")
         );
 
-        List<HouseWorkCompleteStatisticsVo> teamHouseWorkStatistics = houseWorkCompleteRepository.findMonthlyHouseWorkRanking(
-                currentMember.getTeam().getTeamId(),
-                YearMonth.from(month));
+        List<MemberHouseWorkStatisticDto> memberHouseWorkStatisticDtos = new ArrayList<>();
+        for(Member member : currentMember.getTeam().getMembers()){
+            memberHouseWorkStatisticDtos.add(
+                    MemberHouseWorkStatisticDto.of(member, houseWorkCompleteRepository.getMonthlyCountByMember(member, YearMonth.from(month))));
+        }
 
-        List<MemberHouseWorkStatisticDto> houseWorkStatics = teamHouseWorkStatistics.stream()
-                .map(statistic -> MemberHouseWorkStatisticDto.of(statistic.getMember(), statistic.getCompleteCount()))
-                .sorted(Comparator.comparing(MemberHouseWorkStatisticDto::getHouseWorkCount).reversed())
-                .collect(Collectors.toList());
-
-        return MonthlyHouseWorkStatisticResponseDto.of(houseWorkStatics);
+        memberHouseWorkStatisticDtos.sort(Comparator.comparing(MemberHouseWorkStatisticDto::getHouseWorkCount).reversed());
+        return MonthlyHouseWorkStatisticResponseDto.of(memberHouseWorkStatisticDtos);
     }
 
 }

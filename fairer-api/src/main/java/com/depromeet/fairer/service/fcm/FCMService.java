@@ -1,5 +1,6 @@
 package com.depromeet.fairer.service.fcm;
 
+import com.depromeet.fairer.domain.fcm.FcmMessage;
 import com.depromeet.fairer.domain.feedback.Feedback;
 import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
@@ -13,6 +14,7 @@ import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.exception.NoSuchMemberException;
 import com.depromeet.fairer.global.factory.RestTemplateFactory;
+import com.depromeet.fairer.repository.fcm.FcmMessageRepository;
 import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.houseworkcomplete.HouseWorkCompleteRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
@@ -51,6 +53,8 @@ public class FCMService {
     private final MemberRepository memberRepository;
     private final HouseWorkRepository houseWorkRepository;
     private final HouseWorkCompleteRepository houseWorkCompleteRepository;
+
+    private final FcmMessageRepository fcmMessageRepository;
 
     public SaveTokenResponse saveToken(SaveTokenRequest request, Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -102,6 +106,9 @@ public class FCMService {
             String body = convertFCMSendRequestToString(fcmSendRequest);
             this.sendFCMMessage(body);
             response.add(FCMMessageResponse.of("재촉하기", sentences[index], member.getMemberId()));
+
+            FcmMessage message = FcmMessage.create(member.getMemberId(), "재촉하기", sentences[index]);
+            fcmMessageRepository.save(message);
         }
 
         return response;

@@ -1,6 +1,8 @@
 package com.depromeet.fairer.service.member.oauth;
 
 import com.depromeet.fairer.domain.alarm.Alarm;
+import com.depromeet.fairer.domain.assignment.Assignment;
+import com.depromeet.fairer.domain.housework.HouseWork;
 import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.member.constant.SocialType;
 import com.depromeet.fairer.domain.memberToken.MemberToken;
@@ -11,7 +13,10 @@ import com.depromeet.fairer.dto.member.oauth.OauthLoginDto;
 import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.exception.FairerException;
 import com.depromeet.fairer.global.exception.MemberTokenNotFoundException;
+import com.depromeet.fairer.global.exception.NoSuchMemberException;
 import com.depromeet.fairer.repository.alarm.AlarmRepository;
+import com.depromeet.fairer.repository.assignment.AssignmentRepository;
+import com.depromeet.fairer.repository.housework.HouseWorkRepository;
 import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.memberToken.MemberTokenRepository;
 import com.depromeet.fairer.service.member.jwt.TokenProvider;
@@ -24,7 +29,6 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.firebase.ErrorCode;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -40,6 +44,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,8 +58,11 @@ import java.security.InvalidParameterException;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.RSAPublicKeySpec;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -67,9 +76,14 @@ public class OauthLoginService {
     private final MemberRepository memberRepository;
     private final MemberTokenRepository memberTokenRepository;
     private final AlarmRepository alarmRepository;
+    private final AssignmentRepository assignmentRepository;
+    private final HouseWorkRepository houseWorkRepository;
 
     @Value("${oauth2.clientId}")
     private String CLIENT_ID;
+
+    @Value("${token.secret}")
+    private String TOKEN_SECRET;
 
     public ResponseJwtTokenDto createMemberAndJwt(OauthLoginDto oauthLoginDto) {
         // 소셜 회원 정보 조회
@@ -185,7 +199,7 @@ public class OauthLoginService {
 
         log.info("oauthAttributes: {}", socialUserInfo.toString());
 
-        final Optional<Member> foundMember = memberRepository.findWithTeamByEmail(email);
+        final Optional<Member> foundMember = memberRepository.findByEmail(email);
 
         if (foundMember.isEmpty()) { // 기존 회원 아닐 때
             Member newMember = Member.create(socialUserInfo);
@@ -355,5 +369,35 @@ public class OauthLoginService {
         final MemberToken memberToken = memberTokenRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new MemberTokenNotFoundException("해당 리프레시 토큰이 존재하지 않습니다."));
         memberToken.expire(now);
+    }
+
+    public void signOut(Long memberId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchMemberException("해당 멤버가 존재하지 않습니다."));
+
+        List<Assignment> memberAssignmentList = assignmentRepository.findAllByMember(member);
+
+        List<HouseWork> beStoppedHousework = assignmentRepository.findAllHouseWorkByAssignmentIdInAndHasOnlyAssignee(
+                memberAssignmentList.stream()
+                            .map(Assignment::getAssignmentId)
+                            .collect(Collectors.toList()
+                        ));
+
+        List<Long> beStoppedHouseworkIdList = beStoppedHousework.stream()
+                .map(HouseWork::getHouseWorkId)
+                .collect(Collectors.toList());
+
+        houseWorkRepository.updateAllByHouseWorkIdSetRepeatEndDate(beStoppedHouseworkIdList, LocalDate.now().minusDays(1));
+
+        assignmentRepository.deleteAllByMember(member);
+
+        String defaultProfileUrl = "https://firebasestorage.googleapis.com/v0/b/fairer-def59.appspot.com/o/fairer-profile-images%2Fic_profile1.svg?alt=media&token=13ef5688-3e56-452d-9c63-763958427674";
+
+        member.setEmail(member.getEmail() + "_deleted_at_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        member.setProfilePath(defaultProfileUrl);
+        member.delete();
+
+        memberTokenRepository.updateExpirationTimeByMemberId(memberId, LocalDateTime.now());
     }
 }

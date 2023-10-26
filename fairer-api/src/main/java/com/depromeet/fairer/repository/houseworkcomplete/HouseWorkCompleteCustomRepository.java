@@ -1,6 +1,7 @@
 package com.depromeet.fairer.repository.houseworkcomplete;
 
 import com.depromeet.fairer.domain.houseworkComplete.HouseworkComplete;
+import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.vo.houseWorkComplete.HouseWorkCompleteStatisticsVo;
 import com.querydsl.core.Tuple;
 
@@ -14,5 +15,7 @@ public interface HouseWorkCompleteCustomRepository {
 
     List<HouseWorkCompleteStatisticsVo> findMonthlyHouseWorkRanking(Long teamId, YearMonth month);
 
-    List<HouseworkComplete> findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(Long memberId, YearMonth from, String houseWorkName);
+    Long findMonthlyHouseWorkStatisticByTeamIdAndHouseWorkNameV2(Member member, YearMonth from, String houseWorkName);
+
+    Long getMonthlyCountByMember(Member member, YearMonth month);
 }

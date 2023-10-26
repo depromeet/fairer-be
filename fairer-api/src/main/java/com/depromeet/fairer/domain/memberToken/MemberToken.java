@@ -1,6 +1,7 @@
 package com.depromeet.fairer.domain.memberToken;
 
 import com.depromeet.fairer.domain.base.BaseTimeEntity;
+import com.depromeet.fairer.domain.member.Member;
 import com.depromeet.fairer.domain.memberToken.constant.RemainingTokenTime;
 import lombok.*;
 
@@ -20,14 +21,20 @@ public class MemberToken extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long memberTokenId;
 
+    @Column(name = "refresh_token", columnDefinition = "VARCHAR(255)", unique = true)
     private String refreshToken;
 
+    @Column(name = "token_expiration_time", columnDefinition = "DATETIME")
     private LocalDateTime tokenExpirationTime;
 
-    public static MemberToken create(String refreshToken, LocalDateTime tokenExpiredTime) {
+    @Column(name = "member_id", columnDefinition = "BIGINT")
+    private Long memberId;
+
+    public static MemberToken create(String refreshToken, LocalDateTime tokenExpiredTime, Long memberId) {
         final MemberToken memberToken = MemberToken.builder()
                 .refreshToken(refreshToken)
                 .tokenExpirationTime(tokenExpiredTime)
+                .memberId(memberId)
                 .build();
 
         return memberToken;

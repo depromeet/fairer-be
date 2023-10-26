@@ -6,7 +6,7 @@ spring:
     active: "local"
   batch:
     job:
-      enabled: false
+      enabled: true
     jdbc:
       initialize-schema: never
   main:
@@ -45,9 +45,14 @@ spring:
   config:
     activate:
       on-profile: ["dev"]
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
 
   datasource:
-    url: jdbc:mysql://fairer-database.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer_dev
+    url: jdbc:mysql://fairer-db.c60onxitcaoj.ap-northeast-2.rds.amazonaws.com:3306/fairer_dev
     driverClassName: com.mysql.cj.jdbc.Driver
     username: 'fairer'
     password: '>BRLtas~%j2>(\6#eC2M'
@@ -63,10 +68,10 @@ spring:
       on-profile: "real"
 
   datasource:
-    url: jdbc:mysql://fairer-database.crfymtbz3gz1.ap-northeast-2.rds.amazonaws.com:3306/fairer
+    url: jdbc:mysql://fairer-db.c60onxitcaoj.ap-northeast-2.rds.amazonaws.com:3306/fairer
     driverClassName: com.mysql.cj.jdbc.Driver
     username: 'fairer'
     password: '>BRLtas~%j2>(\6#eC2M'
 
 domain:
-  apiUrl: https://fairer-env.eba-synb99hd.ap-northeast-2.elasticbeanstalk.com
+  apiUrl: http://fairer-env.eba-w7ubjjfy.ap-northeast-2.elasticbeanstalk.com

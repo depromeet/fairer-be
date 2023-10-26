@@ -70,14 +70,13 @@ public class StatisticController {
 
         }
 
-        List<StatisticResponseDto> response = new ArrayList<>();
-        statistic.forEach((name, count) -> {
-            if (count > 0) {
-                response.add(StatisticResponseDto.from(name, count));
-            }
-        });
+        List<StatisticResponseDto> result = statistic.entrySet().stream()
+                .filter(entry -> entry.getValue() > 0)
+                .map(entry -> StatisticResponseDto.from(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(StatisticResponseDto::getHouseWorkCount).reversed())
+                .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new StatisticResponseDto.StatisticResponseDtoList(response));
+        return ResponseEntity.ok(new StatisticResponseDto.StatisticResponseDtoList(result));
     }
 
     @Tag(name = "statistics")
