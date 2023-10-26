@@ -8,6 +8,7 @@ import com.depromeet.fairer.global.exception.BadRequestException;
 import com.depromeet.fairer.global.resolver.RequestMemberId;
 import com.depromeet.fairer.service.member.oauth.OauthLoginService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

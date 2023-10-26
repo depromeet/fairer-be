@@ -21,6 +21,8 @@ import com.depromeet.fairer.repository.member.MemberRepository;
 import com.depromeet.fairer.repository.memberToken.MemberTokenRepository;
 import com.depromeet.fairer.service.member.jwt.TokenProvider;
 import com.depromeet.fairer.service.member.oauth.google.GoogleFeignService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -189,11 +191,11 @@ public class OauthLoginService {
         String email = appleAlg.getAsString();
 
         OAuthAttributes socialUserInfo = OAuthAttributes
-                                            .builder()
-                                                .email(email) // 이메일 동의 x 경우
-                                                .name("")
-                                                .socialType(SocialType.APPLE)
-                                            .build();
+                .builder()
+                .email(email) // 이메일 동의 x 경우
+                .name("")
+                .socialType(SocialType.APPLE)
+                .build();
 
         log.info("oauthAttributes: {}", socialUserInfo.toString());
 

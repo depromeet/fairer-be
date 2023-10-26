@@ -59,6 +59,9 @@ public class FCMService {
     public SaveTokenResponse saveToken(SaveTokenRequest request, Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("memberId에 해당하는 회원을 찾지 못했습니다."));
+
+        log.info("fcm 토큰 ::::: " + request.getToken());
+
         member.setFcmToken(request.getToken());
         member.setFcmTokenDate(LocalDateTime.now());
         memberRepository.save(member);
